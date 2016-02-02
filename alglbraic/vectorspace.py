@@ -1,4 +1,4 @@
-from .fragment import *
+from fragments import *
 from sympy import Symbol, symbols
 # Usage:
 # Pass in a product operation in terms of float u[N] and float v[N].

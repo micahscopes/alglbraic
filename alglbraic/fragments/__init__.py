@@ -19,4 +19,4 @@ class Fragment:
 
     @classmethod
     def get(self,name):
-        return resource_string(__name__,'fragments/'+name)
+        return resource_string(__name__,name)
