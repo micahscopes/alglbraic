@@ -58,15 +58,6 @@ Vect permutate(Vect A,bool conj) {
     return permutated;
 }
 
-float[N] pwr(float a[N],int n) {
-	float r[N] = a;
-	for (int i=0;i<n-1;i++){
-	   r = mul(r,a);
-    }
-    return r;
-}
-
-
 bool inside(vec3 pt) {
     P = permutation(Permutation);
     float z[N] = addFrame(O,pt);

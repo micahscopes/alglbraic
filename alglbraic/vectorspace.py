@@ -11,6 +11,7 @@ class VectorSpace(Fragment):
     def __init__(self, dimensions, product=noProduct):
         self.dims = dimensions
         self.product = product
+        Fragment.__init__(self)
 
     def head(self):
         return "const int N = "+str(self.dims)
