@@ -1,44 +1,17 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from sympy import symbols, sin, cos, simplify, Symbol
-from sympy.galgebra.ga import MV
-from sympy.galgebra.printing import enhance_print
-import re
-import sys
-import math
-#import argparse
+
 
 def loadVector(coefs):
     s = "float[N](" + ", ".join(map(lambda i: str(i),coefs))+");"
     return s;
 
-g = map(lambda i: e[0].blades_flat1[i],range(bases))
-gMVs = map(lambda i: MV(g[i]),range(bases))
-a = map(lambda i: Symbol('a'+getter(i)), xrange(bases))
-b = map(lambda i: Symbol('b'+getter(i)), xrange(bases))
-
-As = map(lambda i: a[i]*g[i],range(bases))
-Bs = map(lambda i: b[i]*g[i],range(bases))
-
-add = lambda b,r: b+r
-A = MV(reduce(add,As))
-B = MV(reduce(add,Bs))
-G = MV(reduce(add,g))
-I = MV(g[bases-1])
-
-#Gram Schmidt process as described by http://vixra.org/pdf/1306.0176v1.pdf
-def orthogonalize(v):
-    outer = lambda b,r: b^r
-    V = map(lambda j: reduce(outer,map(lambda i: v.grade(i),range(j))),range(1,len(v.blades_flat1)+1))
-    return reduce(add,map(lambda k: V[k].rev()*V[k+1],range(len(V)-1)))
-OrthoA = orthogonalize(A)
-
-
 ### write the glsl shader pieces
 computeRange = "[-2,0,2]"
 frameDimRange = ("[(1,1,1),(1,2,3),"+str((bases,)*3)+"]").decode('unicode_escape').encode('ascii','ignore')
 nHidden = bases-3
-gl = """#version 130
+header = """#version 130
 #define providesInside
 #define providesInit
 
@@ -81,20 +54,6 @@ gl += """
     const Vect I = """+loadVect(I)+"""
 
 """
-
-AinB = A|B
-gl += ("Vect inner(Vect a, Vect b){\n")
-gl += ("return ")
-gl += loadVect(AinB)
-gl += ("\n}\n\n")
-
-AoutB = A^B
-gl += ("Vect outer(Vect a, Vect b){\n")
-gl += ("return ")
-gl += loadVect(AoutB)
-gl += ("\n}\n\n")
-
-AgB = AinB + AoutB # reusing these computations
 gl += ("Vect g(Vect a, Vect b){\n")
 gl += ("return ")
 gl += loadVect(AgB)
@@ -128,21 +87,22 @@ gl += """}
 }
 """
 
-gl += ("Vect loadPositions(Vect g){\n")
+
 gl += """
-    for(int i = 0; i<"""+str(bases)+"""; i++) {
-        g = set(g,i,getPosition(i));
+float[N] loadPositions(float u[N]){
+    for(int i = 0; i<N; i++) {
+        u[i] = getPosition(i);
     }
-    return g;
+    return u;
 }
     """
 
-gl += ("Vect addFrame(Vect g, vec3 p){\n")
 gl += """
+Vect addFrame(Vect g, vec3 p){
     if(frame.x == frame.y || frame.y == frame.z || frame.x == frame.z) {
         return g; //error, please set frame indices to be different
     }
-    for(int i = 0; i<"""+str(bases)+"""; i++) {
+    for(int i = 0; i<N; i++) {
         if (i == frame.x-1) { g = set(g,i,p.x); }
         else if (i == frame.y-1) { g = set(g,i,p.y); }
         else if (i == frame.z-1) { g = set(g,i,p.z); }
@@ -218,12 +178,12 @@ Vect g3(Vect a,Vect b, Vect c) {
 	return g(a,g(b,c));
 }
 
-Vect gpwr(Vect a,int n) {
-	Vect r = a;
+float[N] mulpwr(float a[N],int n) {
+	float r[N] = a;
 	for (int i=0;i<n-1;i++){
-	r = g(r,a);
-}
-return r;
+	   r = mul(r,a);
+    }
+    return r;
 }
 
 Vect add(Vect a, Vect b) {
@@ -259,11 +219,12 @@ Vect iter(Vect z) {
 }
 
 """
-gl += "bool inside(vec3 pt) {"
+gl += ""
 # gl += "Vect R = "+loadVectCoefs(map(lambda i: "rot"+str(i+1),range(bases)))
 # def symb(name,i): return Symbol(name+"["+str(i)+"]");
 # ptsVect = loadVect(reduce(add,map(lambda i: symb("pt",i)*gMVs[i+1],[0,1,2])))
 gl += """
+bool inside(vec3 pt) {
     P = permutation(Permutation);
     Vect z = addFrame(O,pt);
     Vect z0 = z;

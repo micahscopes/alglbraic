@@ -1,12 +1,15 @@
 from setuptools import setup
 
-setup(name='glbraic',
+setup(name='alglbraic',
       version='0.1',
-      description='python tools for doing algebra in GLSL',
-      url='http://wondering.xyz/aglebraic',
+      description='Tools for doing algebra in GLSL',
+      url='http://wondering.xyz/alglbraic',
       author='micahscopes',
       author_email='fitchmicah@gmail.com',
       license='MIT',
-      packages=['glbraic'],
-      package_data={'glbraic': ['fragments/*.frag']}
+      packages=['alglbraic'],
+      package_data={'alglbraic': ['fragments/*.frag']},
+      install_requires=['sympy']
+      setup_requires=['pytest-runner'],
+      tests_require=['pytest'],
       zip_safe=False)

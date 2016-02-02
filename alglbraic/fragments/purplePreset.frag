@@ -1,0 +1,31 @@
+#preset Init
+FOV = 0.4
+Eye = -0.821733,-1.82625,2.23376
+Target = 2.11612,4.20274,-5.18381
+Up = -0.902532,-0.0745699,-0.424118
+EquiRectangular = false
+Gamma = 2.17595
+ToneMapping = 3
+Exposure = 0.3261
+Brightness = 1
+Contrast = 1
+Saturation = 1
+Specular = 1.5
+SpecularExp = 16
+SpotLight = 1,1,1,0.38043
+SpotLightDir = 0.1,0.1
+CamLight = 1,1,1,1
+CamLightMin = 0
+Glow = 1,1,1,0.16667
+Fog = 0
+BaseColor = 1,1,1
+OrbitStrength = 0.8
+X = 0.5,0.6,0.6,0.7
+Y = 1,0.6,0,0.4
+Z = 0.8,0.78,1,0.5
+R = 0.4,0.7,1,0.12
+BackgroundColor = 0.2,0.1,0.7
+GradientBackground = 2
+CycleColors = false
+Cycles = 1.1
+#endpreset
