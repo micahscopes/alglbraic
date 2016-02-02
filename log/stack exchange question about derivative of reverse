@@ -1,0 +1,5 @@
+If I have a geometric algebra $\mathcal G = Cl_{p,q}( \mathbb R)$ and a function $f: \mathcal G \to \mathcal G = f(M) = MMM^{\dagger},$ how do I compute $\nabla f $?
+
+According to David Hestenes, $\grave{F}\grave{\nabla} = (\nabla F)^\dagger$, where $\grave F \grave \nabla = \sum\delta_i F \mathbb e_i$ is the left derivative. So I figure that $\nabla (F^\dagger) = (\grave{F}\grave{\nabla})^\dagger $.  This was mentioned as a note in eq $3.15$ [here](http://geocalc.clas.asu.edu/pdf/NFMPchapt1.pdf), but I haven't found anything else about the interactions between $\nabla$ and the reversion, conjugation or involution operators.  I suppose this stuff might be obvious with some rigorous treatment
+
+From this I get $\nabla f(M) = (\nabla M)MM^\dagger + M(\nabla M)M^\dagger +MM(\grave M \grave \nabla)^\dagger$
