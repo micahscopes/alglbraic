@@ -1,6 +1,6 @@
 from .fragments import Fragments
 
-class VectorOperations(Fragments):
+class VectorSpaceGL(Fragments):
     def __init__(self, dims):
         self.dims = dims
 
