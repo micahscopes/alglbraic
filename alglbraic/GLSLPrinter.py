@@ -75,25 +75,25 @@ class GLSLPrinter(StrPrinter):
         coefs = map(lambda i: MV(expr).coef(MV(blades[i])),range(len(blades)))
         s = self._settings['MV_wrap'] % ", ".join(map(lambda co: (self._settings['element_wrap'] % self._print(co)),coefs))
         return s
-
-    def formatBinaryOperation(self,a,b,OPab,uStr="u[%i]",vStr="v[%i]"):
-        """Given lists a,b of sympy symbols and a map a,b -> OP(a,b),
-        returns GLSL formatted in terms of u[i],v[i]."""
-
-        u = map(lambda i: Symbol(uStr % i), xrange(len(a)))
-        v = map(lambda i: Symbol(vStr % i), xrange(len(b)))
-        OPuv = map(lambda OPab_i: OPab_i.subs(dict(zip(a,u)+zip(b,v))), OPab)
-        OPuvGL = map(lambda OPuv_i: self.makeGL(OPuv_i),OPuv)
-        return "float[N](%s)" % ", ".join(OPuvGL)
-
-    def formatUnaryOperation(self,a,OPa,uStr="u[%i]"):
-        """Given a list of sympy symbols a, and a map a->OP(a),
-        returns GLSL formatted in terms of u[i] -> OP(u[i])."""
-
-        u = map(lambda i: Symbol(uStr % i), xrange(len(a)))
-        OPu = map(lambda OPa_i: OPa_i.subs(dict(zip(a,u)+zip(b,v))), OPa)
-        OPuGL = map(lambda OPu_i: self.makeGL(OPu_i),OPu)
-        return "float[N](%s)" % ", ".join(OPuGL)
+    #
+    # def formatBinaryOperation(self,a,b,OPab,uStr="u[%i]",vStr="v[%i]"):
+    #     """Given lists a,b of sympy symbols and a map a,b -> OP(a,b),
+    #     returns GLSL formatted in terms of u[i],v[i]."""
+    #
+    #     u = map(lambda i: Symbol(uStr % i), xrange(len(a)))
+    #     v = map(lambda i: Symbol(vStr % i), xrange(len(b)))
+    #     OPuv = map(lambda OPab_i: OPab_i.subs(dict(zip(a,u)+zip(b,v))), OPab)
+    #     OPuvGL = map(lambda OPuv_i: self.makeGL(OPuv_i),OPuv)
+    #     return "float[N](%s)" % ", ".join(OPuvGL)
+    #
+    # def formatUnaryOperation(self,a,OPa,uStr="u[%i]"):
+    #     """Given a list of sympy symbols a, and a map a->OP(a),
+    #     returns GLSL formatted in terms of u[i] -> OP(u[i])."""
+    #
+    #     u = map(lambda i: Symbol(uStr % i), xrange(len(a)))
+    #     OPu = map(lambda OPa_i: OPa_i.subs(dict(zip(a,u)+zip(b,v))), OPa)
+    #     OPuGL = map(lambda OPu_i: self.makeGL(OPu_i),OPu)
+    #     return "float[N](%s)" % ", ".join(OPuGL)
 
     def makeGL(self,expr):
         return self._print(expr)

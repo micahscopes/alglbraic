@@ -18,6 +18,7 @@ return v;
 }
 
 
+
 int[N] permutation(int i)
 {
    int j, k = 0;
@@ -46,17 +47,20 @@ int[N] permutation(int i)
     return perm;
 }
 
-Vect permutate(Vect A,bool conj) {
-    Vect permutated = Vect0();
+Geo mutate(Geo A,int[N] perm,bool inv) {
+    Geo permutated = Geo0();
     for(int i = 0; i < N; i++) {
-        if(!conj) {
-            permutated = set(permutated,i,get(A,P[i]));
+        if(!inv) {
+            permutated = set(permutated,i,get(A,perm[i]));
         } else {
-            permutated = set(permutated,P[i],get(A,i));
+            permutated = set(permutated,perm[i],get(A,i));
         }
     }
     return permutated;
 }
+
+
+
 
 bool inside(vec3 pt) {
     P = permutation(Permutation);

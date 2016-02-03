@@ -4,21 +4,20 @@ from sympy import Symbol, symbols
 # Pass in a product operation in terms of float u[N] and float v[N].
 #
 
-class VectorSpace(Fragment):
+class VectorSpace(Composition):
     noProduct = """
-    Error: make sure to pass an expression for the product
+    Error: make sure to pass a Fragment defining the product
     in terms of u[i], v[j], with i,j in N.  You did not do this!"""
     def __init__(self, dimensions, product=noProduct):
+        if (product == self.noProduct):
+            raise NotImplementedError(self.noProduct);
+        Composition.__init__(self)
+        self._members = [product]
         self.dims = dimensions
         self.product = product
-        Fragment.__init__(self)
 
     def head(self):
         return "const int N = "+str(self.dims)
 
     def body(self):
-        if (self.product == self.noProduct):
-            raise NotImplementedError(self.noProduct);
-        body = Template(Fragment.get('vectorOperations.frag'))
-        body = body.safe_substitute(product=self.product)
-        return body
+        return Fragment.get('vectorBasics.frag')

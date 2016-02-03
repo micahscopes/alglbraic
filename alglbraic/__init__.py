@@ -1,6 +1,9 @@
 from fragments import *
-from .vectorspace import *
+from .VectorSpace import *
+from .VectorOperation import *
 from .GLSLPrinter import *
+from .FragmentariumParams import *
+from . import *
 
 if __name__ == "__main__":
     pass

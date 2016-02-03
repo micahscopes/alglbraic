@@ -1,5 +1,5 @@
 float[N] mul(float u[N], float v[N]) {
-  return $product;
+  return product(u,v);
 }
 
 float[N] mul(float a, float b[N]){
