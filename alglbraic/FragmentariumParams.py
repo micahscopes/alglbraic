@@ -3,7 +3,7 @@ from fragments import *
 class FragmentariumParams(Fragment):
     """This is a hack attack way of generating a bunch Fragmentarium uniforms
     to control glsl arrays (e.g. a 16 dimensional float array)."""
-    def __init__(self,var_name,size,var_type="float",size_const=None,rng=[-2.0,0.0,2.0],declare_size=False):
+    def __init__(self,var_name,size,var_type="float",size_const=None,rng="[-2,0,2]",declare_size=False):
         Fragment.__init__(self)
         self._head = ""
         self._body = ""
@@ -17,7 +17,7 @@ class FragmentariumParams(Fragment):
         load = ''
         for i in range(size):
             varN=var_name+str(i+1)
-            t = Template("$var_type $var[$N]; slider$rng\n")
+            t = Template("uniform $var_type $var; slider$rng\n")
             self._head += t.substitute(var_type=var_type,var=varN,N=size_const,rng=str(rng))
             load += Template("u[$i] = $var; ").substitute(var=varN,i=str(i))
         t = Template("""

@@ -27,16 +27,17 @@ int[N] permutationLexicographic(int i)
 }
 
 int[N] permutationLehmer(int n) {
-    int result[N] = int[N](0);
-    int working[N] = int[N](0);
+    int result[N];
+    int working[N];
     for (int i = 0; i < N; i++) {
         result[i] = i;
-        working[N] = i;
+        working[i] = i;
     }
+    int item;
     bool found = false;
     for (int i = 0; i < N; i++) {
         item = int(n % (N-i));
-        n = floor(n / (N-i));
+        n = int(floor(n / (N-i)));
         result[i] = working[item];
         for (int j = 0; j<N-i-1; j++) {
             if(working[j] == result[i]) {found = true;}
@@ -52,10 +53,10 @@ int[N] permutation(int n){
 }
 
 float[N] mutate(float A[N],int P[N],bool inverse) {
-    float permutated[N] = float[N](0);
+    float permutated[N];
     for(int i = 0; i < N; i++) {
         if(!inverse) {
-            permutated[i] = A[P[i]]));
+            permutated[i] = A[P[i]];
         } else {
             permutated[P[i]] = A[i];
         }

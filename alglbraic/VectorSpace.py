@@ -17,7 +17,7 @@ class VectorSpace(Composition):
         self.product = product
 
     def head(self):
-        return "const int N = "+str(self.dims)
+        return "const int N = "+str(self.dims)+";"
 
     def body(self):
         return Fragment.get('vectorBasics.frag')

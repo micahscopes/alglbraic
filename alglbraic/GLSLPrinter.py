@@ -20,7 +20,7 @@ class GLSLPrinter(StrPrinter):
         'full_prec': 'auto',
         'error_on_reserved': False,
         'reserved_word_suffix': '_',
-        'use_operators': False,
+        'use_operators': True,
         'MV_wrap': 'float[N](%s);',
         'element_wrap': '%s',
         'add_wrap': 'add(%s, %s)',

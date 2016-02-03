@@ -50,20 +50,20 @@ return v;
 float O[N];
 float JuliaVect[N];
 void init(){
-    O = float[N](0);
+    float O[N];
     loadParamsPosition(O);
-    loadParamsJuliaVect(O)
+    loadParamsJuliaVect(JuliaVect);
 	M1 = permutation(mutation1);
 	M2 = permutation(mutation2);
 	M3 = permutation(mutation3);
 	M4 = permutation(mutation4);
 }
 
-iter(inout float z[N]) {
+float[N] iter(inout float z[N]) {
 	return mul3(
-            pow(mutate(z,M1),pow1),
-            pow(mutate(z,M2),pow2),
-            pow(mutate(z,M3),pow3)
+            pow(mutate(z,M1,true),pow1),
+            pow(mutate(z,M2,true),pow2),
+            pow(mutate(z,M3,true),pow3)
             );
 }
 
@@ -85,14 +85,17 @@ bool inside(vec3 pt) {
 	return (r<Bailout);
 }"""
 feet = """ """
-dim = 8
-
-vs = VectorSpace(dim,Fragment("","PRODUCT!!!"))
+geo = GeometricAlgebra("[-1, -1]")
+N = geo.N
 frag = (
     Fragment(forehead.substitute(info="TEST RUN"))
-    + vs
-    + FragmentariumParams("JuliaVect",dim,size_const="N")
-    + FragmentariumParams("Position",dim,size_const="N")
+    + geo
+    + FragmentariumParams("JuliaVect",N,size_const="N")
+    + FragmentariumParams("Position",N,size_const="N")
+    + Fragment(None,Fragment.get('permutations.frag'))
     + Fragment(header,body,Fragment.get('purplePreset.frag'))
 )
-print frag.gl()
+gl = frag.gl()
+output = open("rudimentary.frag", "w")
+output.write(gl)
+output.close

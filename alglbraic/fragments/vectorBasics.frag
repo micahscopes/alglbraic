@@ -4,7 +4,7 @@ float[N] mul(float u[N], float v[N]) {
 
 float[N] mul(float a, float b[N]){
   float result[N];
-  for (i = 0; i < N; ++i){
+  for (int i = 0; i < N; ++i){
     result[i] = a*b[i];
   }
   return result;
@@ -26,7 +26,7 @@ float[N] mul3(float a[N], float b[N], float c[N]) {
   return mul(mul(a,b),c);
 }
 
-float[N] pwr(float a[N],int n) {
+float[N] pow(float a[N],int n) {
   // multiple a by itself n times: a -> a**n
 	float r[N] = a;
 	for (int i=0;i<n-1;i++){
@@ -37,16 +37,16 @@ float[N] pwr(float a[N],int n) {
 
 float[N] add(float a[N], float b[N]) {
   float c[N];
-  for (i = 0; i < N; ++i){
-    result[i] = a[i]+b[i];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]+b[i];
   }
   return c;
 }
 
 float[N] sub(float a[N], float b[N]) {
   float c[N];
-  for (i = 0; i < N; ++i){
-    result[i] = a[i]-b[i];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]-b[i];
   }
   return c;
 }

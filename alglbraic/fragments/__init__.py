@@ -4,7 +4,10 @@ from ..GLSLPrinter import *
 
 squash = lambda L: reduce(lambda x,y: list(x)+list(y),
         map(lambda k: squash(k) if isinstance(k,(list,tuple,set)) else [k], L), [])
-uniq = lambda seq: [x for x in seq if not (x in seen or seen.add(x))]
+def uniq(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 class Fragment:
     def __init__(self,head=None,body=None,feet=None):
@@ -35,6 +38,7 @@ class Fragment:
         return parts;
 
     def gl(self,printer=None):
+        self.setPrinter(printer)
         parts = [p for p in squash(self.parts()) if p is not None]
         return "\n".join(parts)
 
@@ -53,20 +57,31 @@ class Composition(Fragment):
         self.unique = unique
         self.included = included
         self.last = last #include the self's parts last
-        if isinstance(left, Composition): left = left.members()
-        if isinstance(right, Composition): right = right.members()
+        # if isinstance(left, Composition): left = left.members()
+        # if isinstance(right, Composition): right = right.members()
         self._members = squash([left]+[right])
         self._members = [m for m in self._members if m is not None]
 
     def members(self):
         members = self._members
-        if (self.included): members += [self]
+        # if (self.included): members += [self]
         if (self.unique): members = uniq(members)
         return members
 
-    def gl(self,printer=None):
+    def setPrinter(self,printer):
         for m in self.members():
             m.setPrinter(printer)
-        parts = reduce(zip,map(lambda m: m.parts(),self.members()))
-        parts = [p for p in squash(parts) if p is not None]
-        return "\n".join(parts)
+
+    def parts(self):
+        parts = [self.head(),self.body(),self.feet()]
+        parts = zip(self.memberParts(),parts)
+        #parts = [p for p in squash(parts) if p is not None]
+        return parts;
+
+    def memberParts(self):
+        parts = reduce(zip,[m.parts() for m in self.members() if m != self])
+        return parts
+    #
+    # def gl(self,printer=None):
+    #     parts = [p for p in squash(self.parts()) if p is not None]
+    #     return "\n".join(self.parts())

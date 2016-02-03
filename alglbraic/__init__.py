@@ -3,6 +3,7 @@ from .VectorSpace import *
 from .VectorOperation import *
 from .GLSLPrinter import *
 from .FragmentariumParams import *
+from .GeometricAlgebra import *
 from . import *
 
 if __name__ == "__main__":
