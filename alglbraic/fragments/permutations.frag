@@ -49,7 +49,7 @@ int[N] permutationLehmer(int n) {
 
 int[N] permutation(int n){
   // choose which variation you want to use
-  return permutationLehmer(n);
+  return permutation$method(n);
 }
 
 float[N] mutate(float A[N],int P[N],bool inverse) {
@@ -66,4 +66,17 @@ float[N] mutate(float A[N],int P[N],bool inverse) {
 
 float[N] mutate(float A[N],int P[N]) {
   return mutate(A,P,false);
+}
+
+// the mutations
+int MA[N];
+int MB[N];
+int MC[N];
+int MD[N];
+
+void initMutations() {
+	MA = permutation(mutationA);
+	MB = permutation(mutationB);
+	MC = permutation(mutationC);
+	MD = permutation(mutationD);
 }

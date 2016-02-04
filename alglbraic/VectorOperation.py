@@ -37,5 +37,5 @@ $rtype $func($args) {
         result = result % ", ".join(results)
         return self._functionTemplate.substitute(func=name,rtype=rtype,args=args,result=result)
 
-    def body(self):
+    def lower(self):
         return self.compile(self.operation,self.vectors,self.results,self.symbols)

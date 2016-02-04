@@ -13,11 +13,11 @@ class VectorSpace(Composition):
             raise NotImplementedError(self.noProduct);
         Composition.__init__(self)
         self._members = [product]
-        self.dims = dimensions
+        self.N = dimensions
         self.product = product
 
-    def head(self):
-        return "const int N = "+str(self.dims)+";"
+    def upper(self):
+        return "const int N = "+str(self.N)+";"
 
-    def body(self):
+    def lower(self):
         return Fragment.get('vectorBasics.frag')

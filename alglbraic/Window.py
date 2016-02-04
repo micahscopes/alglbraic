@@ -34,10 +34,10 @@ return v;
             self.inits = ["const int N_window = %s;" % len(frames)]
         self.inits += [declare % (f,i+1,N) for i,f in enumerate(self.frames)]
 
-    def head(self):
+    def upper(self):
         return"\n".join(self.inits)
 
-    def body(self):
+    def lower(self):
         fr = self.frames
         if(len(fr) > 4):
             pointVar = "float p[N_window]"
@@ -45,7 +45,7 @@ return v;
             pointVar = "vec%i p" % len(fr)
         pairs = itertools.combinations(fr,2)
         logic = ["%s == %s" % (a,b) for a,b in pairs]
-        logic = " | ".join(logic)
+        logic = " || ".join(logic)
 
         addif = "       if (i == %s-1) { v[i] = p[%i]; }"
         addif = "\n ".join([addif % (f,i) for i,f in enumerate(fr)])

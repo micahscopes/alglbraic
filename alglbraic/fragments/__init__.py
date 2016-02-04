@@ -10,10 +10,11 @@ def uniq(seq):
     return [x for x in seq if not (x in seen or seen_add(x))]
 
 class Fragment:
-    def __init__(self,head=None,body=None,feet=None):
-        self._head = head
-        self._body = body
-        self._feet = feet
+    def __init__(self,upper=None,lower=None,bottom=None,top=None):
+        self._top = top
+        self._upper = upper
+        self._lower = lower
+        self._bottom = bottom
         self._printer = None
 
     def glPrinter(self):
@@ -26,16 +27,16 @@ class Fragment:
         return self.glPrinter().makeGL(*args,**kwargs)
     def setPrinter(self,printer):
         self._printer = printer
-
-    def head(self):
-        return self._head
-    def body(self):
-        return self._body
-    def feet(self):
-        f = self._feet
-        return self._feet
+    def top(self):
+        return self._top
+    def upper(self):
+        return self._upper
+    def lower(self):
+        return self._lower
+    def bottom(self):
+        return self._bottom
     def parts(self):
-        parts = [self.head(),self.body(),self.feet()]
+        parts = [self.top(),self.upper(),self.lower(),self.bottom()]
         return parts;
 
     def gl(self,printer=None):
@@ -74,7 +75,7 @@ class Composition(Fragment):
             m.setPrinter(printer)
 
     def parts(self):
-        parts = [self.head(),self.body(),self.feet()]
+        parts = [self.top(),self.upper(),self.lower(),self.bottom()]
         parts = zip(self.memberParts(),parts)
         #parts = [p for p in squash(parts) if p is not None]
         return parts;

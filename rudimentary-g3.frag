@@ -2,52 +2,87 @@
 #define providesInside
 #define providesInit
 
-#info TEST RUN
+#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1, -1, -1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
-
-const int N = 4;
+    
+const int N = 8;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
 uniform float JuliaVect4; slider[-2,0,2]
+uniform float JuliaVect5; slider[-2,0,2]
+uniform float JuliaVect6; slider[-2,0,2]
+uniform float JuliaVect7; slider[-2,0,2]
+uniform float JuliaVect8; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
 uniform float Position4; slider[-2,0,2]
+uniform float Position5; slider[-2,0,2]
+uniform float Position6; slider[-2,0,2]
+uniform float Position7; slider[-2,0,2]
+uniform float Position8; slider[-2,0,2]
+
+uniform int FrameX; slider[1,1,8]
+uniform int FrameY; slider[1,2,8]
+uniform int FrameZ; slider[1,3,8]
+
+// mutation indices (Lehmer or Lexicographic)
+uniform int mutationA; slider[0,0,40320]
+uniform int mutationB; slider[0,0,40320]
+uniform int mutationC; slider[0,0,40320]
+uniform int mutationD; slider[0,0,40320]
 
 
-uniform vec3 frame; slider[(1,1,1),(1,2,3),(4,4,4)]
+
+// extra parameters to play with (useful as weights)
 uniform float A; slider[-2,1,2]
 uniform float B; slider[-2,1,2]
 uniform float C; slider[-2,1,2]
 uniform float D; slider[-2,1,2]
-uniform int mutation1; slider[0,0,24]
-uniform int mutation2; slider[0,0,24]
-uniform int mutation3; slider[0,0,24]
-uniform int mutation4; slider[0,0,24]
+
+// powers for multiplication, if need be
 uniform int pow1; slider[0,1,24]
 uniform int pow2; slider[0,1,24]
 uniform int pow3; slider[0,1,24]
 uniform int pow4; slider[0,1,24]
 
-uniform int Iterations; slider[0,16,5000]
+// ordinary fractal stuff
+uniform int Iterations; slider[0,16,264]
 uniform float Bailout; slider[0,5,30]
 uniform bool Julia; checkbox[false]
+
+// instead of adding the Julia point or z(0), use z(i-1) (the last point)
 uniform bool usePrevious; checkbox[false]
 
-//mutations
-int M1[N];
-int M2[N];
-int M3[N];
-int M4[N];
-
+    
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
 }
 
+
+float[N] inner(float u[N], float v[N]) {
+    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+}
+
+
+float[N] outer(float u[N], float v[N]) {
+    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[3]*v[0], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[4]*v[0], u[0]*v[5] + u[1]*v[3] - u[3]*v[1] + u[5]*v[0], u[0]*v[6] + u[2]*v[3] - u[3]*v[2] + u[6]*v[0], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+}
+
+
+float[N] rev(float u[N]) {
+    return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
+}
+
+
+float norm(float a[N]){
+    return inner(a,rev(a))[0];
+}
+        
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -108,35 +143,34 @@ float[N] sub(float a[N], float b[N]) {
 }
 
 
-float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
-}
-
-
-float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
-}
-
-
-float[N] rev(float u[N]) {
-    return float[N](u[0], u[1], u[2], -u[3]);
-}
-
-
-float norm(float a[N]){
-    return inner(a,rev(a))[0];
-}
-        
-
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; 
     return u;
+}
+
+
+float[N] frame(float v[N], vec3 p){
+    // "Frame" a "window" through which to view vector v, via a "subvector" p.
+
+    // Points p form a linear subspace of the N dimensional Euclidean space,
+    // but not necessarily of the vector space we are looking at.  They are
+    // really just "slices" of larger vectors.
+
+    if(FrameX == FrameY || FrameX == FrameZ || FrameY == FrameZ) {
+        return v; //error, please set frame indices to be different
+    }
+    for(int i = 0; i<N; i++) {
+       if (i == FrameX-1) { v[i] = p[0]; }
+        if (i == FrameY-1) { v[i] = p[1]; }
+        if (i == FrameZ-1) { v[i] = p[2]; }
+    }
+return v;
 }
 
 int[N] permutationLexicographic(int i)
@@ -209,40 +243,44 @@ float[N] mutate(float A[N],int P[N]) {
   return mutate(A,P,false);
 }
 
+// the mutations
+int MA[N];
+int MB[N];
+int MC[N];
+int MD[N];
 
-float[N] addFrame(float v[N], vec3 p){
-    if(frame.x == frame.y || frame.y == frame.z || frame.x == frame.z) {
-        return v; //error, please set frame indices to be different
-    }
-    for(int i = 0; i<N; i++) {
-        if (i == frame.x-1) { v[i] = p.x; }
-        else if (i == frame.y-1) { v[i] = p.y;  }
-        else if (i == frame.z-1) { v[i] = p.z;  }
-        }
-return v;
+void initMutations() {
+	MA = permutation(mutationA);
+	MB = permutation(mutationB);
+	MC = permutation(mutationC);
+	MD = permutation(mutationD);
 }
+
 
 float O[N];
 float JuliaVect[N];
+
 void init(){
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
-	M1 = permutation(mutation1);
-	M2 = permutation(mutation2);
-	M3 = permutation(mutation3);
-	M4 = permutation(mutation4);
+    initMutations();
 }
 
 void iter(inout float z[N]) {
-	z = mul3(
-            pow(mutate(z,M1),pow1),
-            pow(mutate(z,M2),pow2),
-            pow(mutate(z,M3),pow3)
-            );
+    
+float MzA[N] = mutate(z,MA);
+float MzB[N] = mutate(z,MB);
+float MzC[N] = mutate(z,MC);
+z = mul3(
+    pow(MzA,pow1),
+    pow(MzB,pow2),
+    pow(MzC,pow3)
+);
+    ;
 }
 
 bool inside(vec3 pt) {
-    float z[N] = addFrame(O,pt);
+    float z[N] = frame(O,pt);
     float z0[N] = z;
   	float r;
   	int i=0;
