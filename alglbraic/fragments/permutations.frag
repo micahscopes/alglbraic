@@ -53,7 +53,7 @@ int[N] permutation(int n){
 }
 
 float[N] mutate(float A[N],int P[N],bool inverse) {
-    float permutated[N];
+    float permutated[N] = zero();
     for(int i = 0; i < N; i++) {
         if(!inverse) {
             permutated[i] = A[P[i]];
@@ -62,4 +62,8 @@ float[N] mutate(float A[N],int P[N],bool inverse) {
         }
     }
     return permutated;
+}
+
+float[N] mutate(float A[N],int P[N]) {
+  return mutate(A,P,false);
 }

@@ -32,6 +32,7 @@ class Fragment:
     def body(self):
         return self._body
     def feet(self):
+        f = self._feet
         return self._feet
     def parts(self):
         parts = [self.head(),self.body(),self.feet()]

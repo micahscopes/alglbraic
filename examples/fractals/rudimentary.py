@@ -8,15 +8,15 @@ forehead = Template("""#version 130
 #group Algebraic
 """)
 header = """
-uniform vec3 frame; slider[(1,1,1),(1,2,3),(4,4,4)]
+uniform vec3 frame; slider[(1,1,1),(1,2,3),(8,8,8)]
 uniform float A; slider[-2,1,2]
 uniform float B; slider[-2,1,2]
 uniform float C; slider[-2,1,2]
 uniform float D; slider[-2,1,2]
-uniform int mutation1; slider[0,0,24]
-uniform int mutation2; slider[0,0,24]
-uniform int mutation3; slider[0,0,24]
-uniform int mutation4; slider[0,0,24]
+uniform int mutation1; slider[0,0,40000]
+uniform int mutation2; slider[0,0,40000]
+uniform int mutation3; slider[0,0,40000]
+uniform int mutation4; slider[0,0,40000]
 uniform int pow1; slider[0,1,24]
 uniform int pow2; slider[0,1,24]
 uniform int pow3; slider[0,1,24]
@@ -41,8 +41,8 @@ float[N] addFrame(float v[N], vec3 p){
     }
     for(int i = 0; i<N; i++) {
         if (i == frame.x-1) { v[i] = p.x; }
-        else if (i == frame.y-1) { v[i] = p.x;  }
-        else if (i == frame.z-1) { v[i] = p.x;  }
+        else if (i == frame.y-1) { v[i] = p.y;  }
+        else if (i == frame.z-1) { v[i] = p.z;  }
         }
 return v;
 }
@@ -50,7 +50,6 @@ return v;
 float O[N];
 float JuliaVect[N];
 void init(){
-    float O[N];
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
 	M1 = permutation(mutation1);
@@ -59,11 +58,11 @@ void init(){
 	M4 = permutation(mutation4);
 }
 
-float[N] iter(inout float z[N]) {
-	return mul3(
-            pow(mutate(z,M1,true),pow1),
-            pow(mutate(z,M2,true),pow2),
-            pow(mutate(z,M3,true),pow3)
+void iter(inout float z[N]) {
+	z = mul3(
+            pow(mutate(z,M1),pow1),
+            pow(mutate(z,M2),pow2),
+            pow(mutate(z,M3),pow3)
             );
 }
 
@@ -85,10 +84,13 @@ bool inside(vec3 pt) {
 	return (r<Bailout);
 }"""
 feet = """ """
-geo = GeometricAlgebra("[-1, -1]")
+
+quadratic = "[-1, -1, -1]"
+dim = 3
+geo = GeometricAlgebra(quadratic)
 N = geo.N
 frag = (
-    Fragment(forehead.substitute(info="TEST RUN"))
+    Fragment(forehead.substitute(info="GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = "+quadratic))
     + geo
     + FragmentariumParams("JuliaVect",N,size_const="N")
     + FragmentariumParams("Position",N,size_const="N")
@@ -96,6 +98,6 @@ frag = (
     + Fragment(header,body,Fragment.get('purplePreset.frag'))
 )
 gl = frag.gl()
-output = open("rudimentary.frag", "w")
+output = open("rudimentary-g%s.frag" % dim, "w")
 output.write(gl)
 output.close

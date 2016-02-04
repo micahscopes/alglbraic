@@ -1,3 +1,9 @@
+float[N] zero() {
+  float zero[N];
+  for(int i=0; i<N; ++i){zero[i] = 0;}
+  return zero;
+}
+
 float[N] mul(float u[N], float v[N]) {
   return product(u,v);
 }
