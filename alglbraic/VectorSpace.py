@@ -15,9 +15,13 @@ class VectorSpace(Composition):
         self._members = [product]
         self.N = dimensions
         self.product = product
+        self.operations = []
 
     def upper(self):
         return "const int N = "+str(self.N)+";"
 
     def lower(self):
         return Fragment.get('vectorBasics.frag')
+
+    def members(self):
+        return squash([self.product]+self.operations)

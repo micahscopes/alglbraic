@@ -1,6 +1,6 @@
 from fragments import *
 from sympy import Symbol, symbols
-from sympy.galgebra import *
+from sympy.galgebra import MV
 from .VectorOperation import *
 from .VectorSpace import *
 from .Window import *

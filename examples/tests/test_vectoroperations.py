@@ -14,7 +14,7 @@ expr = [a*b,b*x*y,z*w,a-b+c-d*z**2]
 u = VectorOperation("funktion",[A],a*b*c)
 v = VectorOperation("product",[A,B],expr)
 
-print u.body()
+print u.lower()
 print v.gl(printer)
 
 print (u+v).gl(printer)

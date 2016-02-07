@@ -1,16 +1,29 @@
 from alglbraic import *
 
 class FractalQuest(Composition):
-    formula = """
-float MzA[N] = mutate(z,MA);
-float MzB[N] = mutate(z,MB);
-float MzC[N] = mutate(z,MC);
-z = mul3(
-    pow(MzA,pow1),
-    pow(MzB,pow2),
-    pow(MzC,pow3)
-);
-    """
+    def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None):
+        Composition.__init__(self)
+        if formula != None:
+            self.iterationFormula = formula
+        self._top = self.header.substitute(info=info)
+        self._upper = self.inits
+        if(mutations):
+            initMutations = "initMutations();"
+        else:
+            initMutations = ""
+        self.vectorspace = vectorspace
+        window = Window(vectorspace.N)
+        julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
+        position = FragmentariumParams("Position",vectorspace.N,size_const="N")
+        self._members = [vectorspace,julia,position,window,mutations]
+
+        self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations)
+        if presets == None:
+            self._bottom = Fragment.get("purplePreset.frag")
+
+    # templates: ##############################################################
+
+    iterationFormula = "z = mul(z,z);"
     header = Template("""#version 130
 #define providesInside
 #define providesInit
@@ -53,7 +66,7 @@ void init(){
 }
 
 void iter(inout float z[N]) {
-    $iterate;
+    $iterate
 }
 
 bool inside(vec3 pt) {
@@ -74,23 +87,3 @@ bool inside(vec3 pt) {
 	return (r<Bailout);
 }""")
     feet = """ """
-
-    def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None):
-        Composition.__init__(self)
-        if formula != None:
-            self.formula = formula
-        self._top = self.header.substitute(info=info)
-        self._upper = self.inits
-        if(mutations):
-            initMutations = "initMutations();"
-        else:
-            initMutations = ""
-        self.vectorspace = vectorspace
-        window = Window(vectorspace.N)
-        julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
-        position = FragmentariumParams("Position",vectorspace.N,size_const="N")
-        self._members = [vectorspace,julia,position,window,mutations]
-
-        self._lower = self.fractalizer.substitute(iterate=self.formula,initMutations=initMutations)
-        if presets == None:
-            self._bottom = Fragment.get("purplePreset.frag")

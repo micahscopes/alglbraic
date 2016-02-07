@@ -33,8 +33,10 @@ $rtype $func($args) {
         #print subs
         subs = dict(subs)
         results = map(lambda c: self.makeGL(c.subs(subs)), results)
-        result = "float[N](%s)" if len(results)>1 else "return %s"
-        result = result % ", ".join(results)
+        if len(results)>1:
+            result = "float[N](%s)" % ", ".join(results)
+        else:
+            result = results[0]
         return self._functionTemplate.substitute(func=name,rtype=rtype,args=args,result=result)
 
     def lower(self):
