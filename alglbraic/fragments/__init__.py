@@ -65,7 +65,7 @@ class Composition(Fragment):
         self._members = [m for m in self._members if m is not None]
 
     def members(self):
-        members = self._members
+        members = [m for m in self._members if m is not None]
         # if (self.included): members += [self]
         if (self.unique): members = uniq(members)
         return members

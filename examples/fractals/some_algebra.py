@@ -34,8 +34,13 @@ def lowerTriangularOnes(n):
 # G = GL(2,2)
 # G = Sp(2,2)
 # G = KleinFourGroup()
-Q = QuadraticForm(CC, 3, [1,1,1,1,1,1])
-Alg = CliffordAlgebra(Q)
+#Q = QuadraticForm(CC, 2, [-1,1,-1])
+#G = CyclicPermutationGroup(3)
+# G = CyclicPermutationGroup(8)
+a = AlternatingGroup(4)
+s = a.normal_subgroups()
+G = a.quotient(s[0])
+Alg = GroupAlgebra(G,QQ)
 ###
 dim = Alg.dimension()
 syms = ("a","b")
@@ -47,7 +52,7 @@ AB_coefs = (A*B).coefficients()
 Ai = A.coefficients()
 Bi = B.coefficients()
 s = sympify
-info = str(Alg)
+info = str(Alg).replace("\n","; ")
 
 formula = """
 float MzA[N] = mutate(z,MA);
@@ -64,7 +69,7 @@ product = VectorOperation("product",[s(Ai),s(Bi)],s(AB_coefs))
 norm = VectorOperation("norm",[s(Ai)],s(normA_coefs))
 v = VectorSpace(dim,product)
 v.operations.append(norm)
-fractal = FractalQuest(v,info,permutations,formula=formula)
+fractal = FractalQuest(v,info,formula=formula)
 printer = GLSLPrinter()
 file = "some-algebra.frag"
 

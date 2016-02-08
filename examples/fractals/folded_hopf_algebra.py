@@ -29,54 +29,64 @@ def lowerTriangularOnes(n):
         i += 1;
     return mat;
 
-class FoldedHopfAlgebra:
-    def __init__(self,HopfAlgebra):
-
-    a = QuaternionGroup()
-    al = a.algebra(ZZ)
-    p,q,r,s,w,x,y,z = [al(el) for el in a.list()]
-    invv = a.list()[3]
-    #id,q,r,inv,w,x,y,z = a.list()
-
-    inv = al(a.list()[0])
-    id = al(a.list()[3])
-
-    v = q+x+y
-    v
-    sub = al.submodule([p+q]+map(lambda i: i+i.antipode(),[q,r,x,y,z,w]))
-    sub.dimension()
-    a = sub.from_vector(vector([0,0,1,0,0]))
-    sub(a)
-    a.lift()
+# class FoldedHopfAlgebra:
+#     def __init__(self,HopfAlgebra):
+#     al = a.algebra(ZZ)
+#     p,q,r,s,w,x,y,z = [al(el) for el in a.list()]
+#     invv = a.list()[3]
+#     #id,q,r,inv,w,x,y,z = a.list()
+#
+#     inv = al(a.list()[0])
+#     id = al(a.list()[3])
+#
+#     v = q+x+y
+#     v
+#     sub = al.submodule([p+q]+map(lambda i: i+i.antipode(),[q,r,x,y,z,w]))
+#     sub.dimension()
+#     a = sub.from_vector(vector([0,0,1,0,0]))
+#     sub(a)
+#     a.lift()
 
 
 # G = WeylGroup(['A',2])
 # G = GL(2,2)
 # G = Sp(2,2)
 # G = KleinFourGroup()
-G = QuaternionGroup()
-Alg = G.algebra(QQ)
+# G = QuaternionGroup()
+# G = SymmetricGroup(4)
+#G = DiCyclicGroup(3)
+# G = CyclicPermutationGroup(7)
+G = DihedralGroup(7)
+GAlg = G.algebra(SR)
+o1 = [GAlg(l) for l in G.list() if l.order() == 1]
+o2 = [GAlg(l) for l in G.list() if l.order() == 2]
+o3up = [GAlg(l) for l in G.list() if l.order() > 2]
+O2 = [o1[0]+i for i in o2]
+O3 = [i+i.antipode() for i in o3up]
+Alg = GAlg.quotient_module(O2+O3)
 
 ###
+
 dim = Alg.dimension()
 syms = ("a","b")
 As,Bs = [var(" ".join([s+str(i) for i in range(dim)])) for s in syms]
 A = Alg.from_vector(vector(As))
 B = Alg.from_vector(vector(Bs))
+AB = Alg.retract(A.lift()*B.lift())
 normA_coefs = vector(A.coefficients()).norm().combine()
-antipode_coefs = A.antipode().coefficients()
-AB_coefs = (A*B).coefficients()
+antipode_coefs = Alg.retract(A.lift().antipode()).coefficients()
+AB_coefs = AB.coefficients()
 Ai = A.coefficients()
 Bi = B.coefficients()
 s = sympify
 info = str(Alg)
 
 formula = """
-//float MzA[N] = mutate(z,MA);
-//float MzB[N] = mutate(z,MB);
+float MzA[N] = mutate(z,MA);
+float MzB[N] = mutate(z,MB);
 z = mul(
-    pow(z,pow1),
-    pow(z.antipode(),pow2)
+    pow(MzA,pow1),
+    pow(MzB,pow2)
 );
 """
 
@@ -89,7 +99,7 @@ v = VectorSpace(dim,product)
 v.operations+=[norm,antipode]
 fractal = FractalQuest(v,info,permutations,formula=formula)
 printer = GLSLPrinter()
-file = "some-hopf-algebra.frag"
+file = "some-folded-hopf-algebra.frag"
 
 print("writing to %s" % file)
 output = open(file, "w")
