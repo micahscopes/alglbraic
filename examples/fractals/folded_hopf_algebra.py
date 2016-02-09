@@ -2,33 +2,6 @@ from sage.all import *
 from alglbraic import *
 from sympy import symbols, Symbol, sympify
 
-def kGeodesicMatrices(m):
-    f = lambda x: 1 - pow(sgn(x),2); # using the pow function for python compatibility
-    N = m.dimensions()[0];
-    mask = []; M=[];
-    mask.append(ones_matrix(N,N)); #mask0;
-    M.append(identity_matrix(N,N)); #M0; # the matrix of 0-geodesics is the identity matrix
-    i=0;
-    while (i<50 and M[i] != matrix(N)):
-        mask.append(mask[i].elementwise_product(M[i].apply_map(f)));
-        M.append((m*M[i]).elementwise_product(mask[i+1]));
-        i+=1;
-    return M;
-
-def mobius_sum_all_intervals(P):
-    return sum([P.mobius_function(i[0],i[1]) for i in P.relations()]);
-
-def lowerTriangularOnes(n):
-    i = 0;
-    mat = ones_matrix(n,n);
-    while (i<n):
-        j = i;
-        while (j+1<n):
-            mat[i,j+1] = 0;
-            j+=1;
-        i += 1;
-    return mat;
-
 # class FoldedHopfAlgebra:
 #     def __init__(self,HopfAlgebra):
 #     al = a.algebra(ZZ)
@@ -54,9 +27,20 @@ def lowerTriangularOnes(n):
 # G = KleinFourGroup()
 # G = QuaternionGroup()
 # G = SymmetricGroup(4)
-#G = DiCyclicGroup(3)
+# G = DiCyclicGroup(3)
 # G = CyclicPermutationGroup(7)
-G = DihedralGroup(7)
+# G = DihedralGroup(7)
+# G = CyclicPermutationGroup(16)
+# D1 = CyclicPermutationGroup(4)
+# D2 = CyclicPermutationGroup(2)
+# G = direct_product_permgroups([D1,D2])
+# G = AlternatingGroup(4)
+# G = CyclicPermutationGroup(13)
+#### M16 group:
+# G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,6))"))
+
+G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,3))"))
+
 GAlg = G.algebra(SR)
 o1 = [GAlg(l) for l in G.list() if l.order() == 1]
 o2 = [GAlg(l) for l in G.list() if l.order() == 2]

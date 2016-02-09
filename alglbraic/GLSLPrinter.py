@@ -26,7 +26,8 @@ class GLSLPrinter(StrPrinter):
         'add_wrap': 'add(%s, %s)',
         'sub_wrap': 'sub(%s, %s)',
         'mul_wrap': 'mul(%s, %s)',
-        'pow_wrap': 'pow(%s, %s)'
+        'pow_wrap': 'pow(%s, %s)',
+        'abs_wrap': 'abs(%s)'
     }
 
     def __init__(self, settings={}):
@@ -35,6 +36,10 @@ class GLSLPrinter(StrPrinter):
     def _print_Pow(self, expr):
         return self._settings['pow_wrap'] % (self._print(expr.base),
                                  self._print(float(expr.exp)))
+
+    def _print_Abs(self, expr):
+        return self._settings['abs_wrap'] % self._print(expr.args[0])
+
     def _print_int(self, expr):
         return str(float(expr))
 
