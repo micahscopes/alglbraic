@@ -27,6 +27,8 @@ class FractalQuest(Composition):
     header = Template("""#version 130
 #define providesInside
 #define providesInit
+#define SubframeMax 9
+#define IterationsBetweenRedraws 4
 
 #info $info
 #include "Brute-Raytracer.frag"

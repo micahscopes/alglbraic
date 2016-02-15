@@ -1,5 +1,5 @@
 from fragments import *
-from sympy import Symbol, symbols
+from sympy import Symbol, symbols, sqrt
 from sympy.galgebra import MV
 from .VectorOperation import *
 from .VectorSpace import *
@@ -30,17 +30,19 @@ class GeometricAlgebra(VectorSpace):
         AinB=map(lambda i: (A|B).coef(gMVs[i]),range(N))
         AoutB=map(lambda i: (A^B).coef(gMVs[i]),range(N))
         revA=map(lambda i: (A.rev()).coef(gMVs[i]),range(N))
+        normA = sqrt(reduce(add,[el**2 for el in a]))
+
 
         product = VectorOperation("product",[a,b],AB)
         operations = [ \
-            product,
             VectorOperation("inner",[a,b],AinB),
             VectorOperation("outer",[a,b],AoutB),
             VectorOperation("rev",[a],revA),
+            VectorOperation("norm2",[a],normA),
             Fragment(lower="""
 float norm(float a[N]){
     return inner(a,rev(a))[0];
 }
         """)]
         VectorSpace.__init__(self,N,product)
-        self._members += operations
+        self.operations= operations
