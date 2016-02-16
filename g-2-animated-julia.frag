@@ -2,7 +2,7 @@
 #define providesInside
 #define providesInit
 #define SubframeMax 7
-#define IterationsBetweenRedraws 8
+#define IterationsBetweenRedraws 3
 
 #info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1,-1]
 #include "Brute-Raytracer.frag"
@@ -45,7 +45,7 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[-30,5,30]
+uniform float Bailout; slider[0,5,30]
 uniform bool Julia; checkbox[false]
 
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
@@ -71,6 +71,12 @@ float[N] outer(float u[N], float v[N]) {
 float[N] rev(float u[N]) {
     return float[N](u[0], u[1], u[2], -u[3]);
 }
+
+
+float norm2(float u[N]) {
+    return pow(pow(u[0], 2.0) + pow(u[1], 2.0) + pow(u[2], 2.0) + pow(u[3], 2.0), 0.5);
+}
+
 
 float norm(float a[N]){
     return inner(a,rev(a))[0];
@@ -257,10 +263,10 @@ float JuliaVect[N];
 void init(){
     loadParamsPosition(O);
     loadParamsJuliaVect(Js);
-    O[0] += A*sin(Js[0]*time);
-    O[1] += B*sin(Js[1]*time);
-    O[2] += C*sin(Js[2]*time);
-    O[3] += D*sin(Js[3]*time);
+    JuliaVect[0] = A*sin(Js[0]*time);
+    JuliaVect[1] = B*sin(Js[1]*time);
+    JuliaVect[2] = C*sin(Js[2]*time);
+    JuliaVect[3] = D*sin(Js[3]*time);
     initMutations();
 }
 
@@ -281,7 +287,7 @@ bool inside(vec3 pt) {
     float z0[N] = z;
   	float r;
   	int i=0;
-  	r=	norm(z);
+  	r=abs(norm(z));
 
     while(r<Bailout && (i<Iterations)) {
       float zprev[N];
@@ -295,9 +301,9 @@ bool inside(vec3 pt) {
 }
 #preset Init
 FOV = 0.4
-Eye = -1.07838,0.473653,2.81054
-Target = 3.11212,-0.311375,-6.23511
-Up = 0.238239,-0.954092,0.181526
+Eye = 0.711361,0.874831,-3.26199
+Target = -1.53372,-1.9737,6.05711
+Up = 0.956431,0.104596,0.272579
 EquiRectangular = false
 Gamma = 2.17595
 ToneMapping = 3
@@ -335,32 +341,32 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
-JuliaVect1 = 1.04132
-JuliaVect2 = 0.83332
-JuliaVect3 = 0.43332
-JuliaVect4 = 0.66668
-Position1 = 0.5512
-Position2 = 0.3492
-Position3 = -0.28572
-Position4 = -0.09524
+JuliaVect1 = 0.54544
+JuliaVect2 = -0.66668
+JuliaVect3 = 0.5
+JuliaVect4 = 0
+Position1 = 0.70868
+Position2 = 0
+Position3 = -0.8254
+Position4 = 0.85716
 FrameX = 1
 FrameY = 3
 FrameZ = 4
 mutationA = 0
-mutationB = 0
+mutationB = 24
 mutationC = 0
 mutationD = 0
-A = 0.30168
-B = 0.4134
-C = 0
-D = 0.53932
+A = 0.45812
+B = 0.48044
+C = 0.72624
+D = 0.6292
 pow1 = 2
 pow2 = 1
 pow3 = 1
 pow4 = 1
-Iterations = 47
+Iterations = 21
 Bailout = 25.6203
-Julia = false
+Julia = true
 usePrevious = false
 #endpreset
 

@@ -1,26 +1,9 @@
 from sage.all import *
 from alglbraic import *
 from sympy import symbols, Symbol, sympify
-
-# G = WeylGroup(['A',2])
-# G = GL(2,2)
-# G = Sp(2,2)
-# G = KleinFourGroup()
-# G = QuaternionGroup()
-# G = SymmetricGroup(4)
-# G = DiCyclicGroup(3)
-# G = CyclicPermutationGroup(7)
-# G = DihedralGroup(7)
-# G = CyclicPermutationGroup(16)
-# D1 = CyclicPermutationGroup(4)
-# D2 = CyclicPermutationGroup(2)
-# G = direct_product_permgroups([D1,D2])
-# G = AlternatingGroup(4)
-# G = CyclicPermutationGroup(13)
-#### M16 group:
-# G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,6))"))
-
-G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,3))"))
+F=FreeGroup('a, b, c')
+[a,b,c] = F.generators()
+G = F.quotient([a*a,b*b,c*c,a*b*c])
 
 GAlg = G.algebra(SR)
 o1 = [GAlg(l) for l in G.list() if l.order() == 1]
@@ -64,7 +47,7 @@ v = VectorSpace(dim,product)
 v.operations+=[norm,antipode]
 fractal = FractalQuest(v,info,permutations,formula=formula)
 printer = GLSLPrinter()
-file = "some-folded-hopf-algebra.frag"
+file = "free-group-quo-algebra.frag"
 
 print("writing to %s" % file)
 output = open(file, "w")
