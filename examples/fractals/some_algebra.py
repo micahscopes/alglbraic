@@ -58,8 +58,8 @@ formula = """
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
 z = mul(
-    pow(MzA,pow1),
-    pow(MzB,pow2)
+    pwr(MzA,pow1),
+    pwr(MzB,pow2)
 );
 """
 

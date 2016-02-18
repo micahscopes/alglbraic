@@ -32,7 +32,7 @@ float[N] mul3(float a[N], float b[N], float c[N]) {
   return mul(mul(a,b),c);
 }
 
-float[N] pow(float a[N],int n) {
+float[N] pwr(float a[N],int n) {
   // multiple a by itself n times: a -> a**n
 	float r[N] = a;
 	for (int i=0;i<n-1;i++){

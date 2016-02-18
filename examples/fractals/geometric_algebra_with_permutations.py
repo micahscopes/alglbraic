@@ -6,9 +6,9 @@ float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
 float MzC[N] = mutate(z,MC);
 z = mul3(
-    pow(MzA,pow1),
-    pow(MzB,pow2),
-    pow(MzC,pow3)
+    pwr(MzA,pow1),
+    pwr(MzB,pow2),
+    pwr(MzC,pow3)
 );
 """
 geoAlgebra = GeometricAlgebra(quadratic)
