@@ -1,6 +1,9 @@
 from alglbraic import *
 
-quadratic = "[-1,-1]"
+quadratic=sys.argv[1]
+if not quadratic:
+    quadratic = "[-1,-1]"
+
 formula = """
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
