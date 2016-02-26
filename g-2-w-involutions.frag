@@ -4,10 +4,17 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info Group algebra of Cyclic group of order 4 as a permutation group over Symbolic Ring
+#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1, -1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
+
+// sign involutions
+uniform int flipperA; slider[0,0,16]
+uniform int flipperB; slider[0,0,16]
+uniform int flipperC; slider[0,0,16]
+
+
 const int N = 4;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
@@ -28,13 +35,6 @@ uniform int mutationA; slider[0,0,24]
 uniform int mutationB; slider[0,0,24]
 uniform int mutationC; slider[0,0,24]
 uniform int mutationD; slider[0,0,24]
-
-
-
-// sign involutions
-uniform int flipperA; slider[0,0,16]
-uniform int flipperB; slider[0,0,16]
-uniform int flipperC; slider[0,0,16]
 
 
 
@@ -61,19 +61,50 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] + u[1]*v[3] + u[2]*v[2] + u[3]*v[1], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] + u[3]*v[2], u[0]*v[2] + u[1]*v[1] + u[2]*v[0] + u[3]*v[3], u[0]*v[3] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0]);
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
-float norm(float u[N]) {
-    return pow(pow(abs(u[0]), 2.0) + pow(abs(u[1]), 2.0) + pow(abs(u[2]), 2.0) + pow(abs(u[3]), 2.0), 0.5);
+float[N] inner(float u[N], float v[N]) {
+    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
 }
 
 
-float[N] antipode(float u[N]) {
-    return float[N](u[0], u[3], u[2], u[1]);
+float[N] outer(float u[N], float v[N]) {
+    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
+
+float[N] rev(float u[N]) {
+    return float[N](u[0], u[1], u[2], -u[3]);
+}
+
+
+float[N] flip(in float A[N], int flipper) {
+  for (int i=0; i< N; i++) {
+    float p = pow(2.0,float(i));
+    int place = int(p);
+    int sgn = 1-2*((flipper & place) >> i);
+    A[i] = sgn*A[i];
+  }
+    return A;
+}
+
+float[N] flipA(float z[N]) {
+  return flip(z,flipperA);
+}
+float[N] flipB(float z[N]) {
+  return flip(z,flipperB);
+}
+float[N] flipC(float z[N]) {
+  return flip(z,flipperC);
+}
+    
+
+float norm(float a[N]){
+    return inner(a,rev(a))[0];
+}
+        
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -248,27 +279,6 @@ void initMutations() {
 }
 
 
-float[N] flip(in float A[N], int flipper) {
-  for (int i=0; i< N; i++) {
-    float p = pow(2.0,float(i));
-    int place = int(p);
-    int sgn = 1-2*((flipper & place) >> i);
-    A[i] = sgn*A[i];
-  }
-    return A;
-}
-
-float[N] flipA(float z[N]) {
-  return flip(z,flipperA);
-}
-float[N] flipB(float z[N]) {
-  return flip(z,flipperB);
-}
-float[N] flipC(float z[N]) {
-  return flip(z,flipperC);
-}
-    
-
 float O[N];
 float JuliaVect[N];
 
@@ -280,13 +290,12 @@ void init(){
 
 void iter(inout float z[N]) {
     
-float MzA[N] = mutate(z,MA);
-float MzB[N] = mutate(z,MB);
+
 z = mul(
-    pwr(flipA(MzA(z)),pow1),
-    pwr(flipB(MzB(z)),pow2)
+    pwr(flipA(z),pow1),
+    pwr(flipB(z),pow2)
 );
-            
+
 }
 
 bool inside(vec3 pt) {

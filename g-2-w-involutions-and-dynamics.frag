@@ -4,10 +4,17 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info Group algebra of Cyclic group of order 4 as a permutation group over Symbolic Ring
+#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1, -1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
+
+// sign involutions
+uniform int flipperA; slider[0,0,16]
+uniform int flipperB; slider[0,0,16]
+uniform int flipperC; slider[0,0,16]
+
+
 const int N = 4;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
@@ -31,15 +38,8 @@ uniform int mutationD; slider[0,0,24]
 
 
 
-// sign involutions
-uniform int flipperA; slider[0,0,16]
-uniform int flipperB; slider[0,0,16]
-uniform int flipperC; slider[0,0,16]
-
-
-
 // extra parameters to play with (useful as weights)
-uniform float A; slider[-2,1,2]
+uniform int A; slider[0,0,3]
 uniform float B; slider[-2,1,2]
 uniform float C; slider[-2,1,2]
 uniform float D; slider[-2,1,2]
@@ -52,7 +52,9 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,5,30]
+// thanks to Bryce Beverlin II for this idea:
+uniform float Bailout; slider[-2,1,4]
+uniform float Bailin; slider[-2,0,4]
 uniform bool Julia; checkbox[false]
 
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
@@ -61,19 +63,53 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] + u[1]*v[3] + u[2]*v[2] + u[3]*v[1], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] + u[3]*v[2], u[0]*v[2] + u[1]*v[1] + u[2]*v[0] + u[3]*v[3], u[0]*v[3] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0]);
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
-float norm(float u[N]) {
-    return pow(pow(abs(u[0]), 2.0) + pow(abs(u[1]), 2.0) + pow(abs(u[2]), 2.0) + pow(abs(u[3]), 2.0), 0.5);
+float[N] inner(float u[N], float v[N]) {
+    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
 }
 
 
-float[N] antipode(float u[N]) {
-    return float[N](u[0], u[3], u[2], u[1]);
+float[N] outer(float u[N], float v[N]) {
+    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
+
+float[N] rev(float u[N]) {
+    return float[N](u[0], u[1], u[2], -u[3]);
+}
+
+
+float[N] flip(in float A[N], int flipper) {
+  for (int i=0; i< N; i++) {
+    float p = pow(2.0,float(i));
+    int place = int(p);
+    int sgn = 1-2*((flipper & place) >> i);
+    A[i] = sgn*A[i];
+  }
+    return A;
+}
+
+float[N] flipA(float z[N]) {
+  return flip(z,flipperA);
+}
+float[N] flipB(float z[N]) {
+  return flip(z,flipperB);
+}
+float[N] flipC(float z[N]) {
+  return flip(z,flipperC);
+}
+    
+
+float norm(float a[N]){
+    return inner(a,rev(a))[A];
+}
+float norm2(float a[N]){
+    return pow(a[0],2)+pow(a[1],2)+pow(a[2],2)+pow(a[3],2);
+}
+        
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -248,27 +284,6 @@ void initMutations() {
 }
 
 
-float[N] flip(in float A[N], int flipper) {
-  for (int i=0; i< N; i++) {
-    float p = pow(2.0,float(i));
-    int place = int(p);
-    int sgn = 1-2*((flipper & place) >> i);
-    A[i] = sgn*A[i];
-  }
-    return A;
-}
-
-float[N] flipA(float z[N]) {
-  return flip(z,flipperA);
-}
-float[N] flipB(float z[N]) {
-  return flip(z,flipperB);
-}
-float[N] flipC(float z[N]) {
-  return flip(z,flipperC);
-}
-    
-
 float O[N];
 float JuliaVect[N];
 
@@ -278,15 +293,15 @@ void init(){
     initMutations();
 }
 
-void iter(inout float z[N]) {
+void iter(inout float z[N],in float c[N]) {
     
-float MzA[N] = mutate(z,MA);
-float MzB[N] = mutate(z,MB);
 z = mul(
-    pwr(flipA(MzA(z)),pow1),
-    pwr(flipB(MzB(z)),pow2)
+    pwr(mutate(flipA(z),MA),pow1),
+    pwr(mutate(flipB(z),MB),pow2)
 );
-            
+
+z = add(z,c);
+
 }
 
 bool inside(vec3 pt) {
@@ -294,23 +309,22 @@ bool inside(vec3 pt) {
     float z0[N] = z;
   	float r;
   	int i=0;
-  	r=abs(norm(z));
+  	r=norm(z);
 
     while(r<Bailout && (i<Iterations)) {
       float zprev[N];
       if (usePrevious) { zprev = z; } else { zprev = z0; }
-  		iter(z);
-  		z = add(z,(Julia ? JuliaVect : zprev));
+  		iter(z,(Julia ? JuliaVect : zprev));
   		r=norm(z);
   		i++;
   	}
-	return (r<Bailout);
+	return (r<Bailout && r>Bailin);
 }
 #preset Init
 FOV = 0.4
-Eye = -0.821733,-1.82625,2.23376
-Target = 2.11612,4.20274,-5.18381
-Up = -0.902532,-0.0745699,-0.424118
+Eye = -0.600107,1.18506,1.84485
+Target = 1.1121,-3.51928,-6.81181
+Up = 0.615634,-0.640054,0.459701
 EquiRectangular = false
 Gamma = 2.17595
 ToneMapping = 3
@@ -318,13 +332,25 @@ Exposure = 0.3261
 Brightness = 1
 Contrast = 1
 Saturation = 1
+NormalScale = 1
+AOScale = 1
+Glow = 1
+AOStrength = 0.6
+Samples = 40
+Stratify = true
+DebugInside = false
+CentralDifferences = true
+SampleNeighbors = true
+Near = 0
+Far = 15
+ShowDepth = false
+DebugNormals = false
 Specular = 1.5
 SpecularExp = 16
 SpotLight = 1,1,1,0.38043
 SpotLightDir = 0.1,0.1
 CamLight = 1,1,1,1
 CamLightMin = 0
-Glow = 1,1,1,0.16667
 Fog = 0
 BaseColor = 1,1,1
 OrbitStrength = 0.8
@@ -336,4 +362,35 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
+flipperA = 0
+flipperB = 8
+flipperC = 0
+JuliaVect1 = 0
+JuliaVect2 = 0
+JuliaVect3 = 0
+JuliaVect4 = 0
+Position1 = 0
+Position2 = 0
+Position3 = 0
+Position4 = 0
+FrameX = 1
+FrameY = 2
+FrameZ = 4
+mutationA = 0
+mutationB = 0
+mutationC = 0
+mutationD = 0
+A = 0
+B = 1
+C = 1
+D = 1
+pow1 = 1
+pow2 = 1
+pow3 = 1
+pow4 = 1
+Iterations = 50
+Bailout = 0
+Bailin = -1
+Julia = false
+usePrevious = false
 #endpreset

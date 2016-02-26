@@ -35,7 +35,7 @@ float[N] flip(in float A[N], int flipper) {
   for (int i=0; i< N; i++) {
     float p = pow(2.0,float(i));
     int place = int(p);
-    int sgn = 1-2*((signs & place) >> i);
+    int sgn = 1-2*((flipper & place) >> i);
     A[i] = sgn*A[i];
   }
     return A;

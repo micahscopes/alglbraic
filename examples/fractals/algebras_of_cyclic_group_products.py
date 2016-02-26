@@ -1,9 +1,14 @@
 from sage.all import *
 from alglbraic import *
 from sympy import symbols, Symbol, sympify
-F=FreeGroup('a, b, c')
-[a,b,c] = F.generators()
-G = F.quotient([a*a,b*b,c*c,a*b*c])
+import re
+
+orders = [int(i) for i in re.split(r"[^0-9]+",sys.argv[1])]
+names = ["C(%i)"% o for o in orders]
+filename = "folded-group-algebra-"+"x".join(names)+".frag"
+
+groups = [CyclicPermutationGroup(i) for i in orders]
+G = direct_product_permgroups(groups)
 
 GAlg = G.algebra(SR)
 o1 = [GAlg(l) for l in G.list() if l.order() == 1]
@@ -33,8 +38,8 @@ formula = """
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
 z = mul(
-    pwr(flipA(MzA),pow1),
-    pwr(flipB(MzB),pow2)
+    pwr(MzA,pow1),
+    pwr(MzB,pow2)
 );
 """
 
@@ -47,9 +52,8 @@ v = VectorSpace(dim,product)
 v.operations+=[norm,antipode]
 fractal = FractalQuest(v,info,permutations,formula=formula)
 printer = GLSLPrinter()
-file = "free-group-quo-algebra.frag"
 
-print("writing to %s" % file)
-output = open(file, "w")
+print("writing to %s" % filename)
+output = open(filename, "w")
 output.write(fractal.gl(printer))
 output.close

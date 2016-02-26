@@ -5,6 +5,15 @@ class FractalQuest(Composition):
         Composition.__init__(self)
         if formula != None:
             self.iterationFormula = formula
+        elif(mutations):
+            self.iterationFormula = """
+float MzA[N] = mutate(z,MA);
+float MzB[N] = mutate(z,MB);
+z = mul(
+    pwr(flipA(MzA(z)),pow1),
+    pwr(flipB(MzB(z)),pow2)
+);
+            """
         self._top = self.header.substitute(info=info)
         self._upper = self.inits
         if(mutations):
@@ -15,7 +24,8 @@ class FractalQuest(Composition):
         window = Window(vectorspace.N)
         julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
         position = FragmentariumParams("Position",vectorspace.N,size_const="N")
-        self._members = [vectorspace,julia,position,window,mutations]
+        flippers = SignFlipper(vectorspace.N)
+        self._members = [vectorspace,julia,position,window,mutations,flippers]
 
         self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations)
         if presets == None:
@@ -23,7 +33,13 @@ class FractalQuest(Composition):
 
     # templates: ##############################################################
 
-    iterationFormula = "z = mul(z,z);"
+    iterationFormula = """
+    z = mul(
+        pwr(flipA(z),pow1),
+        pwr(flipB(z),pow2)
+    );
+    """
+
     header = Template("""#version 130
 #define providesInside
 #define providesInit

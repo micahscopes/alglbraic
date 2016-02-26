@@ -9,7 +9,7 @@ from sympy import symbols, Symbol, sympify
 # G = QuaternionGroup()
 # G = SymmetricGroup(4)
 # G = DiCyclicGroup(3)
-# G = CyclicPermutationGroup(7)
+G = CyclicPermutationGroup(7)
 # G = DihedralGroup(7)
 # G = CyclicPermutationGroup(16)
 # D1 = CyclicPermutationGroup(4)
@@ -20,7 +20,7 @@ from sympy import symbols, Symbol, sympify
 #### M16 group:
 # G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,6))"))
 
-G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,3))"))
+#G = PermutationGroup(gap_group=gap.new("AsPermGroup(SmallGroup(16,3))"))
 
 GAlg = G.algebra(SR)
 o1 = [GAlg(l) for l in G.list() if l.order() == 1]
@@ -47,11 +47,9 @@ s = sympify
 info = str(Alg)
 
 formula = """
-float MzA[N] = mutate(z,MA);
-float MzB[N] = mutate(z,MB);
 z = mul(
-    pwr(MzA,pow1),
-    pwr(MzB,pow2)
+    pwr(flipA(z),pow1),
+    pwr(flipB(z),pow2)
 );
 """
 
@@ -62,7 +60,7 @@ antipode = VectorOperation("antipode",[s(Ai)],s(antipode_coefs))
 norm = VectorOperation("norm",[s(Ai)],s(normA_coefs))
 v = VectorSpace(dim,product)
 v.operations+=[norm,antipode]
-fractal = FractalQuest(v,info,permutations,formula=formula)
+fractal = FractalQuest(v,info,formula=formula)
 printer = GLSLPrinter()
 file = "some-folded-hopf-algebra.frag"
 

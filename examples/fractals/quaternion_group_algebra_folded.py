@@ -1,10 +1,9 @@
 from sage.all import *
 from alglbraic import *
 from sympy import symbols, Symbol, sympify
-F=FreeGroup('a, b, c')
-[a,b,c] = F.generators()
-G = F.quotient([a*a,b*b,c*c,a*b*c])
 
+
+G = QuaternionGroup()
 GAlg = G.algebra(SR)
 o1 = [GAlg(l) for l in G.list() if l.order() == 1]
 o2 = [GAlg(l) for l in G.list() if l.order() == 2]
@@ -33,8 +32,8 @@ formula = """
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
 z = mul(
-    pwr(flipA(MzA),pow1),
-    pwr(flipB(MzB),pow2)
+    pwr(flipA(z),pow1),
+    pwr(flipB(z),pow2)
 );
 """
 
@@ -47,7 +46,7 @@ v = VectorSpace(dim,product)
 v.operations+=[norm,antipode]
 fractal = FractalQuest(v,info,permutations,formula=formula)
 printer = GLSLPrinter()
-file = "free-group-quo-algebra.frag"
+file = "folded-quaternion-group-algebra.frag"
 
 print("writing to %s" % file)
 output = open(file, "w")

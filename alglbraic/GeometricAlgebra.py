@@ -3,6 +3,7 @@ from sympy import Symbol, symbols, sqrt
 from sympy.galgebra import MV
 from .VectorOperation import *
 from .VectorSpace import *
+from .SignFlipper import *
 from .Window import *
 
 # Usage:
@@ -37,6 +38,7 @@ class GeometricAlgebra(VectorSpace):
             VectorOperation("inner",[a,b],AinB),
             VectorOperation("outer",[a,b],AoutB),
             VectorOperation("rev",[a],revA),
+            SignFlipper(self.N),
             Fragment(lower="""
 float norm(float a[N]){
     return inner(a,rev(a))[0];
