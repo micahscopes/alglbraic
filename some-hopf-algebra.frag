@@ -283,8 +283,8 @@ void iter(inout float z[N]) {
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
 z = mul(
-    pwr(flipA(MzA(z)),pow1),
-    pwr(flipB(MzB(z)),pow2)
+    pwr(flipA(MzA),pow1),
+    pwr(flipB(MzB),pow2)
 );
             
 }
