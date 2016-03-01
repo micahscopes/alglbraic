@@ -6,10 +6,6 @@ from .VectorSpace import *
 from .SignFlipper import *
 from .Window import *
 
-# Usage:
-# Pass in a product operation in terms of float u[N] and float v[N].
-#
-
 class GeometricAlgebra(VectorSpace):
     def __init__(self, quadratic):
         Composition.__init__(self)
