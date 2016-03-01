@@ -9,7 +9,7 @@ parser.add_argument("-f","--fold", dest='fold', default = None)
 parser.add_argument("--2d", dest='include2d', action='store_true')
 parser.add_argument("-i,--inspect", dest='inspectOnly', action='store_true')
 parser.add_argument("group",nargs='?', default='SymmetricGroup(4)')
-parser.add_argument("filename",nargs='?', default = None)
+parser.add_argument("path",nargs='?', default = None)
 options = parser.parse_args()
 
 G = eval(options.group)
@@ -101,14 +101,17 @@ if(not options.fold):
     v.operations += [antipode]
 
 def writeFractalQuest(windowDimensions):
-    name = options.filename
-    if (name == None):
+    path = options.path
+    path = "./" if path == None else path
+    if (path.endswith('/')):
         suffix = "-folded%s" % "".join(str(folders).split()) if(options.fold) else ""
         suffix += "-2d" if(windowDimensions == 2) else "-3d"
         reg = re.compile('(?:\[)*([^]]+)(?:\])*')
         name = reg.findall(options.group)[0]
         name = "-by-".join(name.split(","))
-        filename = niceFilename(name)+suffix+".frag"
+        filename = path+niceFilename(name)+suffix+".frag"
+    else:
+        filename = path
     fractal = FractalQuest(v,info,permutations,windowDimensions=windowDimensions)
     printer = GLSLPrinter()
     print("writing %s" % filename)
