@@ -41,9 +41,8 @@ z = mul(
 permutations = Permutations(dim)
 product = VectorOperation("product",[s(Ai),s(Bi)],s(AB_coefs))
 antipode = VectorOperation("antipode",[s(Ai)],s(antipode_coefs))
-norm = VectorOperation("norm",[s(Ai)],s(normA_coefs))
 v = VectorSpace(dim,product)
-v.operations+=[norm,antipode]
+v.operations+=[antipode]
 fractal = FractalQuest(v,info,permutations,formula=formula)
 printer = GLSLPrinter()
 file = "folded-quaternion-group-algebra.frag"

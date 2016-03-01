@@ -1,7 +1,14 @@
 from pkg_resources import resource_string
 from string import Template
 from ..GLSLPrinter import *
+import re
 
+def camelToHyphens(name):
+    s1 = re.sub('([\w|\d])([A-Z][a-z]+)', r'\1-\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1-\2', s1).lower()
+def niceFilename(text, keepcharacters = (' ','.','_','(',')','-')):
+    s = "".join(c for c in text if c.isalnum() or c in keepcharacters).rstrip()
+    return camelToHyphens(s)
 squash = lambda L: reduce(lambda x,y: list(x)+list(y),
         map(lambda k: squash(k) if isinstance(k,(list,tuple,set)) else [k], L), [])
 def uniq(seq):

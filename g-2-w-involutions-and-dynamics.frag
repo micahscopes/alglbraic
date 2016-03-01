@@ -7,7 +7,7 @@
 #info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1, -1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
-    
+
 
 // sign involutions
 uniform int flipperA; slider[0,0,16]
@@ -52,7 +52,7 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-// thanks to Bryce Beverlin II for this idea:
+// thanks to Bryce Beverlin for this idea:
 uniform float Bailout; slider[-2,1,4]
 uniform float Bailin; slider[-2,0,4]
 uniform bool Julia; checkbox[false]
@@ -60,7 +60,7 @@ uniform bool Julia; checkbox[false]
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
 uniform bool usePrevious; checkbox[false]
 
-    
+
 
 float[N] product(float u[N], float v[N]) {
     return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
@@ -101,7 +101,7 @@ float[N] flipB(float z[N]) {
 float[N] flipC(float z[N]) {
   return flip(z,flipperC);
 }
-    
+
 
 float norm(float a[N]){
     return inner(a,rev(a))[A];
@@ -109,7 +109,7 @@ float norm(float a[N]){
 float norm2(float a[N]){
     return pow(a[0],2)+pow(a[1],2)+pow(a[2],2)+pow(a[3],2);
 }
-        
+
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -171,13 +171,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4;
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4;
     return u;
 }
 
@@ -294,7 +294,7 @@ void init(){
 }
 
 void iter(inout float z[N],in float c[N]) {
-    
+
 z = mul(
     pwr(mutate(flipA(z),MA),pow1),
     pwr(mutate(flipB(z),MB),pow2)
