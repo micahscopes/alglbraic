@@ -7,6 +7,7 @@ import re
 parser = argparse.ArgumentParser()
 parser.add_argument("-f","--fold", dest='fold', default = None)
 parser.add_argument("--2d", dest='include2d', action='store_true')
+parser.add_argument("-o","--orthonormalize", dest='orthonormalBasis', action='store_true')
 parser.add_argument("-i,--inspect", dest='inspectOnly', action='store_true')
 parser.add_argument("group",nargs='?', default='SymmetricGroup(4)')
 parser.add_argument("path",nargs='?', default = None)
@@ -16,14 +17,15 @@ G = eval(options.group)
 if isinstance(G,list):
     G = direct_product_permgroups(G)
 
-fold = eval(options.fold)
-if isinstance(fold,int):
-    fold = [fold]
+if(options.fold):
+    fold = eval(options.fold)
+    if isinstance(fold,int):
+        fold = [fold]
 
-Alg = G.algebra(SR)
+Alg = GAlg =  G.algebra(SR)
 print "Constructing a group algebra for "+options.group+"..."
 folders=[]
-if(options.fold):
+if(options.fold and not options.orthonormalBasis):
     print "Folding the %s-dimensional group algebra by designated order-2 elements..." % Alg.dimension()
     o2 = [l for l in G.list() if l.order() == 2]
     e2 = []
@@ -40,6 +42,13 @@ if(options.fold):
     oRight = [Alg(el*inv)+Alg(el) for el in G.list() if el.order() > 1 for inv in e2]
     o = oLeft + oRight
     Alg = Alg.quotient_module(o)
+    dim = Alg.dimension()
+    print "Group algebra folded into %s dimensions" % dim
+
+if(options.orthonormalBasis):
+    dim = len(Alg.center_basis())
+    print "Group algebra has a %s dimensional center basis" % dim
+
 
 # if(options.fold):
 #     print "Folding the group algebra by inverse elements..."
@@ -48,7 +57,6 @@ if(options.fold):
 #     Alg = Alg.quotient_module(o)
 
 ###
-dim = Alg.dimension()
 info = "%s dimensional fractal quest on " % dim
 info = info+str(Alg)
 
@@ -66,38 +74,42 @@ def askToContinue():
         return askToContinue()
 
 if(options.inspectOnly):
-    print "Group algebra folded into %s dimensions" % dim
     if not askToContinue():
         sys.exit()
 else:
     print "Initiating "+info
-
+basis = Alg.center_basis().list() if options.orthonormalBasis else Alg.basis().list()
+dim = len(basis)
 syms = ("a","b")
-As,Bs = [var(" ".join([s+str(i) for i in range(dim)])) for s in syms]
-A = Alg.from_vector(vector(As))
-B = Alg.from_vector(vector(Bs))
+symbolsOnBasis = lambda syms,V: [reduce(lambda a,b: a+b,[var(s+str(i))*V[i] for i in range(len(V))]) for s in syms]
+AG,BG = symbolsOnBasis(syms,GAlg.basis().list())
+A,B = symbolsOnBasis(syms,Alg.basis().list())
 
-if(options.fold):
+if options.fold:
     AB = Alg.retract(A.lift()*B.lift())
-    AB_coefs = AB.coefficients()
-    antipode_coefs = Alg.retract(A.lift().antipode()).coefficients()
+    antipode = Alg.retract(A.lift().antipode())
 else:
-    AB_coefs = (A*B).coefficients()
-    antipode_coefs = A.antipode().coefficients()
+    AB = A*B
+    antipode = A.antipode()
 
-Ai = A.coefficients()
-Bi = B.coefficients()
+if options.orthonormalBasis:
+    antipode_coefs = antipode.central_form().coefficients()
+    AB_coefs = AB.central_form().coefficients()
+else:
+    antipode_coefs = antipode.coefficients()
+    AB_coefs = AB.coefficients()
+
 s = sympify
 
 permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
-product = VectorOperation("product",[s(Ai),s(Bi)],s(AB_coefs))
+product = VectorOperation("product",[s(A.coefficients()),s(B.coefficients())],s(AB_coefs))
 v = VectorSpace(dim,product)
 
 if(not options.fold):
-    antipode = VectorOperation("antipode",[s(Ai)],s(antipode_coefs))
+    antipode = VectorOperation("antipode",[s(A.coefficients())],s(antipode_coefs))
     v.operations += [antipode]
 
 def writeFractalQuest(windowDimensions):
@@ -105,6 +117,7 @@ def writeFractalQuest(windowDimensions):
     path = "./" if path == None else path
     if (path.endswith('/')):
         suffix = "-folded%s" % "".join(str(folders).split()) if(options.fold) else ""
+        suffix += "-orthonormal" if(options.orthonormalBasis) else ""
         suffix += "-2d" if(windowDimensions == 2) else "-3d"
         reg = re.compile('(?:\[)*([^]]+)(?:\])*')
         name = reg.findall(options.group)[0]

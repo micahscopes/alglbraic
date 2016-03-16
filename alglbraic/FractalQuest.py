@@ -1,4 +1,5 @@
 from alglbraic import *
+import sys
 
 class FractalQuest(Composition):
     def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3):
@@ -291,3 +292,16 @@ ShowMap = true
 MapZoom = 1.74267
 #endpreset
     """
+    @staticmethod
+    def askToContinue():
+        # raw_input returns the empty string for "enter"
+        yes = set(['yes','y','ye'])
+        no = set(['no','n',''])
+        sys.stdout.write("Initiate fractal quest? [y/N]   ")
+        choice = raw_input().lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            return askToContinue()

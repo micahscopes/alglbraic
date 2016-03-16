@@ -14,13 +14,13 @@ class VectorSpace(Composition):
 float pNormSq(float u[N], float p) {
     float normSq = 0;
     for(int i=0; i<N; i++){
-        normSq = normSq + pow(u[i],p);
+        normSq = normSq + pow(abs(u[i]),p);
     }
     return normSq;
 }
 
 float pNorm(float u[N], float p) {
-    return pow(abs(pNormSq(u,p)),1.0/p);
+    return pow(pNormSq(u,p),1.0/p);
 }"""
     norm = """
 float norm(float u[N]) {
@@ -45,4 +45,4 @@ float norm(float u[N]) {
         return Fragment.get('vectorBasics.frag')
 
     def members(self):
-        return squash([self.product,self.pNorm+self.norm]+self.operations)
+        return squash([self.product]+self.operations+[self.pNorm,self.norm])
