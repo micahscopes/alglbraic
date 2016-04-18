@@ -1,4 +1,4 @@
-from sympy.galgebra.ga import MV
+from galgebra.ga import MV
 from GLSLPrinter import *
 
 import argparse

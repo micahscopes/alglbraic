@@ -1,7 +1,7 @@
 from sympy import Basic, Function, Symbol
 from sympy.printing.str import StrPrinter
 from sympy.core.function import _coeff_isneg
-from sympy.galgebra.ga import MV
+from galgebra.mv import MV
 
 class GLSLPrinter(StrPrinter):
     """

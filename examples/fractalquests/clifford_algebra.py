@@ -1,6 +1,6 @@
 from sage.all import *
 DIR = os.path.dirname(os.path.realpath(__file__))
-load(DIR+"/octonions.sage")
+#load(DIR+"/octonions.sage")
 from sage.all import *
 from alglbraic import *
 from sympy import symbols, Symbol, sympify

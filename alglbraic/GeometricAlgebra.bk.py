@@ -1,6 +1,6 @@
 from fragments import *
 from sympy import Symbol, symbols
-from sympy.galgebra import *
+from galgebra.mv import MV
 # Usage:
 # Pass in a product operation in terms of float u[N] and float v[N].
 #
