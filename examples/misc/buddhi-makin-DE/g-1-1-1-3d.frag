@@ -41,10 +41,10 @@ uniform int flipperC; slider[0,0,256]
 
 
 // extra parameters to play with (useful as weights)
-uniform float auxA; slider[-2,1,2]
-uniform float auxB; slider[-2,1,2]
-uniform float auxC; slider[-2,1,2]
-uniform float auxD; slider[-2,1,2]
+//uniform float auxA; slider[-2,1,2]
+//uniform float auxB; slider[-2,1,2]
+//uniform float auxC; slider[-2,1,2]
+//uniform float auxD; slider[-2,1,2]
 
 // powers for multiplication, if need be
 uniform int pow1; slider[0,1,24]
@@ -80,16 +80,6 @@ float[N] outer(float u[N], float v[N]) {
 
 float[N] rev(float u[N]) {
     return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
-
-float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
-}
-
-
-float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
 }
 
 
@@ -221,6 +211,15 @@ float[N] flipC(float z[N]) {
 }
     
 
+float[N] lc(float u[N], float v[N]) {
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
+}
+
+
+float[N] rc(float u[N], float v[N]) {
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
+}
+
 float O[N];
 float JuliaVect[N];
 
@@ -232,7 +231,7 @@ void init(){
 
 void iter(inout float z[N]) {
     
-    z = mul(
+    z = lc(
         pwr(flipA(z),pow1),
         pwr(flipB(z),pow2)
     );

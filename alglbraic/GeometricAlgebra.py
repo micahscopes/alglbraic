@@ -29,6 +29,8 @@ class GeometricAlgebra(VectorSpace):
         AoutB=(A^B).blade_coefs()
         revA=(A.rev()).blade_coefs()
         normA = sqrt(reduce(add,[el**2 for el in a]))
+        LC = VectorOperation("LC",[A.blade_coefs(),B.blade_coefs()],(A<B).blade_coefs())
+        RC = VectorOperation("RC",[A.blade_coefs(),B.blade_coefs()],(A>B).blade_coefs())
 
         norm = Fragment(lower="""
 float norm(float a[N]){
@@ -39,7 +41,8 @@ return inner(a,rev(a))[0];
         operations = [ \
             VectorOperation("inner",[a,b],AinB),
             VectorOperation("outer",[a,b],AoutB),
-            VectorOperation("rev",[a],revA)
+            VectorOperation("rev",[a],revA),
+            LC, RC
             ]
         VectorSpace.__init__(self,N,product,norm=norm)
         self.operations= operations

@@ -1,42 +1,35 @@
 #version 130
-#define providesInside
+//#define providesInside
 #define providesInit
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
+#include "DE-Raytracer.frag"
 
-#info geometric algebra with quadratic signature: [-1,-1,-1]
-#include "Brute-Raytracer.frag"
+#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1,-1]
+//#include "Brute-Raytracer.frag"
 #group Algebraic
     
 // the default p-norm power (p).
-uniform float NormPower; slider[0.000000001,2,100]
-const int N = 8;
+uniform float NormPower; slider[0.2,2,100]
+const int N = 4;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
 uniform float JuliaVect4; slider[-2,0,2]
-uniform float JuliaVect5; slider[-2,0,2]
-uniform float JuliaVect6; slider[-2,0,2]
-uniform float JuliaVect7; slider[-2,0,2]
-uniform float JuliaVect8; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
 uniform float Position4; slider[-2,0,2]
-uniform float Position5; slider[-2,0,2]
-uniform float Position6; slider[-2,0,2]
-uniform float Position7; slider[-2,0,2]
-uniform float Position8; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,8]
-uniform int FrameY; slider[1,2,8]
-uniform int FrameZ; slider[1,3,8]
+uniform int FrameX; slider[1,1,4]
+uniform int FrameY; slider[1,2,4]
+uniform int FrameZ; slider[1,3,4]
 
 // sign involutions
-uniform int flipperA; slider[0,0,256]
-uniform int flipperB; slider[0,0,256]
-uniform int flipperC; slider[0,0,256]
+uniform int flipperA; slider[0,0,16]
+uniform int flipperB; slider[0,0,16]
+uniform int flipperC; slider[0,0,16]
 
 
 
@@ -62,51 +55,48 @@ uniform bool Julia; checkbox[false]
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
 uniform bool usePrevious; checkbox[false]
     
+#group DE
+uniform float ih; slider[0,100000000,100000000]
+
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
 float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
 }
 
 
 float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[3]*v[0], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[4]*v[0], u[0]*v[5] + u[1]*v[3] - u[3]*v[1] + u[5]*v[0], u[0]*v[6] + u[2]*v[3] - u[3]*v[2] + u[6]*v[0], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
 float[N] rev(float u[N]) {
-    return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
-
-float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
-}
-
-
-float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
+    return float[N](u[0], u[1], u[2], -u[3]);
 }
 
 
 float pNormSq(float u[N], float p) {
     float normSq = 0;
     for(int i=0; i<N; i++){
-        normSq = normSq + pow(abs(u[i]),p);
+        normSq = normSq + pow(u[i],p);
     }
     return normSq;
 }
 
 float pNorm(float u[N], float p) {
-    return pow(pNormSq(u,p),1.0/p);
+    return pow(abs(pNormSq(u,p)),1.0/p);
 }
 
+//float norm(float a[N]){
+//return inner(a,rev(a))[0];
+//}
+
 float norm(float a[N]){
-return inner(a,rev(a))[0];
+	return pNorm(a,NormPower);
 }
     
 float[N] zero() {
@@ -170,13 +160,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
     return u;
 }
 
@@ -230,53 +220,91 @@ void init(){
     
 }
 
-void iter(inout float z[N]) {
+float[N] iter(float z[N]) {
     
-    z = mul(
+    return mul(
         pwr(flipA(z),pow1),
         pwr(flipB(z),pow2)
     );
     
 }
-    
-bool inside(vec3 pt) {
+
+float DE(vec3 pt) {
+    float h = 1.0/ih;
+	h = pow(h,4);
     float z[N] = frame(O,pt);
     float z0[N] = z;
   	float r;
   	int i=0;
-  	r=abs(norm(z));
-
-    while(r<Bailout && (i<Iterations)) {
-      float zprev[N];
-      if (usePrevious) { zprev = z; } else { zprev = z0; }
-  		iter(z);
-  		z = add(z,(Julia ? JuliaVect : zprev));
-  		r=norm(z);
-  		i++;
+  	//r=abs(norm(z));
+  	
+  	float dx[N] = float[N](h,0,0,0);
+  	float dy[N] = float[N](0,h,0,0);
+  	float dz[N] = float[N](0,0,h,0);
+  	float dw[N] = float[N](0,0,0,h);
+  	
+	float Rx[N]=add(z,dx);
+	float Ry[N]=add(z,dy);
+	float Rz[N]=add(z,dz);
+	float Rw[N]=add(z,dw);
+	
+    while( i<Iterations) {
+		float zprev[N];
+		if (usePrevious) { zprev = z; } else { zprev = z0; }
+		z = add(iter(z),(Julia ? JuliaVect : zprev));
+		Rx = add(iter(Rx),(Julia ? JuliaVect : add(zprev,dx)));
+		Ry = add(iter(Ry),(Julia ? JuliaVect : add(zprev,dy)));
+		Rz = add(iter(Rz),(Julia ? JuliaVect : add(zprev,dz)));
+		Rw = add(iter(Rw),(Julia ? JuliaVect : add(zprev,dw)));
+		//r=norm(z);
+		i++;
   	}
-	return ((r < Bailout && r > Bailin) || BailInvert);
+  	float drx = norm(sub(Rx,z))/h;
+  	float dry = norm(sub(Ry,z))/h;
+  	float drz = norm(sub(Rz,z))/h;
+  	float drw = norm(sub(Rw,z))/h;
+  	
+  	return norm(z) * log(norm(z)) / sqrt(pow(drx,2) + pow(dry,2) + pow(drz,2));// + pow(drw,2));
+	//return ((r < Bailout && r > Bailin) || BailInvert);
 }
 
 #preset Init
 FOV = 0.4
-Eye = -0.821733,-1.82625,2.23376
-Target = 2.11612,4.20274,-5.18381
-Up = -0.902532,-0.0745699,-0.424118
+Eye = -2.08854,1.18207,0.897848
+Target = 6.31636,-3.1734,-2.32513
+Up = 0.210907,-0.300889,0.930045
 EquiRectangular = false
+FocalPlane = 1
+Aperture = 0
 Gamma = 2.17595
 ToneMapping = 3
 Exposure = 0.3261
 Brightness = 1
 Contrast = 1
 Saturation = 1
+GaussianWeight = 1
+AntiAliasScale = 2
+Detail = -2.3
+DetailAO = -0.5
+FudgeFactor = 1
+MaxRaySteps = 56
+Dither = 0.5
+NormalBackStep = 1
+AO = 0,0,0,0.7
 Specular = 1.5
 SpecularExp = 16
+SpecularMax = 10
 SpotLight = 1,1,1,0.38043
 SpotLightDir = 0.1,0.1
 CamLight = 1,1,1,1
 CamLightMin = 0
 Glow = 1,1,1,0.16667
+GlowMax = 20
 Fog = 0
+HardShadow = 0
+ShadowSoft = 2
+Reflection = 0
+DebugSun = false
 BaseColor = 1,1,1
 OrbitStrength = 0.8
 X = 0.5,0.6,0.6,0.7
@@ -287,4 +315,38 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
+EnableFloor = true
+FloorNormal = 0,0,1
+FloorHeight = 0
+FloorColor = 1,1,1
+NormPower = 2
+JuliaVect1 = 0
+JuliaVect2 = 0
+JuliaVect3 = 0
+JuliaVect4 = 0
+Position1 = 0
+Position2 = 0
+Position3 = 0
+Position4 = 0
+FrameX = 1
+FrameY = 2
+FrameZ = 3
+flipperA = 0
+flipperB = 0
+flipperC = 0
+auxA = 1
+auxB = 1
+auxC = 1
+auxD = 1
+pow1 = 1
+pow2 = 1
+pow3 = 1
+pow4 = 1
+Iterations = 53
+Bailout = 4
+Bailin = -4
+BailInvert = false
+Julia = false
+usePrevious = false
+ih = 6
 #endpreset
