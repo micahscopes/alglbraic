@@ -38,6 +38,7 @@ uniform int flipperA; slider[0,0,256]
 uniform int flipperB; slider[0,0,256]
 uniform int flipperC; slider[0,0,256]
 
+uniform float CH; slider[0,99,999999999999999999999]
 
 
 // extra parameters to play with (useful as weights)
@@ -61,20 +62,34 @@ uniform bool Julia; checkbox[false]
 
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
 uniform bool usePrevious; checkbox[false]
-    
+
+float[N] reduce(float u[N]) {
+    for(int i=0; i<N; i++){
+        //if(abs(u[i])>CH){
+        //    u[i] = 0;
+        //}
+        u[i] = (mod(u[i],CH));
+    }
+    return u;
+}
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+	u = reduce(u);
+	v = reduce(v);
+    float w[N] = float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return reduce(w);
 }
 
 
 float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    float w[N] = float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    return reduce(w);
 }
 
 
 float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[3]*v[0], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[4]*v[0], u[0]*v[5] + u[1]*v[3] - u[3]*v[1] + u[5]*v[0], u[0]*v[6] + u[2]*v[3] - u[3]*v[2] + u[6]*v[0], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    float w[N] = float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[3]*v[0], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[4]*v[0], u[0]*v[5] + u[1]*v[3] - u[3]*v[1] + u[5]*v[0], u[0]*v[6] + u[2]*v[3] - u[3]*v[2] + u[6]*v[0], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return reduce(w);
 }
 
 
@@ -84,12 +99,14 @@ float[N] rev(float u[N]) {
 
 
 float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
+    float w[N] = float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
+    return reduce(w);
 }
 
 
 float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
+    float w[N] = float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
+    return reduce(w);
 }
 
 
@@ -106,7 +123,7 @@ float pNorm(float u[N], float p) {
 }
 
 float norm(float a[N]){
-return inner(a,rev(a))[0];
+return pNorm(a,2.0);
 }
     
 float[N] zero() {

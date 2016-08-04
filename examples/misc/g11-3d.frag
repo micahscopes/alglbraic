@@ -4,39 +4,31 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info geometric algebra with quadratic signature: [-1,-1,-1]
+#info geometric algebra with quadratic signature: [1,1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
 // the default p-norm power (p).
 uniform float NormPower; slider[0.000000001,2,100]
-const int N = 8;
+const int N = 4;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
 uniform float JuliaVect4; slider[-2,0,2]
-uniform float JuliaVect5; slider[-2,0,2]
-uniform float JuliaVect6; slider[-2,0,2]
-uniform float JuliaVect7; slider[-2,0,2]
-uniform float JuliaVect8; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
 uniform float Position4; slider[-2,0,2]
-uniform float Position5; slider[-2,0,2]
-uniform float Position6; slider[-2,0,2]
-uniform float Position7; slider[-2,0,2]
-uniform float Position8; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,8]
-uniform int FrameY; slider[1,2,8]
-uniform int FrameZ; slider[1,3,8]
+uniform int FrameX; slider[1,1,4]
+uniform int FrameY; slider[1,2,4]
+uniform int FrameZ; slider[1,3,4]
 
 // sign involutions
-uniform int flipperA; slider[0,0,256]
-uniform int flipperB; slider[0,0,256]
-uniform int flipperC; slider[0,0,256]
+uniform int flipperA; slider[0,0,16]
+uniform int flipperB; slider[0,0,16]
+uniform int flipperC; slider[0,0,16]
 
 
 
@@ -64,32 +56,22 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] + u[1]*v[1] + u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] - u[2]*v[3] + u[3]*v[2], u[0]*v[2] + u[1]*v[3] + u[2]*v[0] - u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
 float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    return float[N](u[1]*v[1] + u[2]*v[2] - u[3]*v[3], -u[2]*v[3] + u[3]*v[2], u[1]*v[3] - u[3]*v[1], 0);
 }
 
 
 float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[3]*v[0], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[4]*v[0], u[0]*v[5] + u[1]*v[3] - u[3]*v[1] + u[5]*v[0], u[0]*v[6] + u[2]*v[3] - u[3]*v[2] + u[6]*v[0], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
 }
 
 
 float[N] rev(float u[N]) {
-    return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
-
-float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
-}
-
-
-float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
+    return float[N](u[0], u[1], u[2], -u[3]);
 }
 
 
@@ -170,13 +152,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
     return u;
 }
 

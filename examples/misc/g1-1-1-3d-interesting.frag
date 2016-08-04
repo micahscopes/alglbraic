@@ -4,7 +4,7 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info geometric algebra with quadratic signature: [-1,-1,-1]
+#info geometric algebra with quadratic signature: [1,-1,-1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
@@ -64,12 +64,12 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] + u[1]*v[1] - u[2]*v[2] - u[3]*v[3] + u[4]*v[4] + u[5]*v[5] - u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] + u[1]*v[4] + u[2]*v[0] + u[3]*v[6] - u[4]*v[1] - u[5]*v[7] - u[6]*v[3] - u[7]*v[5], u[0]*v[3] + u[1]*v[5] - u[2]*v[6] + u[3]*v[0] + u[4]*v[7] - u[5]*v[1] + u[6]*v[2] + u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] + u[1]*v[7] + u[2]*v[3] - u[3]*v[2] - u[4]*v[5] + u[5]*v[4] + u[6]*v[0] + u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
 }
 
 
 float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    return float[N](u[1]*v[1] - u[2]*v[2] - u[3]*v[3] + u[4]*v[4] + u[5]*v[5] - u[6]*v[6] - u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[1]*v[4] + u[3]*v[6] - u[4]*v[1] - u[5]*v[7] - u[6]*v[3] - u[7]*v[5], u[1]*v[5] - u[2]*v[6] + u[4]*v[7] - u[5]*v[1] + u[6]*v[2] + u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], u[1]*v[7] + u[7]*v[1], 0);
 }
 
 
@@ -80,16 +80,6 @@ float[N] outer(float u[N], float v[N]) {
 
 float[N] rev(float u[N]) {
     return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
-
-float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
-}
-
-
-float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
 }
 
 
@@ -232,9 +222,10 @@ void init(){
 
 void iter(inout float z[N]) {
     
-    z = mul(
+    z = mul3(
         pwr(flipA(z),pow1),
-        pwr(flipB(z),pow2)
+        pwr(flipB(z),pow2),
+        pwr(flipC(z),pow3)
     );
     
 }
@@ -287,4 +278,166 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
+#endpreset
+
+#preset Interesting
+FOV = 0.4
+Eye = -1.38713,3.10489,1.168
+Target = 3.18207,-5.15733,-2.1272
+Up = -0.822167,-0.250922,-0.510887
+EquiRectangular = false
+Gamma = 2.17595
+ToneMapping = 3
+Exposure = 0.3261
+Brightness = 1
+Contrast = 1
+Saturation = 1
+NormalScale = 1
+AOScale = 1
+Glow = 1
+AOStrength = 0.6
+Samples = 625
+Stratify = true
+DebugInside = false
+CentralDifferences = true
+SampleNeighbors = true
+Near = 0
+Far = 12
+ShowDepth = false
+DebugNormals = false
+Specular = 1.5
+SpecularExp = 16
+SpotLight = 1,1,1,0.38043
+SpotLightDir = 0.1,0.1
+CamLight = 1,1,1,1
+CamLightMin = 0
+Fog = 0
+BaseColor = 1,1,1
+OrbitStrength = 0.8
+X = 0.5,0.6,0.6,0.7
+Y = 1,0.6,0,0.4
+Z = 0.8,0.78,1,0.5
+R = 0.4,0.7,1,0.12
+BackgroundColor = 0.2,0.1,0.7
+GradientBackground = 2
+CycleColors = false
+Cycles = 1.1
+NormPower = 2
+JuliaVect1 = 0
+JuliaVect2 = 0
+JuliaVect3 = 0
+JuliaVect4 = 0
+JuliaVect5 = 0
+JuliaVect6 = 0
+JuliaVect7 = 0
+JuliaVect8 = 0
+Position1 = 0
+Position2 = 0
+Position3 = 0
+Position4 = 0
+Position5 = 0
+Position6 = 0
+Position7 = 0
+Position8 = 0
+FrameX = 2
+FrameY = 6
+FrameZ = 8
+flipperA = 150
+flipperB = 53
+flipperC = 0
+auxA = 1
+auxB = 1
+auxC = 1
+auxD = 1
+pow1 = 2
+pow2 = 1
+pow3 = 1
+pow4 = 1
+Iterations = 16
+Bailout = 2
+Bailin = -4
+BailInvert = false
+Julia = false
+usePrevious = true
+#endpreset
+
+#preset beautifulspirals
+FOV = 0.4
+Eye = -1.28867,1.37964,2.62672
+Target = 2.05813,-3.39738,-5.49603
+Up = 0.124275,-0.832048,0.540535
+EquiRectangular = false
+Gamma = 2.17595
+ToneMapping = 3
+Exposure = 0.3261
+Brightness = 1
+Contrast = 1
+Saturation = 1
+NormalScale = 1
+AOScale = 1
+Glow = 1
+AOStrength = 0.6
+Samples = 625
+Stratify = true
+DebugInside = false
+CentralDifferences = true
+SampleNeighbors = true
+Near = 0
+Far = 12
+ShowDepth = false
+DebugNormals = false
+Specular = 1.5
+SpecularExp = 16
+SpotLight = 1,1,1,0.38043
+SpotLightDir = 0.1,0.1
+CamLight = 1,1,1,1
+CamLightMin = 0
+Fog = 0
+BaseColor = 1,1,1
+OrbitStrength = 0.8
+X = 0.5,0.6,0.6,0.7
+Y = 1,0.6,0,0.4
+Z = 0.8,0.78,1,0.5
+R = 0.4,0.7,1,0.12
+BackgroundColor = 0.2,0.1,0.7
+GradientBackground = 2
+CycleColors = false
+Cycles = 1.1
+NormPower = 2
+JuliaVect1 = 0
+JuliaVect2 = 0
+JuliaVect3 = 0
+JuliaVect4 = 0
+JuliaVect5 = 0
+JuliaVect6 = 0
+JuliaVect7 = 0
+JuliaVect8 = 0
+Position1 = 0
+Position2 = 0
+Position3 = 0
+Position4 = 0
+Position5 = 0
+Position6 = 0
+Position7 = 0
+Position8 = 0
+FrameX = 1
+FrameY = 7
+FrameZ = 8
+flipperA = 199
+flipperB = 127
+flipperC = 0
+auxA = 1
+auxB = 1
+auxC = 1
+auxD = 1
+pow1 = 1
+pow2 = 1
+pow3 = 1
+pow4 = 1
+Iterations = 16
+Bailout = 4
+Bailin = -4
+BailInvert = false
+Julia = false
+usePrevious = true
 #endpreset

@@ -4,7 +4,7 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info geometric algebra with quadratic signature: [-1,-1,-1]
+#info geometric algebra with quadratic signature: [1,1,1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
@@ -54,8 +54,8 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,2,4]
-uniform float Bailin; slider[-4,-4,0]
+uniform float Bailout; slider[0,2,10]
+uniform float Bailin; slider[-10,-4,0]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]
 
@@ -64,12 +64,12 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[4] + u[2]*v[0] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] + u[3]*v[0] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] - u[3]*v[7] + u[4]*v[0] + u[5]*v[6] - u[6]*v[5] - u[7]*v[3], u[0]*v[5] + u[1]*v[3] + u[2]*v[7] - u[3]*v[1] - u[4]*v[6] + u[5]*v[0] + u[6]*v[4] + u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] + u[1]*v[1] + u[2]*v[2] + u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] - u[2]*v[4] - u[3]*v[5] + u[4]*v[2] + u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[0]*v[2] + u[1]*v[4] + u[2]*v[0] - u[3]*v[6] - u[4]*v[1] + u[5]*v[7] + u[6]*v[3] + u[7]*v[5], u[0]*v[3] + u[1]*v[5] + u[2]*v[6] + u[3]*v[0] - u[4]*v[7] - u[5]*v[1] - u[6]*v[2] - u[7]*v[4], u[0]*v[4] + u[1]*v[2] - u[2]*v[1] + u[3]*v[7] + u[4]*v[0] - u[5]*v[6] + u[6]*v[5] + u[7]*v[3], u[0]*v[5] + u[1]*v[3] - u[2]*v[7] - u[3]*v[1] + u[4]*v[6] + u[5]*v[0] - u[6]*v[4] - u[7]*v[2], u[0]*v[6] + u[1]*v[7] + u[2]*v[3] - u[3]*v[2] - u[4]*v[5] + u[5]*v[4] + u[6]*v[0] + u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] + u[3]*v[4] + u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
 }
 
 
 float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[2]*v[4] + u[3]*v[5] - u[4]*v[2] - u[5]*v[3] - u[6]*v[7] - u[7]*v[6], -u[1]*v[4] + u[3]*v[6] + u[4]*v[1] + u[5]*v[7] - u[6]*v[3] + u[7]*v[5], -u[1]*v[5] - u[2]*v[6] - u[4]*v[7] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], -u[3]*v[7] - u[7]*v[3], u[2]*v[7] + u[7]*v[2], -u[1]*v[7] - u[7]*v[1], 0);
+    return float[N](u[1]*v[1] + u[2]*v[2] + u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] - u[7]*v[7], -u[2]*v[4] - u[3]*v[5] + u[4]*v[2] + u[5]*v[3] - u[6]*v[7] - u[7]*v[6], u[1]*v[4] - u[3]*v[6] - u[4]*v[1] + u[5]*v[7] + u[6]*v[3] + u[7]*v[5], u[1]*v[5] + u[2]*v[6] - u[4]*v[7] - u[5]*v[1] - u[6]*v[2] - u[7]*v[4], u[3]*v[7] + u[7]*v[3], -u[2]*v[7] - u[7]*v[2], u[1]*v[7] + u[7]*v[1], 0);
 }
 
 
@@ -80,16 +80,6 @@ float[N] outer(float u[N], float v[N]) {
 
 float[N] rev(float u[N]) {
     return float[N](u[0], u[1], u[2], u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
-
-float[N] LC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[0]*v[1] + u[2]*v[4] + u[3]*v[5] - u[6]*v[7], u[0]*v[2] - u[1]*v[4] + u[3]*v[6] + u[5]*v[7], u[0]*v[3] - u[1]*v[5] - u[2]*v[6] - u[4]*v[7], u[0]*v[4] - u[3]*v[7], u[0]*v[5] + u[2]*v[7], u[0]*v[6] - u[1]*v[7], u[0]*v[7]);
-}
-
-
-float[N] RC(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] + u[7]*v[7], u[1]*v[0] - u[4]*v[2] - u[5]*v[3] - u[7]*v[6], u[2]*v[0] + u[4]*v[1] - u[6]*v[3] + u[7]*v[5], u[3]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[4], u[4]*v[0] - u[7]*v[3], u[5]*v[0] + u[7]*v[2], u[6]*v[0] - u[7]*v[1], u[7]*v[0]);
 }
 
 
