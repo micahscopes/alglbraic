@@ -2,7 +2,8 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 load('%s/../algebras/lpa.py'%DIR)
 from alglbraic import *
 
-rels = {"a":["c","d"],"b":["c","d"],"d":["c"]}
+#rels = {"a":["c","c"],"c":["a","c"]}
+rels = {"a":["b","c","d"],"d":["d","b"],"b":["c","d"],}
 G = DiGraph(rels)
 A,B,AB = LeavittPathAlg(G)
 
