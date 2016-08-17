@@ -8,13 +8,12 @@ def complexVec(sym,dim):
     imags = vec(sym,dim,suff="_im")
     return zip(reals,imags)
 
-Qs = "[1]"
-Q = [i for i in Qs.strip("[]").split(",")]
+dim = 2
+F = FiniteField(dim)
+Al = F.algebra(SR,category=Semigroups())
 
-Q = QuadraticForm(CC,1,Q)
-Al = CliffordAlgebra(Q)
-Asyms = complexVec("a",dim(Al))
-Bsyms = complexVec("b",dim(Al))
+Asyms = complexVec("a",dim)
+Bsyms = complexVec("b",dim)
 As = [v[0]+v[1]*I for v in Asyms]
 Bs = [v[0]+v[1]*I for v in Bsyms]
 Asubs = {}
@@ -40,17 +39,13 @@ AB_imag = map(lambda ab: ab.imag(),AB_coefs)
 AB_coefs = map(lambda ab: (ab).substitute(Asubs).substitute(Bsubs),flatten(zip(AB_real,AB_imag)))
 s = sympify
 
-dim = Al.dimension()*2
 permutations = None
-if(dim < 5):
-    permutations = Permutations(dim)
+if(2*dim < 5):
+    permutations = Permutations(dim*2)
 
 product = VectorOperation("product",[s(Asyms),s(Bsyms)],s(AB_coefs))
-vectorspace = VectorSpace(dim,product)
-# flipper = SignFlipper(dim)
+vectorspace = VectorSpace(2*dim,product)
 
-# conjugate = VectorOperation("conjugate",[s(A.vector())],s(A_conj.vector()))
-# v.operations += [conjugate]
-
-info = "Clifford Algebra with signature %s" % Qs
-name="clifford-complex%s" % Qs
+info = "%s real-dimensional algebra of %s dimensional finite field over the complex numbers" % (2*dim,dim)
+name="finite-field-algebra-%s-complex" % dim
+dim = 2*dim
