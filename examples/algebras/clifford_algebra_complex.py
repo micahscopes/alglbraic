@@ -8,10 +8,10 @@ def complexVec(sym,dim):
     imags = vec(sym,dim,suff="_im")
     return zip(reals,imags)
 
-Qs = "[1]"
+Qs = "[1,1,1,-1]"
 Q = [i for i in Qs.strip("[]").split(",")]
 
-Q = QuadraticForm(CC,1,Q)
+Q = DiagonalQuadraticForm(CC,Q)
 Al = CliffordAlgebra(Q)
 Asyms = complexVec("a",dim(Al))
 Bsyms = complexVec("b",dim(Al))

@@ -1,7 +1,6 @@
 from sympy import Basic, Function, Symbol
 from sympy.printing.str import StrPrinter
 from sympy.core.function import _coeff_isneg
-from galgebra.mv import MV
 
 class GLSLPrinter(StrPrinter):
     """
@@ -9,7 +8,6 @@ class GLSLPrinter(StrPrinter):
     operators.  Prints pow(b,n) instead of b**n.   Goals: support for emulated double/quad/octal
     precision.
 
-    Used predominantly with the geometric algebra module, for now.
 
     Available settings:
     'use_operators': Boolean (should the printer use operators for +,-,*, or functions?)
@@ -74,12 +72,6 @@ class GLSLPrinter(StrPrinter):
         s = reduce(lambda a,b: mul(a,b), map(lambda t: self._print(t),terms))
         return s
 
-    def _print_MV(self, expr):
-        blades = MV(expr).blades_flat1
-        # return print(self)
-        coefs = map(lambda i: MV(expr).coef(MV(blades[i])),range(len(blades)))
-        s = self._settings['MV_wrap'] % ", ".join(map(lambda co: (self._settings['element_wrap'] % self._print(co)),coefs))
-        return s
     #
     # def formatBinaryOperation(self,a,b,OPab,uStr="u[%i]",vStr="v[%i]"):
     #     """Given lists a,b of sympy symbols and a map a,b -> OP(a,b),

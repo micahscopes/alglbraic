@@ -1,6 +1,6 @@
 from fragments import *
 from GLSLPrinter import *
-from sympy import Symbol, symbols
+from sympy import Symbol, symbols, sympify
 
 # Usage:
 # Pass in an operation in terms of float u[N] and float v[N].
@@ -9,10 +9,11 @@ from sympy import Symbol, symbols
 class VectorOperation(Fragment):
     def __init__(self, name, vectors, results, symbols=['u','v','w','x','y','z','a','b','c']):
         Fragment.__init__(self)
+        s = sympify
         # HOLD ON TO YOUR HORSE VERY TIGHT
         self.operation = name
-        self.vectors = vectors
-        self.results = squash([results])
+        self.vectors = [s(v) for v in vectors]
+        self.results = squash([s(results)])
         self.symbols = symbols
         self._functionTemplate = Template("""
 $rtype $func($args) {

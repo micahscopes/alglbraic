@@ -49,7 +49,7 @@ class Fragment:
     def gl(self,printer=None):
         self.setPrinter(printer)
         parts = [p for p in squash(self.parts()) if p is not None]
-        return "\n".join(parts)
+        return str("\n".join(parts))
 
     def __add__(self,other):
         """Compose this fragment with another one"""
