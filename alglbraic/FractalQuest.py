@@ -2,7 +2,7 @@ from alglbraic import *
 import sys
 
 class FractalQuest(Composition):
-    def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3):
+    def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3,window_transformation_hook='',init_hooks=[]):
         Composition.__init__(self)
         is2d = windowDimensions == 2
         if formula != None:
@@ -28,12 +28,12 @@ z = mul(
             initMutations = ""
         self.vectorspace = vectorspace
         frames = ["X","Y"] if is2d else ["X","Y","Z"]
-        window = Window(vectorspace.N,frames)
+        window = Window(vectorspace.N,frames,transformation_hook=window_transformation_hook)
         julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
         position = FragmentariumParams("Position",vectorspace.N,size_const="N")
         flippers = SignFlipper(vectorspace.N)
         self._members = [vectorspace,julia,position,window,mutations,flippers]
-        self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations)
+        self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations,initHooks='\n'.join(init_hooks))
         self._lower += self.inside2d if is2d else self.inside3d
         if is2d:
             presets = self.presets2d
@@ -112,9 +112,10 @@ float O[N];
 float JuliaVect[N];
 
 void init(){
+    $initHooks
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
-    $initMutations
+    $initMutations;
 }
 
 void iter(inout float z[N]) {

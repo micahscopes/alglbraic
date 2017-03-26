@@ -4,31 +4,37 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1,-1]
+#info Algebra of finite field of dimension 3
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
 // the default p-norm power (p).
 uniform float NormPower; slider[0.000000001,2,100]
-const int N = 4;
+const int N = 3;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
-uniform float JuliaVect4; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
-uniform float Position4; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,4]
-uniform int FrameY; slider[1,2,4]
-uniform int FrameZ; slider[1,3,4]
+uniform int FrameX; slider[1,1,3]
+uniform int FrameY; slider[1,2,3]
+uniform int FrameZ; slider[1,3,3]
+
+// mutation indices (Lehmer or Lexicographic)
+uniform int mutationA; slider[0,0,6]
+uniform int mutationB; slider[0,0,6]
+uniform int mutationC; slider[0,0,6]
+uniform int mutationD; slider[0,0,6]
+
+
 
 // sign involutions
-uniform int flipperA; slider[0,0,16]
-uniform int flipperB; slider[0,0,16]
-uniform int flipperC; slider[0,0,16]
+uniform int flipperA; slider[0,0,8]
+uniform int flipperB; slider[0,0,8]
+uniform int flipperC; slider[0,0,8]
 
 
 
@@ -46,7 +52,7 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,2,50]
+uniform float Bailout; slider[0,2,4]
 uniform float Bailin; slider[-4,-4,0]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]
@@ -55,46 +61,26 @@ uniform bool Julia; checkbox[false]
 uniform bool usePrevious; checkbox[false]
     
 
-//float[N] product(float u[N], float v[N]) {
-//    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
-//}
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1]);
-}
-
-
-
-float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
-}
-
-
-float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
-}
-
-
-float[N] rev(float u[N]) {
-    return float[N](u[0], u[1], u[2], -u[3]);
+    return float[N](u[0]*v[0] + u[0]*v[1] + u[0]*v[2] + u[1]*v[0] + u[2]*v[0], u[1]*v[1] + u[2]*v[2], u[1]*v[2] + u[2]*v[1]);
 }
 
 
 float pNormSq(float u[N], float p) {
     float normSq = 0;
     for(int i=0; i<N; i++){
-        normSq = normSq + pow(u[i],p);
+        normSq = normSq + pow(abs(u[i]),p);
     }
     return normSq;
 }
 
 float pNorm(float u[N], float p) {
-    return pow(abs(pNormSq(u,p)),1.0/p);
+    return pow(pNormSq(u,p),1.0/p);
 }
 
-float norm(float a[N]){
-return inner(a,rev(a))[0];
+float norm(float u[N]) {
+    return pNorm(u,NormPower);
 }
-    
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -156,13 +142,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; 
     return u;
 }
 
@@ -183,6 +169,89 @@ float[N] frame(float v[N], vec3 p){
         if (i == FrameZ-1) { v[i] = p[2]; }
     }
 return v;
+}
+
+int[N] permutationLexicographic(int i)
+{
+   int j, k = 0;
+   int fact[N];
+   int perm[N];
+
+   // compute factorial numbers
+   fact[k] = 1;
+   while (++k < N)
+      fact[k] = fact[k - 1] * k;
+
+   // compute factorial code
+   for (k = 0; k < N; ++k)
+   {
+      perm[k] = i / fact[N - 1 - k];
+      i = i % fact[N - 1 - k];
+   }
+
+   // readjust values to obtain the permutation
+   // start from the end and check if preceding values are lower
+   for (k = N - 1; k > 0; --k)
+      for (j = k - 1; j >= 0; --j)
+         if (perm[j] <= perm[k])
+            perm[k]++;
+
+    return perm;
+}
+
+int[N] permutationLehmer(int n) {
+    int result[N];
+    int working[N];
+    for (int i = 0; i < N; i++) {
+        result[i] = i;
+        working[i] = i;
+    }
+    int item;
+    bool found = false;
+    for (int i = 0; i < N; i++) {
+        item = int(n % (N-i));
+        n = int(floor(n / (N-i)));
+        result[i] = working[item];
+        for (int j = 0; j<N-i-1; j++) {
+            if(working[j] == result[i]) {found = true;}
+            if(found){working[j] = working[j+1];}
+        }
+    }
+    return result;
+}
+
+int[N] permutation(int n){
+  // choose which variation you want to use
+  return permutationLehmer(n);
+}
+
+float[N] mutate(float A[N],int P[N],bool inverse) {
+    float permutated[N] = zero();
+    for(int i = 0; i < N; i++) {
+        if(!inverse) {
+            permutated[i] = A[P[i]];
+        } else {
+            permutated[P[i]] = A[i];
+        }
+    }
+    return permutated;
+}
+
+float[N] mutate(float A[N],int P[N]) {
+  return mutate(A,P,false);
+}
+
+// the mutations
+int MA[N];
+int MB[N];
+int MC[N];
+int MD[N];
+
+void initMutations() {
+	MA = permutation(mutationA);
+	MB = permutation(mutationB);
+	MC = permutation(mutationC);
+	MD = permutation(mutationD);
 }
 
 
@@ -213,16 +282,18 @@ float JuliaVect[N];
 void init(){
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
-    
+    initMutations();
 }
 
 void iter(inout float z[N]) {
     
-    z = mul(
-        pwr(flipA(z),pow1),
-        pwr(flipB(z),pow2)
-    );
-    
+float MzA[N] = mutate(z,MA);
+float MzB[N] = mutate(z,MB);
+z = mul(
+    pwr(flipA(MzA),pow1),
+    pwr(flipB(MzB),pow2)
+);
+            
 }
     
 bool inside(vec3 pt) {

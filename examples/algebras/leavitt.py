@@ -2,10 +2,12 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 load('%s/../algebras/lpa.py'%DIR)
 from alglbraic import *
 
-#rels = {"a":["c","c"],"c":["a","c"]}
-rels = {"a":["b","c","d"],"d":["d","b"],"b":["c","d"],}
+complex = True
+
+rels = {"a":["c"],"c":["a","b"]}
+#rels = {"a":["b","c","d"],"d":["d","b"],"b":["c","d"],}
 G = DiGraph(rels)
-A,B,AB = LeavittPathAlg(G)
+A,B,AB = LeavittPathAlg(G,complex)
 
 print len(A), A
 print len(B), B
@@ -27,4 +29,4 @@ vectorspace = VectorSpace(dim,product)
 # conjugate = VectorOperation("conjugate",[s(A.vector())],s(A_conj.vector()))
 # v.operations += [conjugate]
 
-name="lpa-%s" % str(rels)
+name="lpa-%s%s" % ("complex-" if complex else "", str(rels))

@@ -4,31 +4,47 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info GEOMETRIC ALGEBRAIC FRACTALS 2016!!! Q = [-1,-1]
+#info leavitt path algebra of with dimension 12, for graph(a1*b1 + a1*b10 + a4*b7, a2*b2, a3*b11 + a3*b12 + a3*b3 + a5*b8 + a6*b9, a4*b3 + a1*b4, a5*b1 + a3*b5, a6*b2 + a3*b6, a7*b1 + a3*b7, a8*b3 + a1*b8, a9*b3 + a2*b9, 0, -a3*b12 - a6*b9, -a3*b11 - a5*b8)
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
 // the default p-norm power (p).
 uniform float NormPower; slider[0.000000001,2,100]
-const int N = 4;
+const int N = 12;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
 uniform float JuliaVect4; slider[-2,0,2]
+uniform float JuliaVect5; slider[-2,0,2]
+uniform float JuliaVect6; slider[-2,0,2]
+uniform float JuliaVect7; slider[-2,0,2]
+uniform float JuliaVect8; slider[-2,0,2]
+uniform float JuliaVect9; slider[-2,0,2]
+uniform float JuliaVect10; slider[-2,0,2]
+uniform float JuliaVect11; slider[-2,0,2]
+uniform float JuliaVect12; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
 uniform float Position4; slider[-2,0,2]
+uniform float Position5; slider[-2,0,2]
+uniform float Position6; slider[-2,0,2]
+uniform float Position7; slider[-2,0,2]
+uniform float Position8; slider[-2,0,2]
+uniform float Position9; slider[-2,0,2]
+uniform float Position10; slider[-2,0,2]
+uniform float Position11; slider[-2,0,2]
+uniform float Position12; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,4]
-uniform int FrameY; slider[1,2,4]
-uniform int FrameZ; slider[1,3,4]
+uniform int FrameX; slider[1,1,12]
+uniform int FrameY; slider[1,2,12]
+uniform int FrameZ; slider[1,3,12]
 
 // sign involutions
-uniform int flipperA; slider[0,0,16]
-uniform int flipperB; slider[0,0,16]
-uniform int flipperC; slider[0,0,16]
+uniform int flipperA; slider[0,0,4096]
+uniform int flipperB; slider[0,0,4096]
+uniform int flipperC; slider[0,0,4096]
 
 
 
@@ -46,7 +62,7 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,2,50]
+uniform float Bailout; slider[0,2,4]
 uniform float Bailin; slider[-4,-4,0]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]
@@ -55,46 +71,26 @@ uniform bool Julia; checkbox[false]
 uniform bool usePrevious; checkbox[false]
     
 
-//float[N] product(float u[N], float v[N]) {
-//    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
-//}
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1]);
-}
-
-
-
-float[N] inner(float u[N], float v[N]) {
-    return float[N](-u[1]*v[1] - u[2]*v[2] - u[3]*v[3], u[2]*v[3] - u[3]*v[2], -u[1]*v[3] + u[3]*v[1], 0);
-}
-
-
-float[N] outer(float u[N], float v[N]) {
-    return float[N](u[0]*v[0], u[0]*v[1] + u[1]*v[0], u[0]*v[2] + u[2]*v[0], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0]);
-}
-
-
-float[N] rev(float u[N]) {
-    return float[N](u[0], u[1], u[2], -u[3]);
+    return float[N](u[0]*v[0] + u[0]*v[9] + u[3]*v[6], u[1]*v[1], u[2]*v[10] + u[2]*v[11] + u[2]*v[2] + u[4]*v[7] + u[5]*v[8], u[0]*v[3] + u[3]*v[2], u[2]*v[4] + u[4]*v[0], u[2]*v[5] + u[5]*v[1], u[2]*v[6] + u[6]*v[0], u[0]*v[7] + u[7]*v[2], u[1]*v[8] + u[8]*v[2], 0, -u[2]*v[11] - u[5]*v[8], -u[2]*v[10] - u[4]*v[7]);
 }
 
 
 float pNormSq(float u[N], float p) {
     float normSq = 0;
     for(int i=0; i<N; i++){
-        normSq = normSq + pow(u[i],p);
+        normSq = normSq + pow(abs(u[i]),p);
     }
     return normSq;
 }
 
 float pNorm(float u[N], float p) {
-    return pow(abs(pNormSq(u,p)),1.0/p);
+    return pow(pNormSq(u,p),1.0/p);
 }
 
-float norm(float a[N]){
-return inner(a,rev(a))[0];
+float norm(float u[N]) {
+    return pNorm(u,NormPower);
 }
-    
 float[N] zero() {
   float zero[N];
   for(int i=0; i<N; ++i){zero[i] = 0;}
@@ -156,13 +152,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; u[8] = JuliaVect9; u[9] = JuliaVect10; u[10] = JuliaVect11; u[11] = JuliaVect12; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; u[8] = Position9; u[9] = Position10; u[10] = Position11; u[11] = Position12; 
     return u;
 }
 

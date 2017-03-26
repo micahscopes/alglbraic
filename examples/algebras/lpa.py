@@ -1,7 +1,14 @@
 from yeropa import *
 from sage.all import *
 
-def LeavittPathAlg(G):
+def vec(sym,m,suff=""):
+    return vector(SR, [var(sym+"%i%s" % (i%m+1,suff)) for i in range(m)]);
+def complexVec(sym,dim):
+    reals = vec(sym,dim,suff="_re")
+    imags = vec(sym,dim,suff="_im")
+    return zip(reals,imags)
+
+def LeavittPathAlg(G,complex=False):
     Vs = G.vertices()
     Es = G.edges()
     def GH(e):
@@ -18,44 +25,44 @@ def LeavittPathAlg(G):
     B = Vs+Es+GEs+CK2
     dim = len(B)
 
-    I = {}
+    In = {}
     Act = {}
     names = []
     i = 0
     for el in B:
-        I[el] = i
+        In[el] = i
         Act[el] = Matrix(QQ,dim)
         i+=1
 
-    dim = len(I)
+    dim = len(In)
 
     for i,v in enumerate(Vs):
         names.append("v%s"%i)
 
-        Act[v][I[v],I[v]] = 1 # (rel 1)    
+        Act[v][In[v],In[v]] = 1 # (rel 1)    
         for e in Es: # (rel CK2)
             if e[0] != v:
                 continue
-            Act[GH(e)][I[e],I[v]] = 1
+            Act[GH(e)][In[e],In[v]] = 1
             for eck2 in CK2Es(v):
                 if eck2[0] == e:
                     continue
-                Act[GH(e)][I[e],I[eck2]] = -1
+                Act[GH(e)][In[e],In[eck2]] = -1
 
     for e in Es: 
-        names.append("e%s%s"%(I[e[0]],I[e[1]]))
+        names.append("e%s%s"%(In[e[0]],In[e[1]]))
 
         s = e[0]
         r = e[1]
-        Act[r][I[e],I[e]] = 1 # (rel 2)
-        Act[e][I[s],I[e]] = 1 # (rel 2)
-        Act[s][I[GH(e)],I[GH(e)]] = 1 # (rel 2)
-        Act[GH(e)][I[r],I[GH(e)]] = 1 # (rel 2)
+        Act[r][In[e],In[e]] = 1 # (rel 2)
+        Act[e][In[s],In[e]] = 1 # (rel 2)
+        Act[s][In[GH(e)],In[GH(e)]] = 1 # (rel 2)
+        Act[GH(e)][In[r],In[GH(e)]] = 1 # (rel 2)
 
     #     Act[GH(e)][I[e],I[CK(e)]] = 1 # (CK2 basis elements)
 
     for e in Es: # (rel CK1)
-        names.append("gh%s%s"%(I[e[0]],I[e[1]]))
+        names.append("gh%s%s"%(In[e[0]],In[e[1]]))
 
         r = e[1]
     #     print e
@@ -69,7 +76,7 @@ def LeavittPathAlg(G):
     B = Vs+Es+GEs
     while i<len(B):
         for el in B:
-            if I[el] == i:
+            if In[el] == i:
                 ActMats.append(Act[el])
                 i+=1
 
@@ -77,14 +84,14 @@ def LeavittPathAlg(G):
     for v in Vs:
         if len(CK2Es(v))<1:
             continue
-        CK2CongruenceRelations[I[v]] = [(I[ck[0]],I[ck[1]]) for ck in CK2Es(v)]
+        CK2CongruenceRelations[In[v]] = [(In[ck[0]],In[ck[1]]) for ck in CK2Es(v)]
     CK2CongruenceRelations
 
     A = FreeAlgebra(SR,names)
     A.inject_variables()
     # print A.gens(), len(A.gens())
     # print A.monoid().gens()
-    CK2gens = [A.monoid().gens()[I[e]]*A.monoid().gens()[I[GH(e)]] for e in Es]
+    CK2gens = [A.monoid().gens()[In[e]]*A.monoid().gens()[In[GH(e)]] for e in Es]
 
     gens = A.monoid().gens()
 
@@ -111,17 +118,42 @@ def LeavittPathAlg(G):
     v = vs.subspace([B(v).vector() for v in CK2eqs])
     sub = vs.subspace(v)
     quo = mod.quotient(sub)
-
-    # quo.lift((e01*gh01+2*e02*gh02).vector())
-    # print quo((e01*gh01+e02*gh02).vector())
     dim = len(mons)
-    # sub(vs(e01*gh01 + e02*gh02))
-    # vec("a",dim)
-    a = B(vec("a",dim))
-    b = B(vec("b",dim))
-    ab = (a*b).vector()
-    a = a.vector()
-    b = b.vector()
+    if complex:
+        Al = B
+        Asyms = complexVec("a",dim)
+        Bsyms = complexVec("b",dim)
+        As = [v[0]+v[1]*I for v in Asyms]
+        Bs = [v[0]+v[1]*I for v in Bsyms]
+        Asubs = {}
+        Bsubs = {}
+
+        Asyms = flatten(Asyms)
+        Bsyms = flatten(Bsyms)
+        for a in Asyms:
+            Asubs[imag_part(a)] = 0
+            Asubs[real_part(a)] = a
+        for a in Bsyms:
+            Asubs[imag_part(a)] = 0
+            Asubs[real_part(a)] = a
+
+        A = Al(vector(As))
+        B = Al(vector(Bs))
+        AB_coefs = (A*B).vector().coefficients()
+        for ab in AB_coefs:
+            real(ab).substitute(Asubs).substitute(Bsubs)
+        AB_real = map(lambda ab: ab.real(),AB_coefs)
+        AB_imag = map(lambda ab: ab.imag(),AB_coefs)
+
+        AB_coefs = map(lambda ab: (ab).substitute(Asubs).substitute(Bsubs), flatten(zip(AB_real,AB_imag)))
+        a = vector(Asyms); b = vector(Bsyms); ab = vector(AB_coefs)
+        dim = dim*2
+    else:
+        a = B(vec("a",dim))
+        b = B(vec("b",dim))
+        ab = (a*b).vector()
+        a = a.vector()
+        b = b.vector()
 
     ab.coefficients()
     return (a,b,ab)

@@ -28,4 +28,5 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
+Far = 10
 #endpreset
