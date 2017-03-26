@@ -4,8 +4,8 @@ import sys
 def vec(sym,m):
     return vector(SR, [var(sym+"%i" % (i%m+1)) for i in range(m)]);
 
-Qs = "[1,1,0]"
-Q = [2*int(i) for i in Qs.strip("[]").split(",")]
+Qs = "[1,1,-1,-1]"
+Q = [2*float(i) for i in Qs.strip("[]").split(",")]
 m = Matrix.diagonal(Q)
 q = QuadraticForm(m)
 

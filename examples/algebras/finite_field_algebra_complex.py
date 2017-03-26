@@ -8,7 +8,7 @@ def complexVec(sym,dim):
     imags = vec(sym,dim,suff="_im")
     return zip(reals,imags)
 
-dim = 2
+dim = 3
 F = FiniteField(dim)
 Al = F.algebra(SR,category=Semigroups())
 

@@ -1,8 +1,8 @@
 #version 130
 #define providesInside
 #define providesInit
-#define SubframeMax 4
-#define IterationsBetweenRedraws 4
+#define SubframeMax 50
+#define IterationsBetweenRedraws 100
 
 #info geometric algebra with quadratic signature: [-1,-1,-1]
 #include "Brute-Raytracer.frag"

@@ -201,30 +201,10 @@ int[N] permutationLexicographic(int i)
     return perm;
 }
 
-int[N] permutationLehmer(int n) {
-    int result[N];
-    int working[N];
-    for (int i = 0; i < N; i++) {
-        result[i] = i;
-        working[i] = i;
-    }
-    int item;
-    bool found = false;
-    for (int i = 0; i < N; i++) {
-        item = int(n % (N-i));
-        n = int(floor(n / (N-i)));
-        result[i] = working[item];
-        for (int j = 0; j<N-i-1; j++) {
-            if(working[j] == result[i]) {found = true;}
-            if(found){working[j] = working[j+1];}
-        }
-    }
-    return result;
-}
 
 int[N] permutation(int n){
   // choose which variation you want to use
-  return permutationLehmer(n);
+  return permutationLexicographic(n);
 }
 
 float[N] mutate(float A[N],int P[N],bool inverse) {

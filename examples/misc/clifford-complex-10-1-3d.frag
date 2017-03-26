@@ -54,7 +54,7 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,2,4]
+uniform float Bailout; slider[0,20,80]
 uniform float Bailin; slider[-4,-4,0]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]

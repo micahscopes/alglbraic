@@ -4,7 +4,7 @@ import sys
 def vec(sym,m,suff=""):
     return vector(SR, [var(sym+"%i%s" % (i%m+1,suff)) for i in range(m)]);
 
-dim = 2
+dim = 31
 F = FiniteField(dim)
 f = F.algebra(SR,category=Semigroups())
 a = f.an_element()

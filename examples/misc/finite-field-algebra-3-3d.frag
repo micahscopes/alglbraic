@@ -210,7 +210,7 @@ int[N] permutationLehmer(int n) {
     bool found = false;
     for (int i = 0; i < N; i++) {
         item = int(n % (N-i));
-        n = int(floor(n / (N-i)));
+        n = int((n / (N-i)));
         result[i] = working[item];
         for (int j = 0; j<N-i-1; j++) {
             if(working[j] == result[i]) {found = true;}
