@@ -7,25 +7,28 @@ from sympy import Symbol, symbols, sympify
 #
 
 class VectorOperation(Fragment):
-    def __init__(self, name, vectors, results, symbols=['u','v','w','x','y','z','a','b','c']):
+    def __init__(self, name, vectors, results, symbols=['u','v','w','x','y','z','a','b','c'], result_size_const = "N", input_size_consts = None, functionTemplate=None):
         Fragment.__init__(self)
+        self.N = result_size_const
+        self.N_inputs = input_size_consts if input_size_consts else result_size_const*len(vectors)
         s = sympify
         # HOLD ON TO YOUR HORSE VERY TIGHT
         self.operation = name
         self.vectors = [s(v) for v in vectors]
         self.results = squash([s(results)])
         self.symbols = symbols
-        self._functionTemplate = Template("""
+        self._functionTemplate = functionTemplate if functionTemplate else Template("""
 $rtype $func($args) {
     return $result;
 }
 """)
 
     def compile(self,name,vectors,results,symbols):
-        rtype = "float[N]" if len(results)>1 else "float"
+        rtype = "float[%s]" % self.N if len(results)>1 else "float"
         symbols = map(lambda i: symbols[i]+"[%s]",range(len(vectors)))
         #print(symbols)
-        args = ", ".join(map(lambda s: "float "+s % "N",symbols))
+        args = ", ".join(map(lambda (i,s): "float "+s % self.N_inputs[i],enumerate(symbols)))
+
         symbols = zip(vectors,symbols)
         component = lambda i, symbol: Symbol(symbol % i)
         subs = []
@@ -35,7 +38,7 @@ $rtype $func($args) {
         subs = dict(subs)
         results = map(lambda c: self.makeGL(c.subs(subs)), results)
         if len(results)>1:
-            result = "float[N](%s)" % ", ".join(results)
+            result = "float[%s](%s)" % (self.N, ", ".join(results))
         else:
             result = results[0]
         return self._functionTemplate.substitute(func=name,rtype=rtype,args=args,result=result)

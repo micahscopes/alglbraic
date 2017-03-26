@@ -21,12 +21,14 @@ float[N] frame(float v[N], $point){
     for(int i = 0; i<N; i++) {
 $modify
     }
+    $transformation
 return v;
 }
 """)
-    def __init__(self, N, frames = ["X","Y","Z"]):
+    def __init__(self, N, frames = ["X","Y","Z"], transformation_hook=''):
         Fragment.__init__(self)
         declare = "uniform int %s; slider[1,%s,%s]"
+        self.transformation_hook = transformation_hook
         self.N = N
         self.frames = ["Frame"+f for f in frames]
         self.inits = []
@@ -49,4 +51,4 @@ return v;
 
         addif = "       if (i == %s-1) { v[i] = p[%i]; }"
         addif = "\n ".join([addif % (f,i) for i,f in enumerate(fr)])
-        return self.frame.substitute(notorthogonal=logic,point=pointVar,modify=addif)
+        return self.frame.substitute(notorthogonal=logic,point=pointVar,modify=addif,transformation=self.transformation_hook)
