@@ -1,48 +1,46 @@
 from fragments import *
 from sympy import Symbol, symbols
-# Usage:
-# Pass in a product operation in terms of float u[N] and float v[N].
-#
+from string import Template
 
-class VectorSpace(Composition):
-    noProduct = """
-    Error: make sure to pass a Fragment defining the product
-    in terms of u[i], v[j], with i,j in N.  You did not do this!"""
-
-    pNormInits = "// the default p-norm power (p).\nuniform float NormPower; slider[0.000000001,2,100]"
-    pNormFunc = """
-float pNormSq(float u[N], float p) {
-    float normSq = 0;
-    for(int i=0; i<N; i++){
-        normSq = normSq + pow(abs(u[i]),p);
-    }
-    return normSq;
-}
-
-float pNorm(float u[N], float p) {
-    return pow(pNormSq(u,p),1.0/p);
-}"""
-    norm = """
-float norm(float u[N]) {
-    return pNorm(u,NormPower);
-}"""
-    pNorm = Fragment(pNormInits,pNormFunc)
-    norm = Fragment(lower=norm)
-    def __init__(self, dimensions, product=noProduct, norm=norm):
-        if (product == self.noProduct):
-            raise NotImplementedError(self.noProduct);
-        Composition.__init__(self)
-        self._members = [product]
+class VectorSpace(Fragment):
+    def __init__(self, dimensions, size_const='N'):
+        Fragment.__init__(self)
+        self.size_const = size_const
         self.N = dimensions
-        self.product = product
-        self.norm = norm
-        self.operations = []
 
     def upper(self):
-        return "const int N = "+str(self.N)+";"
+        return 'const int %s = %s;' % (self.size_const,self.N)
 
     def lower(self):
-        return Fragment.get('vectorBasics.frag')
+        return vectorBasics.substitute(N=self.size_const)
 
-    def members(self):
-        return squash([self.product]+self.operations+[self.pNorm,self.norm])
+vectorBasics = Template('''
+float[$N] zero$N() {
+  float zero[$N];
+  for(int i=0; i<$N; ++i){zero[i] = 0;}
+  return zero;
+}
+
+float[$N] unit$N(int i) {
+  float[$N] unit = zero$N();
+  unit[i] = 1;
+  return unit;
+}
+
+float[$N] add(float a[$N], float b[$N]) {
+  float c[$N];
+  for (int i = 0; i < $N; ++i){
+    c[i] = a[i]+b[i];
+  }
+  return c;
+}
+
+float[$N] sub(float a[$N], float b[$N]) {
+  float c[$N];
+  for (int i = 0; i < $N; ++i){
+    c[i] = a[i]-b[i];
+  }
+  return c;
+}
+
+''')

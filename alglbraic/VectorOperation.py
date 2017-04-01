@@ -10,7 +10,7 @@ class VectorOperation(Fragment):
     def __init__(self, name, vectors, results, symbols=['u','v','w','x','y','z','a','b','c'], result_size_const = "N", input_size_consts = None, functionTemplate=None):
         Fragment.__init__(self)
         self.N = result_size_const
-        self.N_inputs = input_size_consts if input_size_consts else result_size_const*len(vectors)
+        self.N_inputs = input_size_consts if input_size_consts else [result_size_const]*len(vectors)
         s = sympify
         # HOLD ON TO YOUR HORSE VERY TIGHT
         self.operation = name

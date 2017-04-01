@@ -2,8 +2,25 @@ from alglbraic import *
 import sys
 
 class FractalQuest(Composition):
-    def __init__(self,vectorspace,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3,window_transformation_hook='',init_hooks=[]):
+    def __init__(self,vectorspace,operations=None,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3,rotation=False,init_hooks=[]):
         Composition.__init__(self)
+        rotator = None
+        window_hook = ''
+        if rotation:
+            rotFrom = ['RotateFrom%s' % (i+1) for i in range(vectorspace.N)]
+            rotTo = ['RotateTo%s' % (i+1) for i in range(vectorspace.N)]
+            rotationParams = FragmentariumParams("RotateFrom",param_names=rotFrom,size_const="N")
+            rotationParams+= FragmentariumParams("RotateTo",param_names=rotTo,size_const="N")
+            up = 'uniform float rotationAngle; slider[-1,0,1]\n'
+            up+= 'uniform bool enableRotation; checkbox[false]\n'
+            up+= 'uniform float rotationRate; slider[-0.2,0,0.2]\n'
+            mid= 'float[N] RotateFrom;\n'
+            mid+= 'float[N] RotateTo;\n'
+            rotationParams += Fragment(upper=up,lower=mid)
+            init_hooks+=[self.window_rotation_init_hook]
+            window_hook = self.window_rotation_hook
+            rotator = RotationOperation(vectorspace.N,size_const=vectorspace.size_const)
+        norm = Norm(vectorspace.size_const)
         is2d = windowDimensions == 2
         if formula != None:
             self.iterationFormula = formula
@@ -11,11 +28,17 @@ class FractalQuest(Composition):
             self.iterationFormula = """
 float MzA[N] = mutate(z,MA);
 float MzB[N] = mutate(z,MB);
+float MzC[N] = mutate(z,MC);
 z = mul(
-    pwr(flipA(MzA),pow1),
-    pwr(flipB(MzB),pow2)
+    mulPwr(flipA(MzA),pow1),
+    mulPwr(flipB(MzB),pow2)
 );
-            """
+
+//z = mul3(
+//    mulPwr(flipA(MzA),pow1),
+//    mulPwr(flipB(MzB),pow2),
+//    mulPwr(flipC(MzB),pow3)
+//);"""
         header = self.header2d if is2d else self.header3d
         self._top = header.substitute(info=info)
         inits = self.inits
@@ -28,11 +51,11 @@ z = mul(
             initMutations = ""
         self.vectorspace = vectorspace
         frames = ["X","Y"] if is2d else ["X","Y","Z"]
-        window = Window(vectorspace.N,frames,transformation_hook=window_transformation_hook)
+        window = Window(vectorspace.N,frames,transformation_hook=window_hook)
         julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
         position = FragmentariumParams("Position",vectorspace.N,size_const="N")
         flippers = SignFlipper(vectorspace.N)
-        self._members = [vectorspace,julia,position,window,mutations,flippers]
+        self._members = [vectorspace,norm,operations,rotationParams,rotator,julia,position,window,mutations,flippers]
         self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations,initHooks='\n'.join(init_hooks))
         self._lower += self.inside2d if is2d else self.inside3d
         if is2d:
@@ -44,18 +67,34 @@ z = mul(
 
     # templates: ##############################################################
 
+    window_rotation_hook = '''
+    if(enableRotation){v = rotate(v,RotateFrom,RotateTo,rotationAngle+time*rotationRate);};
+'''
+
+    window_rotation_init_hook = '''
+    loadParamsRotateFrom(RotateFrom);
+    normalize(RotateFrom);
+    loadParamsRotateTo(RotateTo);
+    normalize(RotateTo);
+'''
+
     iterationFormula = """
     z = mul(
-        pwr(flipA(z),pow1),
-        pwr(flipB(z),pow2)
+        mulPwr(flipA(z),pow1),
+        mulPwr(flipB(z),pow2)
     );
+    //z = mul3(
+    //    mulPwr(flipA(z),pow1),
+    //    mulPwr(flipB(z),pow2),
+    //    mulPwr(flipC(z),pow3)
+    //);
     """
 
     header3d = Template("""#version 130
 #define providesInside
 #define providesInit
 #define SubframeMax 9
-#define IterationsBetweenRedraws 4
+#define IterationsBetweenRedraws 30
 
 #info $info
 #include "Brute-Raytracer.frag"
@@ -70,11 +109,7 @@ z = mul(
     """)
 
     inits = """
-// extra parameters to play with (useful as weights)
-uniform float auxA; slider[-2,1,2]
-uniform float auxB; slider[-2,1,2]
-uniform float auxC; slider[-2,1,2]
-uniform float auxD; slider[-2,1,2]
+uniform float time;
 
 // powers for multiplication, if need be
 uniform int pow1; slider[0,1,24]
@@ -115,7 +150,7 @@ void init(){
     $initHooks
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
-    $initMutations;
+    $initMutations
 }
 
 void iter(inout float z[N]) {

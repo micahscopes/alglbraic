@@ -41,18 +41,3 @@ float[N] pwr(float a[N],int n) {
     return r;
 }
 
-float[N] add(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]+b[i];
-  }
-  return c;
-}
-
-float[N] sub(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]-b[i];
-  }
-  return c;
-}
