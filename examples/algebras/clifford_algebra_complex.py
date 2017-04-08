@@ -8,7 +8,7 @@ def complexVec(sym,dim):
     imags = vec(sym,dim,suff="_im")
     return zip(reals,imags)
 
-Qs = "[1,1,1,-1]"
+Qs = "[-1,1]"
 Q = [i for i in Qs.strip("[]").split(",")]
 
 Q = DiagonalQuadraticForm(CC,Q)
@@ -45,8 +45,8 @@ permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
-product = VectorOperation("product",[s(Asyms),s(Bsyms)],s(AB_coefs))
-vectorspace = VectorSpace(dim,product)
+product = AlgebraicProduct([s(Asyms),s(Bsyms)],s(AB_coefs))
+vectorspace = VectorSpace(dim)
 # flipper = SignFlipper(dim)
 
 # conjugate = VectorOperation("conjugate",[s(A.vector())],s(A_conj.vector()))

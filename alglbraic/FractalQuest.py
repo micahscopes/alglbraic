@@ -6,6 +6,7 @@ class FractalQuest(Composition):
         Composition.__init__(self)
         rotator = None
         window_hook = ''
+        rotationParams = None
         if rotation:
             rotFrom = ['RotateFrom%s' % (i+1) for i in range(vectorspace.N)]
             rotTo = ['RotateTo%s' % (i+1) for i in range(vectorspace.N)]

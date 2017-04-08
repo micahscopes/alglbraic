@@ -2,35 +2,49 @@
 #define providesInside
 #define providesInit
 #define SubframeMax 9
-#define IterationsBetweenRedraws 30
+#define IterationsBetweenRedraws 4
 
-#info 4 real-dimensional algebra of 2 dimensional finite field over the complex numbers
+#info Clifford Algebra with signature [-1,0,1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
-const int N = 4;
+// the default p-norm power (p).
+uniform float NormPower; slider[0.000000001,2,100]
+const int N = 8;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
 uniform float JuliaVect4; slider[-2,0,2]
+uniform float JuliaVect5; slider[-2,0,2]
+uniform float JuliaVect6; slider[-2,0,2]
+uniform float JuliaVect7; slider[-2,0,2]
+uniform float JuliaVect8; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
 uniform float Position3; slider[-2,0,2]
 uniform float Position4; slider[-2,0,2]
+uniform float Position5; slider[-2,0,2]
+uniform float Position6; slider[-2,0,2]
+uniform float Position7; slider[-2,0,2]
+uniform float Position8; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,4]
-uniform int FrameY; slider[1,2,4]
-uniform int FrameZ; slider[1,3,4]
+uniform int FrameX; slider[1,1,8]
+uniform int FrameY; slider[1,2,8]
+uniform int FrameZ; slider[1,3,8]
 
 // sign involutions
-uniform int flipperA; slider[0,0,16]
-uniform int flipperB; slider[0,0,16]
-uniform int flipperC; slider[0,0,16]
+uniform int flipperA; slider[0,0,256]
+uniform int flipperB; slider[0,0,256]
+uniform int flipperC; slider[0,0,256]
 
 
 
-uniform float time;
+// extra parameters to play with (useful as weights)
+uniform float auxA; slider[-2,1,2]
+uniform float auxB; slider[-2,1,2]
+uniform float auxC; slider[-2,1,2]
+uniform float auxD; slider[-2,1,2]
 
 // powers for multiplication, if need be
 uniform int pow1; slider[0,1,24]
@@ -49,34 +63,9 @@ uniform bool Julia; checkbox[false]
 uniform bool usePrevious; checkbox[false]
     
 
-float[N] zeroN() {
-  float zero[N];
-  for(int i=0; i<N; ++i){zero[i] = 0;}
-  return zero;
+float[N] product(float u[N], float v[N]) {
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] + u[3]*v[3] + u[4]*v[4] - u[5]*v[5] + u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] - u[2]*v[3] - 1.0*u[3]*v[2] + u[4]*v[5] + u[5]*v[4] + u[6]*v[7] + u[7]*v[6], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] - u[3]*v[1] - u[4]*v[6] + u[5]*v[7] + u[6]*v[4] - u[7]*v[5], u[0]*v[3] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0] - u[4]*v[7] - 1.0*u[5]*v[6] + u[6]*v[5] + u[7]*v[4], u[0]*v[6] - u[1]*v[7] + u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] + u[2]*v[5] + u[3]*v[4] - u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0], u[0]*v[4] - u[1]*v[5] - u[2]*v[6] + u[3]*v[7] + u[4]*v[0] - u[5]*v[1] + u[6]*v[2] - u[7]*v[3], u[0]*v[5] + u[1]*v[4] - u[2]*v[7] - 1.0*u[3]*v[6] + u[4]*v[1] + u[5]*v[0] + u[6]*v[3] + u[7]*v[2]);
 }
-
-float[N] unitN(int i) {
-  float[N] unit = zeroN();
-  unit[i] = 1;
-  return unit;
-}
-
-float[N] add(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]+b[i];
-  }
-  return c;
-}
-
-float[N] sub(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]-b[i];
-  }
-  return c;
-}
-
 
 
 float pNormSq(float u[N], float p) {
@@ -92,22 +81,17 @@ float pNorm(float u[N], float p) {
 }
 
 float norm(float u[N]) {
-    return pNorm(u,2.0);
+    return pNorm(u,NormPower);
 }
-
-float[N] normalize(inout float u[N]) {
-    float nrm = norm(u);
-    for(int i=0; i<N; i++){
-        u[i] = u[i]/nrm;
-    }
-    return u;
+float[N] zero() {
+  float zero[N];
+  for(int i=0; i<N; ++i){zero[i] = 0;}
+  return zero;
 }
-
 
 float[N] mul(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] + u[0]*v[2] - u[1]*v[1] - u[1]*v[3] + u[2]*v[0] - u[3]*v[1], u[0]*v[1] + u[0]*v[3] + u[1]*v[0] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0], u[2]*v[2] - u[3]*v[3], u[2]*v[3] + u[3]*v[2]);
+  return product(u,v);
 }
-
 
 float[N] mul(float a, float b[N]){
   float result[N];
@@ -129,7 +113,11 @@ float[N] mul(float b[N], int a) {
   return mul(float(a),b);
 }
 
-float[N] mulPwr(float a[N],int n) {
+float[N] mul3(float a[N], float b[N], float c[N]) {
+  return mul(mul(a,b),c);
+}
+
+float[N] pwr(float a[N],int n) {
   // multiple a by itself n times: a -> a**n
 	float r[N] = a;
 	for (int i=0;i<n-1;i++){
@@ -138,18 +126,31 @@ float[N] mulPwr(float a[N],int n) {
     return r;
 }
 
-float[N] mul3(float a[N], float b[N], float c[N]) {
-  return mul(mul(a,b),c);
+float[N] add(float a[N], float b[N]) {
+  float c[N];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]+b[i];
+  }
+  return c;
 }
 
+float[N] sub(float a[N], float b[N]) {
+  float c[N];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]-b[i];
+  }
+  return c;
+}
+
+
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; 
     return u;
 }
 
@@ -169,7 +170,6 @@ float[N] frame(float v[N], vec3 p){
         if (i == FrameY-1) { v[i] = p[1]; }
         if (i == FrameZ-1) { v[i] = p[2]; }
     }
-    
 return v;
 }
 
@@ -199,7 +199,6 @@ float O[N];
 float JuliaVect[N];
 
 void init(){
-    
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
     
@@ -208,14 +207,9 @@ void init(){
 void iter(inout float z[N]) {
     
     z = mul(
-        mulPwr(flipA(z),pow1),
-        mulPwr(flipB(z),pow2)
+        pwr(flipA(z),pow1),
+        pwr(flipB(z),pow2)
     );
-    //z = mul3(
-    //    mulPwr(flipA(z),pow1),
-    //    mulPwr(flipB(z),pow2),
-    //    mulPwr(flipC(z),pow3)
-    //);
     
 }
     
@@ -267,5 +261,4 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
-Far = 10
 #endpreset

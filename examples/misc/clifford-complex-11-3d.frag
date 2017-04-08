@@ -2,9 +2,9 @@
 #define providesInside
 #define providesInit
 #define SubframeMax 9
-#define IterationsBetweenRedraws 30
+#define IterationsBetweenRedraws 10
 
-#info octonion algebra fractal!!!
+#info Clifford Algebra with signature [-1,1]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
@@ -135,7 +135,7 @@ float[N] normalize(inout float u[N]) {
 
 
 float[N] mul(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] - u[6]*v[7] + u[7]*v[6], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1] + u[4]*v[6] + u[5]*v[7] - u[6]*v[4] - u[7]*v[5], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0] + u[4]*v[7] - u[5]*v[6] + u[6]*v[5] - u[7]*v[4], u[0]*v[4] - u[1]*v[5] - u[2]*v[6] - u[3]*v[7] + u[4]*v[0] + u[5]*v[1] + u[6]*v[2] + u[7]*v[3], u[0]*v[5] + u[1]*v[4] - u[2]*v[7] + u[3]*v[6] - u[4]*v[1] + u[5]*v[0] - u[6]*v[3] + u[7]*v[2], u[0]*v[6] + u[1]*v[7] + u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] - u[1]*v[6] + u[2]*v[5] + u[3]*v[4] - u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] + u[3]*v[3] + u[4]*v[4] - u[5]*v[5] + u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] - u[2]*v[3] - 1.0*u[3]*v[2] + u[4]*v[5] + u[5]*v[4] + u[6]*v[7] + u[7]*v[6], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] - u[3]*v[1] - u[4]*v[6] + u[5]*v[7] + u[6]*v[4] - u[7]*v[5], u[0]*v[3] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0] - u[4]*v[7] - 1.0*u[5]*v[6] + u[6]*v[5] + u[7]*v[4], u[0]*v[6] - u[1]*v[7] + u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] + u[2]*v[5] + u[3]*v[4] - u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0], u[0]*v[4] - u[1]*v[5] - u[2]*v[6] + u[3]*v[7] + u[4]*v[0] - u[5]*v[1] + u[6]*v[2] - u[7]*v[3], u[0]*v[5] + u[1]*v[4] - u[2]*v[7] - 1.0*u[3]*v[6] + u[4]*v[1] + u[5]*v[0] + u[6]*v[3] + u[7]*v[2]);
 }
 
 
@@ -171,11 +171,6 @@ float[N] mulPwr(float a[N],int n) {
 float[N] mul3(float a[N], float b[N], float c[N]) {
   return mul(mul(a,b),c);
 }
-
-float[N] conjugate(float u[N]) {
-    return float[N](u[0], -u[1], -u[2], -u[3], -u[4], -u[5], -u[6], -u[7]);
-}
-
 
 float[N] loadParamsRotateFrom(out float u[N]){
     u[0] = RotateFrom1; u[1] = RotateFrom2; u[2] = RotateFrom3; u[3] = RotateFrom4; u[4] = RotateFrom5; u[5] = RotateFrom6; u[6] = RotateFrom7; u[7] = RotateFrom8; 
@@ -272,17 +267,15 @@ void init(){
 
 void iter(inout float z[N]) {
     
-   // z = mul(
-    //    mulPwr(flipA(z),pow1),
-    //    mulPwr(flipB(z),pow2)
-    //);
-    float zNorm[N] = z;
-    normalize(zNorm);
-    z = mul3(
-        mulPwr(flipA(zNorm),pow1),
-        mulPwr(flipB(z),pow2),
-        mulPwr(flipC(zNorm),pow3)
+    z = mul(
+        mulPwr(flipA(z),pow1),
+        mulPwr(flipB(z),pow2)
     );
+    //z = mul3(
+    //    mulPwr(flipA(z),pow1),
+    //    mulPwr(flipB(z),pow2),
+    //    mulPwr(flipC(z),pow3)
+    //);
     
 }
     

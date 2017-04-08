@@ -43,8 +43,8 @@ permutations = None
 if(2*dim < 5):
     permutations = Permutations(dim*2)
 
-product = VectorOperation("product",[s(Asyms),s(Bsyms)],s(AB_coefs))
-vectorspace = VectorSpace(2*dim,product)
+product = AlgebraicProduct([s(Asyms),s(Bsyms)],s(AB_coefs))
+vectorspace = VectorSpace(2*dim)
 
 info = "%s real-dimensional algebra of %s dimensional finite field over the complex numbers" % (2*dim,dim)
 name="finite-field-algebra-%s-complex" % dim

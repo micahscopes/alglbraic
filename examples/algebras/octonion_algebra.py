@@ -21,11 +21,10 @@ permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
-product = VectorOperation("product",[s(A.L),s(B.L)],s(AB.L))
-v = VectorSpace(dim,product)
-
 conjugate = VectorOperation("conjugate",[s(A.L)],s(A.si().L))
-v.operations += [conjugate]
+product = AlgebraicProduct([s(A.L),s(B.L)],s(AB.L))+conjugate
+v = VectorSpace(dim)
+
 vectorspace = v
 info = "octonion algebra fractal!!!"
 name = "octonions"

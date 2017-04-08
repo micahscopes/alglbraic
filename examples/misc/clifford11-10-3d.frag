@@ -4,13 +4,13 @@
 #define SubframeMax 9
 #define IterationsBetweenRedraws 4
 
-#info fractal quest on algebra formed from 8 dimensional loop:Finite-dimensional algebra of degree 8 over Symbolic Ring
+#info Clifford Algebra with signature [1,1,-1,0]
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
 // the default p-norm power (p).
 uniform float NormPower; slider[0.000000001,2,100]
-const int N = 8;
+const int N = 16;
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
@@ -19,6 +19,14 @@ uniform float JuliaVect5; slider[-2,0,2]
 uniform float JuliaVect6; slider[-2,0,2]
 uniform float JuliaVect7; slider[-2,0,2]
 uniform float JuliaVect8; slider[-2,0,2]
+uniform float JuliaVect9; slider[-2,0,2]
+uniform float JuliaVect10; slider[-2,0,2]
+uniform float JuliaVect11; slider[-2,0,2]
+uniform float JuliaVect12; slider[-2,0,2]
+uniform float JuliaVect13; slider[-2,0,2]
+uniform float JuliaVect14; slider[-2,0,2]
+uniform float JuliaVect15; slider[-2,0,2]
+uniform float JuliaVect16; slider[-2,0,2]
 
 uniform float Position1; slider[-2,0,2]
 uniform float Position2; slider[-2,0,2]
@@ -28,15 +36,23 @@ uniform float Position5; slider[-2,0,2]
 uniform float Position6; slider[-2,0,2]
 uniform float Position7; slider[-2,0,2]
 uniform float Position8; slider[-2,0,2]
+uniform float Position9; slider[-2,0,2]
+uniform float Position10; slider[-2,0,2]
+uniform float Position11; slider[-2,0,2]
+uniform float Position12; slider[-2,0,2]
+uniform float Position13; slider[-2,0,2]
+uniform float Position14; slider[-2,0,2]
+uniform float Position15; slider[-2,0,2]
+uniform float Position16; slider[-2,0,2]
 
-uniform int FrameX; slider[1,1,8]
-uniform int FrameY; slider[1,2,8]
-uniform int FrameZ; slider[1,3,8]
+uniform int FrameX; slider[1,1,16]
+uniform int FrameY; slider[1,2,16]
+uniform int FrameZ; slider[1,3,16]
 
 // sign involutions
-uniform int flipperA; slider[0,0,256]
-uniform int flipperB; slider[0,0,256]
-uniform int flipperC; slider[0,0,256]
+uniform int flipperA; slider[0,0,65536]
+uniform int flipperB; slider[0,0,65536]
+uniform int flipperC; slider[0,0,65536]
 
 
 
@@ -64,7 +80,7 @@ uniform bool usePrevious; checkbox[false]
     
 
 float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - u[2]*v[2] - u[3]*v[3] - u[4]*v[4] - u[5]*v[5] - u[6]*v[6] - u[7]*v[7], u[0]*v[1] + u[1]*v[0] + u[2]*v[3] - u[3]*v[2] + u[4]*v[5] - u[5]*v[4] + u[6]*v[7] - u[7]*v[6], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] + u[3]*v[1] + u[4]*v[6] - u[5]*v[7] - u[6]*v[4] + u[7]*v[5], u[0]*v[3] + u[1]*v[2] - u[2]*v[1] + u[3]*v[0] - u[4]*v[7] - u[5]*v[6] + u[6]*v[5] + u[7]*v[4], u[0]*v[4] - u[1]*v[5] - u[2]*v[6] + u[3]*v[7] + u[4]*v[0] + u[5]*v[1] + u[6]*v[2] - u[7]*v[3], u[0]*v[5] + u[1]*v[4] + u[2]*v[7] + u[3]*v[6] - u[4]*v[1] + u[5]*v[0] - u[6]*v[3] - u[7]*v[2], u[0]*v[6] - u[1]*v[7] + u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] + u[6]*v[0] + u[7]*v[1], u[0]*v[7] + u[1]*v[6] - u[2]*v[5] - u[3]*v[4] + u[4]*v[3] + u[5]*v[2] - u[6]*v[1] + u[7]*v[0]);
+    return float[N](u[0]*v[0] + u[10]*v[10] - u[13]*v[13] + u[1]*v[1] - u[2]*v[2] + u[3]*v[3] + u[6]*v[6] + u[9]*v[9], u[0]*v[1] + u[10]*v[3] + u[13]*v[6] + u[1]*v[0] + u[2]*v[9] + u[3]*v[10] - u[6]*v[13] - u[9]*v[2], u[0]*v[2] - u[10]*v[6] - u[13]*v[3] + u[1]*v[9] + u[2]*v[0] - u[3]*v[13] + u[6]*v[10] - u[9]*v[1], u[0]*v[3] + u[10]*v[1] + u[13]*v[2] + u[1]*v[10] + u[2]*v[13] + u[3]*v[0] - u[6]*v[9] - u[9]*v[6], u[0]*v[4] + u[10]*v[8] - u[11]*v[1] - u[12]*v[6] + u[13]*v[5] + u[14]*v[2] - u[15]*v[3] + u[1]*v[11] + u[2]*v[14] + u[3]*v[15] + u[4]*v[0] - u[5]*v[13] - u[6]*v[12] + u[7]*v[9] + u[8]*v[10] - u[9]*v[7], u[0]*v[5] - u[10]*v[7] - u[11]*v[6] + u[12]*v[1] - u[13]*v[4] + u[14]*v[3] + u[15]*v[2] + u[1]*v[12] + u[2]*v[15] - u[3]*v[14] + u[4]*v[13] + u[5]*v[0] + u[6]*v[11] + u[7]*v[10] - u[8]*v[9] - u[9]*v[8], u[0]*v[6] - u[10]*v[2] - u[13]*v[1] + u[1]*v[13] + u[2]*v[10] - u[3]*v[9] + u[6]*v[0] - u[9]*v[3], u[0]*v[7] - u[10]*v[5] - u[11]*v[2] + u[12]*v[3] - u[13]*v[8] + u[14]*v[1] + u[15]*v[6] + u[1]*v[14] + u[2]*v[11] - u[3]*v[12] + u[4]*v[9] + u[5]*v[10] + u[6]*v[15] + u[7]*v[0] - u[8]*v[13] - u[9]*v[4], u[0]*v[8] + u[10]*v[4] - u[11]*v[3] - u[12]*v[2] + u[13]*v[7] + u[14]*v[6] - u[15]*v[1] + u[1]*v[15] + u[2]*v[12] + u[3]*v[11] + u[4]*v[10] - u[5]*v[9] - u[6]*v[14] + u[7]*v[13] + u[8]*v[0] - u[9]*v[5], u[0]*v[9] - u[10]*v[13] + u[13]*v[10] + u[1]*v[2] - u[2]*v[1] - u[3]*v[6] - u[6]*v[3] + u[9]*v[0], u[0]*v[10] + u[10]*v[0] - u[13]*v[9] + u[1]*v[3] - u[2]*v[6] + u[3]*v[1] + u[6]*v[2] + u[9]*v[13], u[0]*v[11] + u[10]*v[15] + u[11]*v[0] - u[12]*v[13] - u[13]*v[12] + u[14]*v[9] + u[15]*v[10] + u[1]*v[4] - u[2]*v[7] + u[3]*v[8] - u[4]*v[1] - u[5]*v[6] + u[6]*v[5] + u[7]*v[2] - u[8]*v[3] + u[9]*v[14], u[0]*v[12] - u[10]*v[14] + u[11]*v[13] + u[12]*v[0] + u[13]*v[11] + u[14]*v[10] - u[15]*v[9] + u[1]*v[5] - u[2]*v[8] - u[3]*v[7] - u[4]*v[6] + u[5]*v[1] - u[6]*v[4] + u[7]*v[3] + u[8]*v[2] + u[9]*v[15], u[0]*v[13] - u[10]*v[9] + u[13]*v[0] + u[1]*v[6] - u[2]*v[3] - u[3]*v[2] - u[6]*v[1] + u[9]*v[10], u[0]*v[14] - u[10]*v[12] + u[11]*v[9] + u[12]*v[10] + u[13]*v[15] + u[14]*v[0] - u[15]*v[13] + u[1]*v[7] - u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] - u[6]*v[8] + u[7]*v[1] + u[8]*v[6] + u[9]*v[11], u[0]*v[15] + u[10]*v[11] + u[11]*v[10] - u[12]*v[9] - u[13]*v[14] + u[14]*v[13] + u[15]*v[0] + u[1]*v[8] - u[2]*v[5] + u[3]*v[4] - u[4]*v[3] - u[5]*v[2] + u[6]*v[7] + u[7]*v[6] - u[8]*v[1] + u[9]*v[12]);
 }
 
 
@@ -144,13 +160,13 @@ float[N] sub(float a[N], float b[N]) {
 
 
 float[N] loadParamsJuliaVect(out float u[N]){
-    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; 
+    u[0] = JuliaVect1; u[1] = JuliaVect2; u[2] = JuliaVect3; u[3] = JuliaVect4; u[4] = JuliaVect5; u[5] = JuliaVect6; u[6] = JuliaVect7; u[7] = JuliaVect8; u[8] = JuliaVect9; u[9] = JuliaVect10; u[10] = JuliaVect11; u[11] = JuliaVect12; u[12] = JuliaVect13; u[13] = JuliaVect14; u[14] = JuliaVect15; u[15] = JuliaVect16; 
     return u;
 }
 
 
 float[N] loadParamsPosition(out float u[N]){
-    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; 
+    u[0] = Position1; u[1] = Position2; u[2] = Position3; u[3] = Position4; u[4] = Position5; u[5] = Position6; u[6] = Position7; u[7] = Position8; u[8] = Position9; u[9] = Position10; u[10] = Position11; u[11] = Position12; u[12] = Position13; u[13] = Position14; u[14] = Position15; u[15] = Position16; 
     return u;
 }
 
@@ -206,10 +222,9 @@ void init(){
 
 void iter(inout float z[N]) {
     
-    z = mul3(
+    z = mul(
         pwr(flipA(z),pow1),
-        pwr(flipB(z),pow2),
-        pwr(flipC(z),pow3)
+        pwr(flipB(z),pow2)
     );
     
 }

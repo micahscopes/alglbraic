@@ -2,15 +2,31 @@
 #define providesInside
 #define providesInit
 #define SubframeMax 9
-#define IterationsBetweenRedraws 4
+#define IterationsBetweenRedraws 20
 
 #info 6 real-dimensional algebra of 3 dimensional finite field over the complex numbers
 #include "Brute-Raytracer.frag"
 #group Algebraic
     
-// the default p-norm power (p).
-uniform float NormPower; slider[0.000000001,2,100]
 const int N = 6;
+uniform float RotateFrom1; slider[-2,0,2]
+uniform float RotateFrom2; slider[-2,0,2]
+uniform float RotateFrom3; slider[-2,0,2]
+uniform float RotateFrom4; slider[-2,0,2]
+uniform float RotateFrom5; slider[-2,0,2]
+uniform float RotateFrom6; slider[-2,0,2]
+
+uniform float RotateTo1; slider[-2,0,2]
+uniform float RotateTo2; slider[-2,0,2]
+uniform float RotateTo3; slider[-2,0,2]
+uniform float RotateTo4; slider[-2,0,2]
+uniform float RotateTo5; slider[-2,0,2]
+uniform float RotateTo6; slider[-2,0,2]
+
+uniform float rotationAngle; slider[-1,0,1]
+uniform bool enableRotation; checkbox[false]
+uniform float rotationRate; slider[-0.2,0,0.2]
+
 uniform float JuliaVect1; slider[-2,0,2]
 uniform float JuliaVect2; slider[-2,0,2]
 uniform float JuliaVect3; slider[-2,0,2]
@@ -36,11 +52,7 @@ uniform int flipperC; slider[0,0,64]
 
 
 
-// extra parameters to play with (useful as weights)
-uniform float auxA; slider[-2,1,2]
-uniform float auxB; slider[-2,1,2]
-uniform float auxC; slider[-2,1,2]
-uniform float auxD; slider[-2,1,2]
+uniform float time;
 
 // powers for multiplication, if need be
 uniform int pow1; slider[0,1,24]
@@ -59,9 +71,34 @@ uniform bool Julia; checkbox[false]
 uniform bool usePrevious; checkbox[false]
     
 
-float[N] product(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] + u[0]*v[2] + u[0]*v[4] - u[1]*v[1] - u[1]*v[3] - u[1]*v[5] + u[2]*v[0] - u[3]*v[1] + u[4]*v[0] - u[5]*v[1], u[0]*v[1] + u[0]*v[3] + u[0]*v[5] + u[1]*v[0] + u[1]*v[2] + u[1]*v[4] + u[2]*v[1] + u[3]*v[0] + u[4]*v[1] + u[5]*v[0], u[2]*v[2] - u[3]*v[3] + u[4]*v[4] - u[5]*v[5], u[2]*v[3] + u[3]*v[2] + u[4]*v[5] + u[5]*v[4], u[2]*v[4] - u[3]*v[5] + u[4]*v[2] - u[5]*v[3], u[2]*v[5] + u[3]*v[4] + u[4]*v[3] + u[5]*v[2]);
+float[N] zeroN() {
+  float zero[N];
+  for(int i=0; i<N; ++i){zero[i] = 0;}
+  return zero;
 }
+
+float[N] unitN(int i) {
+  float[N] unit = zeroN();
+  unit[i] = 1;
+  return unit;
+}
+
+float[N] add(float a[N], float b[N]) {
+  float c[N];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]+b[i];
+  }
+  return c;
+}
+
+float[N] sub(float a[N], float b[N]) {
+  float c[N];
+  for (int i = 0; i < N; ++i){
+    c[i] = a[i]-b[i];
+  }
+  return c;
+}
+
 
 
 float pNormSq(float u[N], float p) {
@@ -77,17 +114,22 @@ float pNorm(float u[N], float p) {
 }
 
 float norm(float u[N]) {
-    return pNorm(u,NormPower);
-}
-float[N] zero() {
-  float zero[N];
-  for(int i=0; i<N; ++i){zero[i] = 0;}
-  return zero;
+    return pNorm(u,2.0);
 }
 
-float[N] mul(float u[N], float v[N]) {
-  return product(u,v);
+float[N] normalize(inout float u[N]) {
+    float nrm = norm(u);
+    for(int i=0; i<N; i++){
+        u[i] = u[i]/nrm;
+    }
+    return u;
 }
+
+
+float[N] mul(float u[N], float v[N]) {
+    return float[N](u[0]*v[0] + u[0]*v[2] + u[0]*v[4] - u[1]*v[1] - u[1]*v[3] - u[1]*v[5] + u[2]*v[0] - u[3]*v[1] + u[4]*v[0] - u[5]*v[1], u[0]*v[1] + u[0]*v[3] + u[0]*v[5] + u[1]*v[0] + u[1]*v[2] + u[1]*v[4] + u[2]*v[1] + u[3]*v[0] + u[4]*v[1] + u[5]*v[0], u[2]*v[2] - u[3]*v[3] + u[4]*v[4] - u[5]*v[5], u[2]*v[3] + u[3]*v[2] + u[4]*v[5] + u[5]*v[4], u[2]*v[4] - u[3]*v[5] + u[4]*v[2] - u[5]*v[3], u[2]*v[5] + u[3]*v[4] + u[4]*v[3] + u[5]*v[2]);
+}
+
 
 float[N] mul(float a, float b[N]){
   float result[N];
@@ -109,11 +151,7 @@ float[N] mul(float b[N], int a) {
   return mul(float(a),b);
 }
 
-float[N] mul3(float a[N], float b[N], float c[N]) {
-  return mul(mul(a,b),c);
-}
-
-float[N] pwr(float a[N],int n) {
+float[N] mulPwr(float a[N],int n) {
   // multiple a by itself n times: a -> a**n
 	float r[N] = a;
 	for (int i=0;i<n-1;i++){
@@ -122,20 +160,30 @@ float[N] pwr(float a[N],int n) {
     return r;
 }
 
-float[N] add(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]+b[i];
-  }
-  return c;
+float[N] mul3(float a[N], float b[N], float c[N]) {
+  return mul(mul(a,b),c);
 }
 
-float[N] sub(float a[N], float b[N]) {
-  float c[N];
-  for (int i = 0; i < N; ++i){
-    c[i] = a[i]-b[i];
-  }
-  return c;
+float[N] loadParamsRotateFrom(out float u[N]){
+    u[0] = RotateFrom1; u[1] = RotateFrom2; u[2] = RotateFrom3; u[3] = RotateFrom4; u[4] = RotateFrom5; u[5] = RotateFrom6; 
+    return u;
+}
+
+
+float[N] loadParamsRotateTo(out float u[N]){
+    u[0] = RotateTo1; u[1] = RotateTo2; u[2] = RotateTo3; u[3] = RotateTo4; u[4] = RotateTo5; u[5] = RotateTo6; 
+    return u;
+}
+
+float[N] RotateFrom;
+float[N] RotateTo;
+
+
+float[N] rotate(float v[N], float fr[N], float to[N], float angle) {
+  float sin_th = sin(angle*2*PI);
+  float cos_th = cos(angle*2*PI);
+  
+  return float[N]((v[0]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(4*fr[0]*fr[1]*to[0]*to[1] + 4*fr[0]*fr[2]*to[0]*to[2] + 4*fr[0]*fr[3]*to[0]*to[3] + 4*fr[0]*fr[4]*to[0]*to[4] + 4*fr[0]*fr[5]*to[0]*to[5] + pow(to[0], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[1], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[2], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[3], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[4], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[5], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)))) - 2*v[1]*(cos_th*sin_th*(-fr[0]*to[1] + fr[1]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[1]*pow(to[0], 2.0) - fr[0]*fr[1]*pow(to[1], 2.0) + fr[0]*fr[1]*pow(to[2], 2.0) + fr[0]*fr[1]*pow(to[3], 2.0) + fr[0]*fr[1]*pow(to[4], 2.0) + fr[0]*fr[1]*pow(to[5], 2.0) - 2*fr[0]*fr[2]*to[1]*to[2] - 2*fr[0]*fr[3]*to[1]*to[3] - 2*fr[0]*fr[4]*to[1]*to[4] - 2*fr[0]*fr[5]*to[1]*to[5] - to[0]*to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0)))) - 2*v[2]*(cos_th*sin_th*(-fr[0]*to[2] + fr[2]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[2]*pow(to[0], 2.0) + fr[0]*fr[2]*pow(to[1], 2.0) - fr[0]*fr[2]*pow(to[2], 2.0) + fr[0]*fr[2]*pow(to[3], 2.0) + fr[0]*fr[2]*pow(to[4], 2.0) + fr[0]*fr[2]*pow(to[5], 2.0) - 2*fr[0]*fr[3]*to[2]*to[3] - 2*fr[0]*fr[4]*to[2]*to[4] - 2*fr[0]*fr[5]*to[2]*to[5] - to[2]*(2*fr[0]*fr[1]*to[1] + to[0]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0))))) - 2*v[3]*(cos_th*sin_th*(-fr[0]*to[3] + fr[3]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[3]*pow(to[0], 2.0) + fr[0]*fr[3]*pow(to[1], 2.0) + fr[0]*fr[3]*pow(to[2], 2.0) - fr[0]*fr[3]*pow(to[3], 2.0) + fr[0]*fr[3]*pow(to[4], 2.0) + fr[0]*fr[3]*pow(to[5], 2.0) - 2*fr[0]*fr[4]*to[3]*to[4] - 2*fr[0]*fr[5]*to[3]*to[5] - to[3]*(2*fr[0]*fr[1]*to[1] + 2*fr[0]*fr[2]*to[2] + to[0]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0))))) - 2*v[4]*(cos_th*sin_th*(-fr[0]*to[4] + fr[4]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[4]*pow(to[0], 2.0) + fr[0]*fr[4]*pow(to[1], 2.0) + fr[0]*fr[4]*pow(to[2], 2.0) + fr[0]*fr[4]*pow(to[3], 2.0) - fr[0]*fr[4]*pow(to[4], 2.0) + fr[0]*fr[4]*pow(to[5], 2.0) - 2*fr[0]*fr[5]*to[4]*to[5] - to[4]*(2*fr[0]*fr[1]*to[1] + 2*fr[0]*fr[2]*to[2] + 2*fr[0]*fr[3]*to[3] + to[0]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0))))) - 2*v[5]*(cos_th*sin_th*(-fr[0]*to[5] + fr[5]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[5]*pow(to[0], 2.0) + fr[0]*fr[5]*pow(to[1], 2.0) + fr[0]*fr[5]*pow(to[2], 2.0) + fr[0]*fr[5]*pow(to[3], 2.0) + fr[0]*fr[5]*pow(to[4], 2.0) - fr[0]*fr[5]*pow(to[5], 2.0) - to[5]*(2*fr[0]*fr[1]*to[1] + 2*fr[0]*fr[2]*to[2] + 2*fr[0]*fr[3]*to[3] + 2*fr[0]*fr[4]*to[4] + to[0]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) - pow(fr[2], 2.0) - pow(fr[3], 2.0) - pow(fr[4], 2.0) - pow(fr[5], 2.0))))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))), (2*v[0]*(cos_th*sin_th*(-fr[0]*to[1] + fr[1]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[1]*pow(to[0], 2.0) - fr[0]*fr[1]*pow(to[1], 2.0) - fr[0]*fr[1]*pow(to[2], 2.0) - fr[0]*fr[1]*pow(to[3], 2.0) - fr[0]*fr[1]*pow(to[4], 2.0) - fr[0]*fr[1]*pow(to[5], 2.0) + 2*fr[1]*fr[2]*to[0]*to[2] + 2*fr[1]*fr[3]*to[0]*to[3] + 2*fr[1]*fr[4]*to[0]*to[4] + 2*fr[1]*fr[5]*to[0]*to[5] - to[0]*to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + v[1]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(4*fr[0]*fr[1]*to[0]*to[1] + 4*fr[1]*fr[2]*to[1]*to[2] + 4*fr[1]*fr[3]*to[1]*to[3] + 4*fr[1]*fr[4]*to[1]*to[4] + 4*fr[1]*fr[5]*to[1]*to[5] + pow(to[0], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) - pow(to[1], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) - 2*v[2]*(cos_th*sin_th*(-fr[1]*to[2] + fr[2]*to[1]) + pow(sin_th, 2.0)*(fr[1]*fr[2]*pow(to[0], 2.0) + fr[1]*fr[2]*pow(to[1], 2.0) - fr[1]*fr[2]*pow(to[2], 2.0) + fr[1]*fr[2]*pow(to[3], 2.0) + fr[1]*fr[2]*pow(to[4], 2.0) + fr[1]*fr[2]*pow(to[5], 2.0) - 2*fr[1]*fr[3]*to[2]*to[3] - 2*fr[1]*fr[4]*to[2]*to[4] - 2*fr[1]*fr[5]*to[2]*to[5] - to[2]*(2*fr[0]*fr[1]*to[0] - to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[3]*(cos_th*sin_th*(-fr[1]*to[3] + fr[3]*to[1]) + pow(sin_th, 2.0)*(fr[1]*fr[3]*pow(to[0], 2.0) + fr[1]*fr[3]*pow(to[1], 2.0) + fr[1]*fr[3]*pow(to[2], 2.0) - fr[1]*fr[3]*pow(to[3], 2.0) + fr[1]*fr[3]*pow(to[4], 2.0) + fr[1]*fr[3]*pow(to[5], 2.0) - 2*fr[1]*fr[4]*to[3]*to[4] - 2*fr[1]*fr[5]*to[3]*to[5] - to[3]*(2*fr[0]*fr[1]*to[0] + 2*fr[1]*fr[2]*to[2] - to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[4]*(cos_th*sin_th*(-fr[1]*to[4] + fr[4]*to[1]) + pow(sin_th, 2.0)*(fr[1]*fr[4]*pow(to[0], 2.0) + fr[1]*fr[4]*pow(to[1], 2.0) + fr[1]*fr[4]*pow(to[2], 2.0) + fr[1]*fr[4]*pow(to[3], 2.0) - fr[1]*fr[4]*pow(to[4], 2.0) + fr[1]*fr[4]*pow(to[5], 2.0) - 2*fr[1]*fr[5]*to[4]*to[5] - to[4]*(2*fr[0]*fr[1]*to[0] + 2*fr[1]*fr[2]*to[2] + 2*fr[1]*fr[3]*to[3] - to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[5]*(cos_th*sin_th*(-fr[1]*to[5] + fr[5]*to[1]) + pow(sin_th, 2.0)*(fr[1]*fr[5]*pow(to[0], 2.0) + fr[1]*fr[5]*pow(to[1], 2.0) + fr[1]*fr[5]*pow(to[2], 2.0) + fr[1]*fr[5]*pow(to[3], 2.0) + fr[1]*fr[5]*pow(to[4], 2.0) - fr[1]*fr[5]*pow(to[5], 2.0) - to[5]*(2*fr[0]*fr[1]*to[0] + 2*fr[1]*fr[2]*to[2] + 2*fr[1]*fr[3]*to[3] + 2*fr[1]*fr[4]*to[4] - to[1]*(pow(fr[0], 2.0) - pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))), (2*v[0]*(cos_th*sin_th*(-fr[0]*to[2] + fr[2]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[2]*pow(to[0], 2.0) - fr[0]*fr[2]*pow(to[1], 2.0) - fr[0]*fr[2]*pow(to[2], 2.0) - fr[0]*fr[2]*pow(to[3], 2.0) - fr[0]*fr[2]*pow(to[4], 2.0) - fr[0]*fr[2]*pow(to[5], 2.0) + 2*fr[1]*fr[2]*to[0]*to[1] + 2*fr[2]*fr[3]*to[0]*to[3] + 2*fr[2]*fr[4]*to[0]*to[4] + 2*fr[2]*fr[5]*to[0]*to[5] - to[0]*to[2]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + 2*v[1]*(cos_th*sin_th*(-fr[1]*to[2] + fr[2]*to[1]) - pow(sin_th, 2.0)*(-2*fr[0]*fr[2]*to[0]*to[1] + fr[1]*fr[2]*pow(to[0], 2.0) - fr[1]*fr[2]*pow(to[1], 2.0) + fr[1]*fr[2]*pow(to[2], 2.0) + fr[1]*fr[2]*pow(to[3], 2.0) + fr[1]*fr[2]*pow(to[4], 2.0) + fr[1]*fr[2]*pow(to[5], 2.0) - 2*fr[2]*fr[3]*to[1]*to[3] - 2*fr[2]*fr[4]*to[1]*to[4] - 2*fr[2]*fr[5]*to[1]*to[5] + to[1]*to[2]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + v[2]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(4*fr[2]*fr[3]*to[2]*to[3] + 4*fr[2]*fr[4]*to[2]*to[4] + 4*fr[2]*fr[5]*to[2]*to[5] + pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) - pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + 4*to[2]*(fr[0]*fr[2]*to[0] + fr[1]*fr[2]*to[1]) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) - 2*v[3]*(cos_th*sin_th*(-fr[2]*to[3] + fr[3]*to[2]) + pow(sin_th, 2.0)*(fr[2]*fr[3]*pow(to[0], 2.0) + fr[2]*fr[3]*pow(to[1], 2.0) + fr[2]*fr[3]*pow(to[2], 2.0) - fr[2]*fr[3]*pow(to[3], 2.0) + fr[2]*fr[3]*pow(to[4], 2.0) + fr[2]*fr[3]*pow(to[5], 2.0) - 2*fr[2]*fr[4]*to[3]*to[4] - 2*fr[2]*fr[5]*to[3]*to[5] - to[3]*(2*fr[0]*fr[2]*to[0] + 2*fr[1]*fr[2]*to[1] - to[2]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[4]*(cos_th*sin_th*(-fr[2]*to[4] + fr[4]*to[2]) + pow(sin_th, 2.0)*(fr[2]*fr[4]*pow(to[0], 2.0) + fr[2]*fr[4]*pow(to[1], 2.0) + fr[2]*fr[4]*pow(to[2], 2.0) + fr[2]*fr[4]*pow(to[3], 2.0) - fr[2]*fr[4]*pow(to[4], 2.0) + fr[2]*fr[4]*pow(to[5], 2.0) - 2*fr[2]*fr[5]*to[4]*to[5] - to[4]*(2*fr[0]*fr[2]*to[0] + 2*fr[1]*fr[2]*to[1] + 2*fr[2]*fr[3]*to[3] - to[2]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[5]*(cos_th*sin_th*(-fr[2]*to[5] + fr[5]*to[2]) + pow(sin_th, 2.0)*(fr[2]*fr[5]*pow(to[0], 2.0) + fr[2]*fr[5]*pow(to[1], 2.0) + fr[2]*fr[5]*pow(to[2], 2.0) + fr[2]*fr[5]*pow(to[3], 2.0) + fr[2]*fr[5]*pow(to[4], 2.0) - fr[2]*fr[5]*pow(to[5], 2.0) - to[5]*(2*fr[0]*fr[2]*to[0] + 2*fr[1]*fr[2]*to[1] + 2*fr[2]*fr[3]*to[3] + 2*fr[2]*fr[4]*to[4] - to[2]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) - pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))), (2*v[0]*(cos_th*sin_th*(-fr[0]*to[3] + fr[3]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[3]*pow(to[0], 2.0) - fr[0]*fr[3]*pow(to[1], 2.0) - fr[0]*fr[3]*pow(to[2], 2.0) - fr[0]*fr[3]*pow(to[3], 2.0) - fr[0]*fr[3]*pow(to[4], 2.0) - fr[0]*fr[3]*pow(to[5], 2.0) + 2*fr[1]*fr[3]*to[0]*to[1] + 2*fr[2]*fr[3]*to[0]*to[2] + 2*fr[3]*fr[4]*to[0]*to[4] + 2*fr[3]*fr[5]*to[0]*to[5] - to[0]*to[3]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + 2*v[1]*(cos_th*sin_th*(-fr[1]*to[3] + fr[3]*to[1]) - pow(sin_th, 2.0)*(-2*fr[0]*fr[3]*to[0]*to[1] + fr[1]*fr[3]*pow(to[0], 2.0) - fr[1]*fr[3]*pow(to[1], 2.0) + fr[1]*fr[3]*pow(to[2], 2.0) + fr[1]*fr[3]*pow(to[3], 2.0) + fr[1]*fr[3]*pow(to[4], 2.0) + fr[1]*fr[3]*pow(to[5], 2.0) - 2*fr[2]*fr[3]*to[1]*to[2] - 2*fr[3]*fr[4]*to[1]*to[4] - 2*fr[3]*fr[5]*to[1]*to[5] + to[1]*to[3]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + 2*v[2]*(cos_th*sin_th*(-fr[2]*to[3] + fr[3]*to[2]) - pow(sin_th, 2.0)*(fr[2]*fr[3]*pow(to[0], 2.0) + fr[2]*fr[3]*pow(to[1], 2.0) - fr[2]*fr[3]*pow(to[2], 2.0) + fr[2]*fr[3]*pow(to[3], 2.0) + fr[2]*fr[3]*pow(to[4], 2.0) + fr[2]*fr[3]*pow(to[5], 2.0) - 2*fr[3]*fr[4]*to[2]*to[4] - 2*fr[3]*fr[5]*to[2]*to[5] + to[2]*to[3]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) - 2*to[2]*(fr[0]*fr[3]*to[0] + fr[1]*fr[3]*to[1]))) + v[3]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(4*fr[3]*fr[4]*to[3]*to[4] + 4*fr[3]*fr[5]*to[3]*to[5] + pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) - pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + 4*to[3]*(fr[0]*fr[3]*to[0] + fr[1]*fr[3]*to[1] + fr[2]*fr[3]*to[2]) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))) - 2*v[4]*(cos_th*sin_th*(-fr[3]*to[4] + fr[4]*to[3]) + pow(sin_th, 2.0)*(fr[3]*fr[4]*pow(to[0], 2.0) + fr[3]*fr[4]*pow(to[1], 2.0) + fr[3]*fr[4]*pow(to[2], 2.0) + fr[3]*fr[4]*pow(to[3], 2.0) - fr[3]*fr[4]*pow(to[4], 2.0) + fr[3]*fr[4]*pow(to[5], 2.0) - 2*fr[3]*fr[5]*to[4]*to[5] - to[4]*(2*fr[0]*fr[3]*to[0] + 2*fr[1]*fr[3]*to[1] + 2*fr[2]*fr[3]*to[2] - to[3]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))) - 2*v[5]*(cos_th*sin_th*(-fr[3]*to[5] + fr[5]*to[3]) + pow(sin_th, 2.0)*(fr[3]*fr[5]*pow(to[0], 2.0) + fr[3]*fr[5]*pow(to[1], 2.0) + fr[3]*fr[5]*pow(to[2], 2.0) + fr[3]*fr[5]*pow(to[3], 2.0) + fr[3]*fr[5]*pow(to[4], 2.0) - fr[3]*fr[5]*pow(to[5], 2.0) - to[5]*(2*fr[0]*fr[3]*to[0] + 2*fr[1]*fr[3]*to[1] + 2*fr[2]*fr[3]*to[2] + 2*fr[3]*fr[4]*to[4] - to[3]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) - pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0))))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))), (2*v[0]*(cos_th*sin_th*(-fr[0]*to[4] + fr[4]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[4]*pow(to[0], 2.0) - fr[0]*fr[4]*pow(to[1], 2.0) - fr[0]*fr[4]*pow(to[2], 2.0) - fr[0]*fr[4]*pow(to[3], 2.0) - fr[0]*fr[4]*pow(to[4], 2.0) - fr[0]*fr[4]*pow(to[5], 2.0) + 2*fr[1]*fr[4]*to[0]*to[1] + 2*fr[2]*fr[4]*to[0]*to[2] + 2*fr[3]*fr[4]*to[0]*to[3] + 2*fr[4]*fr[5]*to[0]*to[5] - to[0]*to[4]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + 2*v[1]*(cos_th*sin_th*(-fr[1]*to[4] + fr[4]*to[1]) - pow(sin_th, 2.0)*(-2*fr[0]*fr[4]*to[0]*to[1] + fr[1]*fr[4]*pow(to[0], 2.0) - fr[1]*fr[4]*pow(to[1], 2.0) + fr[1]*fr[4]*pow(to[2], 2.0) + fr[1]*fr[4]*pow(to[3], 2.0) + fr[1]*fr[4]*pow(to[4], 2.0) + fr[1]*fr[4]*pow(to[5], 2.0) - 2*fr[2]*fr[4]*to[1]*to[2] - 2*fr[3]*fr[4]*to[1]*to[3] - 2*fr[4]*fr[5]*to[1]*to[5] + to[1]*to[4]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)))) + 2*v[2]*(cos_th*sin_th*(-fr[2]*to[4] + fr[4]*to[2]) - pow(sin_th, 2.0)*(fr[2]*fr[4]*pow(to[0], 2.0) + fr[2]*fr[4]*pow(to[1], 2.0) - fr[2]*fr[4]*pow(to[2], 2.0) + fr[2]*fr[4]*pow(to[3], 2.0) + fr[2]*fr[4]*pow(to[4], 2.0) + fr[2]*fr[4]*pow(to[5], 2.0) - 2*fr[3]*fr[4]*to[2]*to[3] - 2*fr[4]*fr[5]*to[2]*to[5] + to[2]*to[4]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) - 2*to[2]*(fr[0]*fr[4]*to[0] + fr[1]*fr[4]*to[1]))) + 2*v[3]*(cos_th*sin_th*(-fr[3]*to[4] + fr[4]*to[3]) - pow(sin_th, 2.0)*(fr[3]*fr[4]*pow(to[0], 2.0) + fr[3]*fr[4]*pow(to[1], 2.0) + fr[3]*fr[4]*pow(to[2], 2.0) - fr[3]*fr[4]*pow(to[3], 2.0) + fr[3]*fr[4]*pow(to[4], 2.0) + fr[3]*fr[4]*pow(to[5], 2.0) - 2*fr[4]*fr[5]*to[3]*to[5] + to[3]*to[4]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) - 2*to[3]*(fr[0]*fr[4]*to[0] + fr[1]*fr[4]*to[1] + fr[2]*fr[4]*to[2]))) + v[4]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(4*fr[4]*fr[5]*to[4]*to[5] + pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) - pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)) + 4*to[4]*(fr[0]*fr[4]*to[0] + fr[1]*fr[4]*to[1] + fr[2]*fr[4]*to[2] + fr[3]*fr[4]*to[3]) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0)))) - 2*v[5]*(cos_th*sin_th*(-fr[4]*to[5] + fr[5]*to[4]) + pow(sin_th, 2.0)*(fr[4]*fr[5]*pow(to[0], 2.0) + fr[4]*fr[5]*pow(to[1], 2.0) + fr[4]*fr[5]*pow(to[2], 2.0) + fr[4]*fr[5]*pow(to[3], 2.0) + fr[4]*fr[5]*pow(to[4], 2.0) - fr[4]*fr[5]*pow(to[5], 2.0) - to[5]*(2*fr[0]*fr[4]*to[0] + 2*fr[1]*fr[4]*to[1] + 2*fr[2]*fr[4]*to[2] + 2*fr[3]*fr[4]*to[3] - to[4]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) - pow(fr[4], 2.0) + pow(fr[5], 2.0))))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))), (2*v[0]*(cos_th*sin_th*(-fr[0]*to[5] + fr[5]*to[0]) + pow(sin_th, 2.0)*(fr[0]*fr[5]*pow(to[0], 2.0) - fr[0]*fr[5]*pow(to[1], 2.0) - fr[0]*fr[5]*pow(to[2], 2.0) - fr[0]*fr[5]*pow(to[3], 2.0) - fr[0]*fr[5]*pow(to[4], 2.0) - fr[0]*fr[5]*pow(to[5], 2.0) + 2*fr[1]*fr[5]*to[0]*to[1] + 2*fr[2]*fr[5]*to[0]*to[2] + 2*fr[3]*fr[5]*to[0]*to[3] + 2*fr[4]*fr[5]*to[0]*to[4] - to[0]*to[5]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)))) + 2*v[1]*(cos_th*sin_th*(-fr[1]*to[5] + fr[5]*to[1]) - pow(sin_th, 2.0)*(-2*fr[0]*fr[5]*to[0]*to[1] + fr[1]*fr[5]*pow(to[0], 2.0) - fr[1]*fr[5]*pow(to[1], 2.0) + fr[1]*fr[5]*pow(to[2], 2.0) + fr[1]*fr[5]*pow(to[3], 2.0) + fr[1]*fr[5]*pow(to[4], 2.0) + fr[1]*fr[5]*pow(to[5], 2.0) - 2*fr[2]*fr[5]*to[1]*to[2] - 2*fr[3]*fr[5]*to[1]*to[3] - 2*fr[4]*fr[5]*to[1]*to[4] + to[1]*to[5]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)))) + 2*v[2]*(cos_th*sin_th*(-fr[2]*to[5] + fr[5]*to[2]) - pow(sin_th, 2.0)*(fr[2]*fr[5]*pow(to[0], 2.0) + fr[2]*fr[5]*pow(to[1], 2.0) - fr[2]*fr[5]*pow(to[2], 2.0) + fr[2]*fr[5]*pow(to[3], 2.0) + fr[2]*fr[5]*pow(to[4], 2.0) + fr[2]*fr[5]*pow(to[5], 2.0) - 2*fr[3]*fr[5]*to[2]*to[3] - 2*fr[4]*fr[5]*to[2]*to[4] + to[2]*to[5]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) - 2*to[2]*(fr[0]*fr[5]*to[0] + fr[1]*fr[5]*to[1]))) + 2*v[3]*(cos_th*sin_th*(-fr[3]*to[5] + fr[5]*to[3]) - pow(sin_th, 2.0)*(fr[3]*fr[5]*pow(to[0], 2.0) + fr[3]*fr[5]*pow(to[1], 2.0) + fr[3]*fr[5]*pow(to[2], 2.0) - fr[3]*fr[5]*pow(to[3], 2.0) + fr[3]*fr[5]*pow(to[4], 2.0) + fr[3]*fr[5]*pow(to[5], 2.0) - 2*fr[4]*fr[5]*to[3]*to[4] + to[3]*to[5]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) - 2*to[3]*(fr[0]*fr[5]*to[0] + fr[1]*fr[5]*to[1] + fr[2]*fr[5]*to[2]))) + 2*v[4]*(cos_th*sin_th*(-fr[4]*to[5] + fr[5]*to[4]) - pow(sin_th, 2.0)*(fr[4]*fr[5]*pow(to[0], 2.0) + fr[4]*fr[5]*pow(to[1], 2.0) + fr[4]*fr[5]*pow(to[2], 2.0) + fr[4]*fr[5]*pow(to[3], 2.0) - fr[4]*fr[5]*pow(to[4], 2.0) + fr[4]*fr[5]*pow(to[5], 2.0) + to[4]*to[5]*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) - 2*to[4]*(fr[0]*fr[5]*to[0] + fr[1]*fr[5]*to[1] + fr[2]*fr[5]*to[2] + fr[3]*fr[5]*to[3]))) + v[5]*(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) - pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) - pow(fr[5], 2.0)) + 4*to[5]*(fr[0]*fr[5]*to[0] + fr[1]*fr[5]*to[1] + fr[2]*fr[5]*to[2] + fr[3]*fr[5]*to[3] + fr[4]*fr[5]*to[4]))))/(pow(cos_th, 2.0) + 2*cos_th*sin_th*(fr[0]*to[0] + fr[1]*to[1] + fr[2]*to[2] + fr[3]*to[3] + fr[4]*to[4] + fr[5]*to[5]) + pow(sin_th, 2.0)*(pow(to[0], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[1], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[2], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[3], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[4], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)) + pow(to[5], 2.0)*(pow(fr[0], 2.0) + pow(fr[1], 2.0) + pow(fr[2], 2.0) + pow(fr[3], 2.0) + pow(fr[4], 2.0) + pow(fr[5], 2.0)))));
 }
 
 
@@ -166,6 +214,9 @@ float[N] frame(float v[N], vec3 p){
         if (i == FrameY-1) { v[i] = p[1]; }
         if (i == FrameZ-1) { v[i] = p[2]; }
     }
+    
+    if(enableRotation){v = rotate(v,RotateFrom,RotateTo,rotationAngle+time*rotationRate);};
+
 return v;
 }
 
@@ -195,6 +246,12 @@ float O[N];
 float JuliaVect[N];
 
 void init(){
+    
+    loadParamsRotateFrom(RotateFrom);
+    normalize(RotateFrom);
+    loadParamsRotateTo(RotateTo);
+    normalize(RotateTo);
+
     loadParamsPosition(O);
     loadParamsJuliaVect(JuliaVect);
     
@@ -203,9 +260,14 @@ void init(){
 void iter(inout float z[N]) {
     
     z = mul(
-        pwr(flipA(z),pow1),
-        pwr(flipB(z),pow2)
+        mulPwr(flipA(z),pow1),
+        mulPwr(flipB(z),pow2)
     );
+    //z = mul3(
+    //    mulPwr(flipA(z),pow1),
+    //    mulPwr(flipB(z),pow2),
+    //    mulPwr(flipC(z),pow3)
+    //);
     
 }
     
@@ -257,4 +319,5 @@ BackgroundColor = 0.2,0.1,0.7
 GradientBackground = 2
 CycleColors = false
 Cycles = 1.1
+Far = 10
 #endpreset

@@ -8,6 +8,7 @@ import argparse
 import re
 parser = argparse.ArgumentParser()
 parser.add_argument("--algebra", dest='algebra', default = None)
+parser.add_argument("--rotation", dest='rotation', action='store_true')
 parser.add_argument("--2d", dest='include2d', action='store_true')
 parser.add_argument("path",nargs='?', default = None)
 options = parser.parse_args()
@@ -24,11 +25,12 @@ def writeFractalQuest(windowDimensions):
     path = "./" if path == None else path
     if (path.endswith('/')):
         suffix = "-2d" if(windowDimensions == 2) else "-3d"
+        suffix += '-rotation' if (options.rotation)
         reg = re.compile('(?:\[)*([^]]+)(?:\])*')
         filename = path+niceFilename(name)+suffix+".frag"
     else:
         filename = path
-    fractal = FractalQuest(vectorspace,info,permutations,windowDimensions=windowDimensions)
+    fractal = FractalQuest(vectorspace,product,info=info,rotation=options.rotation,windowDimensions=windowDimensions)
     printer = GLSLPrinter()
     print("writing %s" % filename)
     output = open(filename, "w")
