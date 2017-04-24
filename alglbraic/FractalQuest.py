@@ -5,8 +5,9 @@ class FractalQuest(Composition):
     def __init__(self,vectorspace,operations=None,info="mystery fractal",mutations=None,presets=None,formula=None,windowDimensions=3,rotation=False,init_hooks=[]):
         Composition.__init__(self)
         rotator = None
-        window_hook = ''
+        self.window_hook = ''
         rotationParams = None
+        self.init_hooks = ''
         if rotation:
             rotFrom = ['RotateFrom%s' % (i+1) for i in range(vectorspace.N)]
             rotTo = ['RotateTo%s' % (i+1) for i in range(vectorspace.N)]
@@ -18,8 +19,8 @@ class FractalQuest(Composition):
             mid= 'float[N] RotateFrom;\n'
             mid+= 'float[N] RotateTo;\n'
             rotationParams += Fragment(upper=up,lower=mid)
-            init_hooks+=[self.window_rotation_init_hook]
-            window_hook = self.window_rotation_hook
+            self.init_hooks=init_hooks+[self.window_rotation_init_hook]
+            self.window_hook = self.window_rotation_hook
             rotator = RotationOperation(vectorspace.N,size_const=vectorspace.size_const)
         norm = Norm(vectorspace.size_const)
         is2d = windowDimensions == 2
@@ -52,12 +53,12 @@ z = mul(
             initMutations = ""
         self.vectorspace = vectorspace
         frames = ["X","Y"] if is2d else ["X","Y","Z"]
-        window = Window(vectorspace.N,frames,transformation_hook=window_hook)
+        window = Window(vectorspace.N,frames,transformation_hook=self.window_hook)
         julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
         position = FragmentariumParams("Position",vectorspace.N,size_const="N")
         flippers = SignFlipper(vectorspace.N)
         self._members = [vectorspace,norm,operations,rotationParams,rotator,julia,position,window,mutations,flippers]
-        self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations,initHooks='\n'.join(init_hooks))
+        self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations,initHooks='\n'.join(self.init_hooks))
         self._lower += self.inside2d if is2d else self.inside3d
         if is2d:
             presets = self.presets2d

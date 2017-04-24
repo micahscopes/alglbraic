@@ -70,8 +70,8 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
-uniform float Bailout; slider[0,2,4]
-uniform float Bailin; slider[-4,-4,0]
+uniform float Bailout; slider[-4,2,4]
+uniform float Bailin; slider[-4,-4,4]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]
 
@@ -278,11 +278,8 @@ void iter(inout float z[N]) {
     //);
     float zNorm[N] = z;
     normalize(zNorm);
-    z = mul3(
-        mulPwr(flipA(zNorm),pow1),
-        mulPwr(flipB(z),pow2),
-        mulPwr(flipC(zNorm),pow3)
-    );
+    z =
+		mul(flipA(z),mul(flipB(z),flipC(z)));
     
 }
     
