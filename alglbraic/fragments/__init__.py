@@ -18,6 +18,8 @@ def uniq(seq):
 
 class Fragment:
     def __init__(self,upper=None,lower=None,bottom=None,top=None):
+        self._group = None
+        self._defaultGroup = None
         self._top = top
         self._upper = upper
         self._lower = lower
@@ -32,12 +34,21 @@ class Fragment:
 
     def makeGL(self,*args,**kwargs):
         return self.glPrinter().makeGL(*args,**kwargs)
+    def group(self,group,defaultGroup):
+        self._group = group
+        self._defaultGroup = defaultGroup
     def setPrinter(self,printer):
         self._printer = printer
     def top(self):
         return self._top
     def upper(self):
-        return self._upper
+        up = None
+        if self._upper:
+            up = '\n#group %s\n' % self._group if self._group else ''
+            up+= self._upper
+            if self._defaultGroup:
+                up += '\n#group %s\n' % self._defaultGroup
+        return up
     def lower(self):
         return self._lower
     def bottom(self):

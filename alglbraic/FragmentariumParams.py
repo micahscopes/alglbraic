@@ -24,6 +24,7 @@ class FragmentariumParams(Fragment):
             t = Template("uniform $var_type $var; slider$rng\n")
             self._upper += t.substitute(var_type=var_type,var=varN,N=size_const,rng=str(rng))
             load += Template("u[$i] = $var; ").substitute(var=varN,i=str(i))
+
         t = Template("""
 $var_type[$N] loadParams$var(out $var_type u[$N]){
     $loaders

@@ -9,16 +9,14 @@ from fragments import *
 # ints flipperA, flipperB, flipperC.
 
 class SignFlipper(Fragment):
-    def __init__(self, N):
+    def __init__(self, N, group=None):
         """ Pass in the number of dimensions (N) you'd like to flip signs in.
         Uniform integers of the appropriate length (mod 2^N) will be declared to
         represent the involutions."""
         Fragment.__init__(self)
         self.N = N
         self.M = 2**N
-
-    def upper(self):
-        return self.params.substitute(M=self.M)
+        self._upper = self.params.substitute(M=self.M)
 
     def lower(self):
         return self.flipFunctions

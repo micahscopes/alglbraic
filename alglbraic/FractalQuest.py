@@ -11,7 +11,8 @@ class FractalQuest(Composition):
         if rotation:
             rotFrom = ['RotateFrom%s' % (i+1) for i in range(vectorspace.N)]
             rotTo = ['RotateTo%s' % (i+1) for i in range(vectorspace.N)]
-            rotationParams = FragmentariumParams("RotateFrom",param_names=rotFrom,size_const="N")
+            rotationParams = Fragment(upper='#group Rotation')
+            rotationParams+= FragmentariumParams("RotateFrom",param_names=rotFrom,size_const="N")
             rotationParams+= FragmentariumParams("RotateTo",param_names=rotTo,size_const="N")
             up = 'uniform float rotationAngle; slider[-1,0,1]\n'
             up+= 'uniform bool enableRotation; checkbox[false]\n'
@@ -19,6 +20,8 @@ class FractalQuest(Composition):
             mid= 'float[N] RotateFrom;\n'
             mid+= 'float[N] RotateTo;\n'
             rotationParams += Fragment(upper=up,lower=mid)
+            rotationParams += Fragment(upper='#group Fractal')
+
             self.init_hooks=init_hooks+[self.window_rotation_init_hook]
             self.window_hook = self.window_rotation_hook
             rotator = RotationOperation(vectorspace.N,size_const=vectorspace.size_const)
@@ -54,16 +57,19 @@ z = mul(
         self.vectorspace = vectorspace
         frames = ["X","Y"] if is2d else ["X","Y","Z"]
         window = Window(vectorspace.N,frames,transformation_hook=self.window_hook)
+        window.group('Window','Fractal')
         julia = FragmentariumParams("JuliaVect",vectorspace.N,size_const="N")
+        julia.group('Julia','Fractal')
         position = FragmentariumParams("Position",vectorspace.N,size_const="N")
+        position.group('Window','Fractal')
         flippers = SignFlipper(vectorspace.N)
         self._members = [vectorspace,norm,operations,rotationParams,rotator,julia,position,window,mutations,flippers]
         self._lower = self.fractalizer.substitute(iterate=self.iterationFormula,initMutations=initMutations,initHooks='\n'.join(self.init_hooks))
-        self._lower += self.inside2d if is2d else self.inside3d
+        self._lower += self.inside2d if is2d else self.inside3d+self.color3d
         if is2d:
             presets = self.presets2d
         if presets == None:
-            self._bottom = Fragment.get("purplePreset.frag")
+            self._bottom = Fragment.get("Defaults3d.frag")
         else:
             self._bottom = presets
 
@@ -95,19 +101,20 @@ z = mul(
     header3d = Template("""#version 130
 #define providesInside
 #define providesInit
+#define providesColor
 #define SubframeMax 9
 #define IterationsBetweenRedraws 30
 
 #info $info
 #include "Brute-Raytracer.frag"
-#group Algebraic
+#group Fractal
     """)
 
     header2d = Template("""#version 130
 #define providesInit
 #include "Progressive2D.frag"
 #info $info
-#group Algebraic
+#group Fractal
     """)
 
     inits = """
@@ -121,13 +128,16 @@ uniform int pow4; slider[0,1,24]
 
 // ordinary fractal stuff
 uniform int Iterations; slider[0,16,264]
+uniform int ColorIterations; slider[0,16,264]
 uniform float Bailout; slider[0,2,4]
 uniform float Bailin; slider[-4,-4,0]
 uniform bool BailInvert; checkbox[false]
 uniform bool Julia; checkbox[false]
 
 // instead of adding the Julia point or z(0), use z(i-1) (the last point)
-uniform bool usePrevious; checkbox[false]
+uniform bool addInitial; checkbox[true]
+uniform bool addPrevious; checkbox[false]
+uniform bool addJulia; checkbox[false]
     """
 
     inits2d = """
@@ -164,22 +174,45 @@ void iter(inout float z[N]) {
 bool inside(vec3 pt) {
     float z[N] = frame(O,pt);
     float z0[N] = z;
+	vec3 zPt;
   	float r;
   	int i=0;
   	r=abs(norm(z));
-
+	orbitTrap = vec4(100000);
     while(r<Bailout && (i<Iterations)) {
-      float zprev[N];
-      if (usePrevious) { zprev = z; } else { zprev = z0; }
+      float zprev[N] = z;
   		iter(z);
-  		z = add(z,(Julia ? JuliaVect : zprev));
-  		r=norm(z);
+      if (addInitial) { z = add(z,z0); }
+      if (addJulia) { z = add(z,JuliaVect); }
+      if (addPrevious) { z = add(z,zprev); }
+  		
+  		r=abs(norm(z));
+		if (i<ColorIterations) {
+		zPt = vec3(z[FrameX-1],z[FrameY-1],z[FrameZ-1]);
+		orbitTrap = min(orbitTrap, abs(vec4(zPt.x,zPt.y,zPt.z,r*r)));
+		}
+
   		i++;
   	}
 	return ((r < Bailout && r > Bailin) || BailInvert);
 }
 """
 
+    color3d= """
+    vec3 color(vec3 pt) {
+
+	orbitTrap.w = sqrt(orbitTrap.w);
+
+	vec3 orbitColor;
+	orbitColor = X.xyz*X.w*orbitTrap.x +
+	Y.xyz*Y.w*orbitTrap.y +
+	Z.xyz*Z.w*orbitTrap.z +
+	R.xyz*R.w*orbitTrap.w;
+
+	vec3 color = mix(BaseColor, 3.0*orbitColor,  OrbitStrength);
+	return color;
+}"""
+    
     inside2d = """
 vec3 getMapColor2D(vec2 c) {
 	vec2 p =  (aaCoord-mapCenter)/(mapRadius);

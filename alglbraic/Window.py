@@ -35,9 +35,7 @@ return v;
         if(len(self.frames) > 4):
             self.inits = ["const int N_window = %s;" % len(frames)]
         self.inits += [declare % (f,i+1,N) for i,f in enumerate(self.frames)]
-
-    def upper(self):
-        return"\n".join(self.inits)
+        self._upper = "\n".join(self.inits)
 
     def lower(self):
         fr = self.frames
