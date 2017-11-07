@@ -129,7 +129,7 @@ float[N] mul(float b[N], int a) {
   return mul(float(a),b);
 }
 
-float[N] mulPwr(float a[N],int n) {
+float[N] pwr(float a[N],int n) {
   // multiple a by itself n times: a -> a**n
 	float r[N] = a;
 	for (int i=0;i<n-1;i++){
@@ -208,13 +208,13 @@ void init(){
 void iter(inout float z[N]) {
     
     z = mul(
-        mulPwr(flipA(z),pow1),
-        mulPwr(flipB(z),pow2)
+        pwr(flipA(z),pow1),
+        pwr(flipB(z),pow2)
     );
     //z = mul3(
-    //    mulPwr(flipA(z),pow1),
-    //    mulPwr(flipB(z),pow2),
-    //    mulPwr(flipC(z),pow3)
+    //    pwr(flipA(z),pow1),
+    //    pwr(flipB(z),pow2),
+    //    pwr(flipC(z),pow3)
     //);
     
 }

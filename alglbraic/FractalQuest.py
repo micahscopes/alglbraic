@@ -115,6 +115,7 @@ z = mul(
 #include "Progressive2D.frag"
 #info $info
 #group Fractal
+const float PI = 3.14159265359;
     """)
 
     inits = """
@@ -185,7 +186,7 @@ bool inside(vec3 pt) {
       if (addInitial) { z = add(z,z0); }
       if (addJulia) { z = add(z,JuliaVect); }
       if (addPrevious) { z = add(z,zprev); }
-  		
+
   		r=abs(norm(z));
 		if (i<ColorIterations) {
 		zPt = vec3(z[FrameX-1],z[FrameY-1],z[FrameZ-1]);
@@ -212,7 +213,7 @@ bool inside(vec3 pt) {
 	vec3 color = mix(BaseColor, 3.0*orbitColor,  OrbitStrength);
 	return color;
 }"""
-    
+
     inside2d = """
 vec3 getMapColor2D(vec2 c) {
 	vec2 p =  (aaCoord-mapCenter)/(mapRadius);
@@ -227,13 +228,15 @@ vec3 getMapColor2D(vec2 c) {
 	float zprev[N];
 	int i = 0;
 	float r = 0;
+
     while(r<Bailout && i<Iterations) {
-      float zprev[N];
-      if (usePrevious) { zprev = z; } else { zprev = z0; }
-  		iter(z);
-  		z = add(z,zprev);
-  		r=norm(z);
-  		i++;
+      float zprev[N] = z;
+      iter(z);
+      if (addInitial) { z = add(z,z0); }
+      if (addJulia) { z = add(z,JuliaVect); }
+      if (addPrevious) { z = add(z,zprev); }
+      i++;
+      r=norm(z);
   	}
 	if ((r < Bailout && r > Bailin) || BailInvert){
 		return vec3(R,G,B)*0.5;
@@ -256,12 +259,13 @@ vec3 color(vec2 c) {
   	r=norm(z);
 
     while(r<Bailout && (i<Iterations)) {
-      float zprev[N];
-      if (usePrevious) { zprev = z; } else { zprev = z0; }
-  		iter(z);
-  		z = add(z,(Julia ? JuliaVect : zprev));
-  		r=norm(z);
-  		i++;
+      float zprev[N] = z;
+      iter(z);
+      if (addInitial) { z = add(z,z0); }
+      if (addJulia) { z = add(z,JuliaVect); }
+      if (addPrevious) { z = add(z,zprev); }
+      i++;
+      r=norm(z);
   	}
 	if ((r < Bailout && r > Bailin) && !BailInvert) {
 		return vec3(1.0);

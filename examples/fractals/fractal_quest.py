@@ -27,7 +27,7 @@ def writeFractalQuest(windowDimensions):
     path = "./" if path == None else path
     if (path.endswith('/')):
         suffix = "-2d" if(windowDimensions == 2) else "-3d"
-        suffix = suffix + '-rotation' if (rotation) else suffix
+        suffix += '-rotation' if (options.rotation) else ''
         reg = re.compile('(?:\[)*([^]]+)(?:\])*')
         filename = path+niceFilename(name)+suffix+".frag"
     else:
