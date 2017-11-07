@@ -20,21 +20,23 @@ permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
+rotation = options.rotation and dim < 9
+
 def writeFractalQuest(windowDimensions):
     path = options.path
     path = "./" if path == None else path
     if (path.endswith('/')):
         suffix = "-2d" if(windowDimensions == 2) else "-3d"
-        suffix += '-rotation' if (options.rotation)
+        suffix = suffix + '-rotation' if (rotation) else suffix
         reg = re.compile('(?:\[)*([^]]+)(?:\])*')
         filename = path+niceFilename(name)+suffix+".frag"
     else:
         filename = path
-    fractal = FractalQuest(vectorspace,product,info=info,rotation=options.rotation,windowDimensions=windowDimensions)
+    fractal = FractalQuest(vectorspace,product,info=info,rotation=rotation,windowDimensions=windowDimensions)
     printer = GLSLPrinter()
     print("writing %s" % filename)
     output = open(filename, "w")
-    output.write(fractal.gl(printer))
+    output.write(fractal.gl())
     output.close
 
 if(options.include2d or dim == 2):

@@ -4,10 +4,9 @@ import sys
 def vec(sym,m):
     return vector(SR, [var(sym+"%i" % (i%m+1)) for i in range(m)]);
 
-Qs = "[1,1,-1,-1]"
-Q = [2*float(i) for i in Qs.strip("[]").split(",")]
-m = Matrix.diagonal(Q)
-q = QuadraticForm(m)
+Q = [-1,-1]
+Qs = str(Q)
+q = DiagonalQuadraticForm(SR,Q)
 
 Alg = CliffordAlgebra(q)
 dim = Alg.dimension()
@@ -22,8 +21,8 @@ permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
-product = VectorOperation("product",[s(A.coefficients()),s(B.coefficients())],s(AB.coefficients()))
-vectorspace = VectorSpace(dim,product)
+product = AlgebraicProduct([s(A.coefficients()),s(B.coefficients())],s(AB.coefficients()))
+vectorspace = VectorSpace(dim)
 # flipper = SignFlipper(dim)
 
 # conjugate = VectorOperation("conjugate",[s(A.vector())],s(A_conj.vector()))
