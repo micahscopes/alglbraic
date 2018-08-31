@@ -13,7 +13,7 @@ parser.add_argument("-f","--folded", dest='fold', action='store_true')
 parser.add_argument("--2d", dest='include2d', action='store_true')
 parser.add_argument("-o","--orthonormalize", dest='orthonormalBasis', action='store_true')
 parser.add_argument("-i,--inspect", dest='inspectOnly', action='store_true')
-parser.add_argument("loop",nargs='?', default='MoufangLoop(16,3)')
+parser.add_argument("loop",nargs='?', default='InterestingLoop(32,1)')
 parser.add_argument("path",nargs='?', default = None)
 options = parser.parse_args()
 
@@ -58,8 +58,8 @@ permutations = None
 if(dim < 5):
     permutations = Permutations(dim)
 
-product = VectorOperation("product",[s(A.vector().coefficients()),s(B.vector().coefficients())],s(AB_coefs))
-v = VectorSpace(dim,product)
+product = AlgebraicProduct([s(A.vector().coefficients()),s(B.vector().coefficients())],s(AB_coefs))
+v = VectorSpace(dim)
 
 def writeFractalQuest(windowDimensions):
     path = options.path
@@ -73,7 +73,7 @@ def writeFractalQuest(windowDimensions):
         filename = path+niceFilename(name)+suffix+".frag"
     else:
         filename = path
-    fractal = FractalQuest(v,info,permutations,windowDimensions=windowDimensions)
+    fractal = FractalQuest(v,product,info=info,windowDimensions=windowDimensions)
     printer = GLSLPrinter()
     print("writing %s" % filename)
     output = open(filename, "w")

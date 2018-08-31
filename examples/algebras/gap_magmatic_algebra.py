@@ -46,6 +46,7 @@ class QuasigroupGap(MagmaGap):
         dim = self.dimension()
         invIndices = [self.elements().index(l) for l in self.inverses()]
         ideals = []
+        one = al.one()
         for i in range(dim):
             el = al.term(i)
             inv = al.term(invIndices[i])
