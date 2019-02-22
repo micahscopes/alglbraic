@@ -1,13 +1,9 @@
 #version 130
-#define providesInside
 #define providesInit
-#define providesColor
-#define SubframeMax 9
-#define IterationsBetweenRedraws 30
-
-#info Clifford Algebra with signature [-1,1]
-#include "Brute-Raytracer.frag"
+#include "Progressive2D.frag"
+#info Clifford Algebra with signature [1,-1,-1]
 #group Fractal
+const float PI = 3.14159265359;
     
 const int N = 8;
 
@@ -40,7 +36,6 @@ uniform float Position8; slider[-2,0,2]
 #group Window
 uniform int FrameX; slider[1,1,8]
 uniform int FrameY; slider[1,2,8]
-uniform int FrameZ; slider[1,3,8]
 #group Fractal
 
 
@@ -71,6 +66,18 @@ uniform bool Julia; checkbox[false]
 uniform bool addInitial; checkbox[true]
 uniform bool addPrevious; checkbox[false]
 uniform bool addJulia; checkbox[false]
+    
+uniform float R; slider[0,0,1]
+uniform float G; slider[0,0.4,1]
+uniform float B; slider[0,0.7,1]
+uniform float Divider; slider[0,35,50]
+uniform float Power; slider[0,0.6,6]
+uniform float Radius; slider[0,1.332,5]
+vec2 mapCenter = vec2(0.5,0.5);
+float mapRadius =0.4;
+uniform bool ShowMap; checkbox[true]
+uniform float MapZoom; slider[0.01,2.1,6]
+
     
 
 float[N] zeroN() {
@@ -129,7 +136,7 @@ float[N] normalize(inout float u[N]) {
 
 
 float[N] mul(float u[N], float v[N]) {
-    return float[N](u[0]*v[0] - u[1]*v[1] - 1.0*u[2]*v[2] + 1.0*u[3]*v[3] + 1.0*u[4]*v[4] - 1.0*u[5]*v[5] + 1.0*u[6]*v[6] - 1.0*u[7]*v[7], u[0]*v[1] + u[1]*v[0] - 1.0*u[2]*v[3] - 1.0*u[3]*v[2] + 1.0*u[4]*v[5] + 1.0*u[5]*v[4] + 1.0*u[6]*v[7] + 1.0*u[7]*v[6], u[0]*v[2] - u[1]*v[3] + u[2]*v[0] - u[3]*v[1] - 1.0*u[4]*v[6] + 1.0*u[5]*v[7] + 1.0*u[6]*v[4] - 1.0*u[7]*v[5], u[0]*v[3] + u[1]*v[2] + u[2]*v[1] + u[3]*v[0] - 1.0*u[4]*v[7] - 1.0*u[5]*v[6] + 1.0*u[6]*v[5] + 1.0*u[7]*v[4], u[0]*v[6] - u[1]*v[7] + u[2]*v[4] - u[3]*v[5] - u[4]*v[2] + u[5]*v[3] + u[6]*v[0] - u[7]*v[1], u[0]*v[7] + u[1]*v[6] + u[2]*v[5] + u[3]*v[4] - u[4]*v[3] - u[5]*v[2] + u[6]*v[1] + u[7]*v[0], u[0]*v[4] - u[1]*v[5] - 1.0*u[2]*v[6] + 1.0*u[3]*v[7] + u[4]*v[0] - u[5]*v[1] + 1.0*u[6]*v[2] - 1.0*u[7]*v[3], u[0]*v[5] + u[1]*v[4] - 1.0*u[2]*v[7] - 1.0*u[3]*v[6] + u[4]*v[1] + u[5]*v[0] + 1.0*u[6]*v[3] + 1.0*u[7]*v[2]);
+    return float[N](u[0]*v[0] + 1.0*u[1]*v[1] + 1.0*u[2]*v[2] - 1.0*u[3]*v[3] + 1.0*u[4]*v[4] - 1.0*u[5]*v[5] - 1.0*u[6]*v[6] - 1.0*u[7]*v[7], u[0]*v[1] + u[1]*v[0] - 1.0*u[2]*v[5] - 1.0*u[3]*v[6] - 1.0*u[4]*v[7] + 1.0*u[5]*v[2] - 1.0*u[6]*v[3] + 1.0*u[7]*v[4], u[0]*v[2] + u[1]*v[5] + u[2]*v[0] - 1.0*u[3]*v[7] + 1.0*u[4]*v[6] - u[5]*v[1] - 1.0*u[6]*v[4] - 1.0*u[7]*v[3], u[0]*v[3] + u[1]*v[6] + u[2]*v[7] + u[3]*v[0] - u[4]*v[5] - u[5]*v[4] + u[6]*v[1] + u[7]*v[2], u[0]*v[4] + u[1]*v[7] - 1.0*u[2]*v[6] + 1.0*u[3]*v[5] + u[4]*v[0] + 1.0*u[5]*v[3] + 1.0*u[6]*v[2] - u[7]*v[1], u[0]*v[5] + 1.0*u[1]*v[2] - 1.0*u[2]*v[1] - 1.0*u[3]*v[4] - 1.0*u[4]*v[3] + u[5]*v[0] - 1.0*u[6]*v[7] + 1.0*u[7]*v[6], u[0]*v[6] + 1.0*u[1]*v[3] - 1.0*u[2]*v[4] + 1.0*u[3]*v[1] + 1.0*u[4]*v[2] + u[5]*v[7] + u[6]*v[0] - u[7]*v[5], u[0]*v[7] + 1.0*u[1]*v[4] + 1.0*u[2]*v[3] + 1.0*u[3]*v[2] - 1.0*u[4]*v[1] - 1.0*u[5]*v[6] + 1.0*u[6]*v[5] + u[7]*v[0]);
 }
 
 
@@ -178,20 +185,19 @@ float[N] loadParamsPosition(out float u[N]){
 }
 
 
-float[N] frame(float v[N], vec3 p){
+float[N] frame(float v[N], vec2 p){
     // "Frame" a "window" through which to view vector v, via a "subvector" p.
 
     // Points p form a linear subspace of the N dimensional Euclidean space,
     // but not necessarily of the vector space we are looking at.  They are
     // really just "slices" of larger vectors.
 
-    if(FrameX == FrameY || FrameX == FrameZ || FrameY == FrameZ) {
+    if(FrameX == FrameY) {
         return v; //error, please set frame indices to be different
     }
     for(int i = 0; i<N; i++) {
        if (i == FrameX-1) { v[i] = p[0]; }
         if (i == FrameY-1) { v[i] = p[1]; }
-        if (i == FrameZ-1) { v[i] = p[2]; }
     }
     
 return v;
@@ -243,109 +249,153 @@ void iter(inout float z[N]) {
     
 }
     
-bool inside(vec3 pt) {
-    float z[N] = frame(O,pt);
-    float z0[N] = z;
-	vec3 zPt;
-  	float r;
-  	int i=0;
-  	r=abs(norm(z));
-	orbitTrap = vec4(100000);
-    while(r<Bailout && (i<Iterations)) {
+vec3 getMapColor2D(vec2 c) {
+	vec2 p =  (aaCoord-mapCenter)/(mapRadius);
+	p*=MapZoom; p.x/=pixelSize.x/pixelSize.y;
+	if (abs(p.x)<3.0*pixelSize.y*MapZoom) return vec3(0.0,0.0,0.0);
+	if (abs(p.y)<3.0*pixelSize.x*MapZoom) return vec3(0.0,0.0,0.0);
+    vec2 JuliaXY = vec2(JuliaVect[FrameX-1],JuliaVect[FrameY-1]);
+    p += JuliaXY;
+
+	float z[N] = frame(O,p);
+	float z0[N] = z;
+	float zprev[N];
+	int i = 0;
+	float r = 0;
+
+    while(r<Bailout && i<Iterations) {
       float zprev[N] = z;
-  		iter(z);
+      iter(z);
       if (addInitial) { z = add(z,z0); }
       if (addJulia) { z = add(z,JuliaVect); }
       if (addPrevious) { z = add(z,zprev); }
-
-  		r=abs(norm(z));
-		if (i<ColorIterations) {
-		zPt = vec3(z[FrameX-1],z[FrameY-1],z[FrameZ-1]);
-		orbitTrap = min(orbitTrap, abs(vec4(zPt.x,zPt.y,zPt.z,r*r)));
-		}
-
-  		i++;
+      i++;
+      r=norm(z);
   	}
-	return ((r < Bailout && r > Bailin) || BailInvert);
+	if ((r < Bailout && r > Bailin) || BailInvert){
+		return vec3(R,G,B)*0.5;
+	} else {
+		return vec3(1.0);
+	}
 }
 
-    vec3 color(vec3 pt) {
+vec3 color(vec2 c) {
+	if (ShowMap && Julia) {
+		vec2 w = (aaCoord-mapCenter);
+		w.y/=(pixelSize.y/pixelSize.x);
+		if (length(w)<mapRadius) return getMapColor2D(c);
+		if (length(w)<mapRadius+0.01) return vec3(0.0,0.0,0.0);
+	}
+    float z[N] = frame(O,c);
+    float z0[N] = z;
+  	float r;
+  	int i=0;
+  	r=norm(z);
 
-	orbitTrap.w = sqrt(orbitTrap.w);
-
-	vec3 orbitColor;
-	orbitColor = X.xyz*X.w*orbitTrap.x +
-	Y.xyz*Y.w*orbitTrap.y +
-	Z.xyz*Z.w*orbitTrap.z +
-	R.xyz*R.w*orbitTrap.w;
-
-	vec3 color = mix(BaseColor, 3.0*orbitColor,  OrbitStrength);
-	return color;
+    while(r<Bailout && (i<Iterations)) {
+      float zprev[N] = z;
+      iter(z);
+      if (addInitial) { z = add(z,z0); }
+      if (addJulia) { z = add(z,JuliaVect); }
+      if (addPrevious) { z = add(z,zprev); }
+      i++;
+      r=norm(z);
+  	}
+	if ((r < Bailout && r > Bailin) && !BailInvert) {
+		return vec3(1.0);
+	} else {
+		return vec3(R,G,B);
+	}
 }
+
+    
+
 #preset Default
-AutoFocus = true
-NormalScale = 1
-AOScale = 0.5882353
-Glow = 1
-AOStrength = 1
-Samples = 20
-Stratify = true
-DebugInside = false
-CentralDifferences = true
-SampleNeighbors = true
-Near = 0
-Far = 12
-DepthToAlpha = false
-DebugNormals = false
-Gamma = 1.0
-SpecularExp = 16.364
-SpotLight = 1,1,1,0.1
-SpotLightDir = 0.63626,0.5
-CamLight = 1,1,1,1.53846
-CamLightMin = 0.12121
-Specular = 1
-BaseColor = 0.4,0.690196,1
-OrbitStrength = 0.5504587
-X = 0.0784314,1,0.937255,0.2148148
-Y = 0.45098,0.823529,0.0862745,1
-Z = 0.988235,0.913725,0.309804,0.9407407
-R = 0.937255,0.156863,0.156863,0.7777778
-BackgroundColor = 0.933333,0.933333,0.92549
-GradientBackground = 0
-CycleColors = true
-Cycles = 10.13333
-ColorIterations = 28
-FOV = 0.4
-Eye = -0.296716,-0.0422444,-4.62051
-Target = -1.42768,-0.137922,5.31487
-Up = 0.0013069,0.999951,0.0097783
-EquiRectangular = false
+Center = 0.58022,-0.0209826
+Zoom = 0.854514
+Gamma = 2.17595
+ToneMapping = 3
+Exposure = 1
+Brightness = 1
+Contrast = 1
+Saturation = 1
+AARange = 2
+AAExp = 1
+GaussianAA = true
+JuliaVect1 = 0
+JuliaVect2 = 0
+JuliaVect3 = 0
+JuliaVect4 = 0
+Position1 = 0
+Position2 = 0
+Position3 = 0
+Position4 = 0
+FrameX = 1
+FrameY = 2
+mutationA = 0
+mutationB = 0
+mutationC = 0
+mutationD = 0
+flipperA = 0
+flipperB = 0
+flipperC = 0
+auxA = 1
+auxB = 1
+auxC = 1
+auxD = 1
+pow1 = 1
+pow2 = 1
+pow3 = 1
+pow4 = 1
+Iterations = 264
+Bailout = 5
+Julia = false
+usePrevious = false
+R = 0
+G = 0
+B = 0
+Divider = 30.292
+Power = 0.67998
+Radius = 1.332
+ShowMap = true
+MapZoom = 2.1
 #endpreset
 
-#preset trueblue
-BaseColor = 0.4,0.690196,1
-OrbitStrength = 0.4311927
-X = 0.0784314,1,0.937255,0.9259259
-Y = 0.447059,0.623529,0.811765,0.119403
-Z = 0.768628,0.627451,0,-0.1555556
-R = 0.0784314,1,0.937255,-0.0962963
-BackgroundColor = 0.933333,0.933333,0.92549
-GradientBackground = 0
-CycleColors = true
-Cycles = 10.13333
-ColorIterations = 28
+#preset Mandel2
+Center = -0.335155,0.124422
+Zoom = 630.163
+Iterations = 623
+R = 0.25624
+G = 0.66875
+B = 1
+Julia = false
+JuliaX = -0.6
+JuliaY = 1.3
 #endpreset
 
-#preset sheen
-BaseColor = 0.4,0.690196,1
-OrbitStrength = 0.5504587
-X = 0.0784314,1,0.937255,0.2148148
-Y = 0.45098,0.823529,0.0862745,1
-Z = 0.988235,0.913725,0.309804,0.9407407
-R = 0.937255,0.156863,0.156863,0.7777778
-BackgroundColor = 0.933333,0.933333,0.92549
-GradientBackground = 0
-CycleColors = true
-Cycles = 10.13333
-ColorIterations = 28
+#preset Julia1
+Center = -0.00932198,0
+Zoom = 1.26502
+Iterations = 69
+R = 0.76875
+G = 0.4
+B = 0.7
+Julia = true
+JuliaX = -1.26472
+JuliaY = -0.05884
 #endpreset
+
+#preset nice Julia
+Center = 0.16416,0.0265285
+Zoom = 0.854514
+Iterations = 328
+R = 0
+G = 0.4
+B = 0.7
+Julia = true
+JuliaX = -0.20588
+JuliaY = 0.79412
+ShowMap = true
+MapZoom = 1.74267
+#endpreset
+    

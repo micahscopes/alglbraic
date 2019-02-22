@@ -279,7 +279,7 @@ void iter(inout float z[N]) {
     float zNorm[N] = z;
     normalize(zNorm);
     z =
-		mul(flipA(z),mul(flipB(z),flipC(z)));
+		mul(flipA(z),flipB(z));
     
 }
     

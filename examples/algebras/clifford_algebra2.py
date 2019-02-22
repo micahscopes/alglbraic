@@ -4,7 +4,7 @@ import sys
 def vec(sym,m):
     return vector(SR, [var(sym+"%i" % (i%m+1)) for i in range(m)]);
 
-Qs = "[-1,-1, -1]"
+Qs = "[1,-1,-1]"
 Q = [2*float(i) for i in Qs.strip("[]").split(",")]
 m = Matrix.diagonal(Q)
 q = QuadraticForm(m)
@@ -22,7 +22,7 @@ permutations = None
 if(dims < 5):
     permutations = Permutations(dims)
 
-product = VectorOperation("product",[s(A.coefficients()),s(B.coefficients())],s(AB.coefficients()))
+product = AlgebraicProduct([s(A.coefficients()),s(B.coefficients())],s(AB.coefficients()))
 vectorspace = VectorSpace(dims)
 # flipper = SignFlipper(dims)
 
