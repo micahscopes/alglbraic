@@ -20,9 +20,9 @@ def operator(*args, name='fn', associative=True, **kwargs):
       'return_value': return_value,
       'inputs': ', '.join([i for i in inputs])
     })
-    
-    return gl
 
+    return gl
+s
 
 
 Power = Template('''
