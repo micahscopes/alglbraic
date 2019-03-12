@@ -1,7 +1,7 @@
 from sympy import Symbol, Matrix, symbols, glsl_code
 from string import Template
 from .struct import GlslStruct
-from .functions import constant, operator
+from .functions import constant, operator, map as gl_map
 
 
 class BinaryOperationMixin:
@@ -12,9 +12,10 @@ class BinaryOperationMixin:
     def argument_pair(self):
         return [self.element(arg) for arg in self.UV]
 
-    def binary_operation(self, name, result):
-        inputs = [self.base_ring+' '+arg for arg in self.UV]
-        return operator(name, *inputs, (self.name, self.gl(result)))
+    def binary_operation(self, name, result, use_operators=False):
+        input_types = [self.name]*2
+        input_argnames = self.UV
+        return gl_map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
         
 class FiniteModule(GlslStruct, BinaryOperationMixin):
     '''A GLSL helper class for a finite module over some ring.
@@ -26,7 +27,7 @@ class FiniteModule(GlslStruct, BinaryOperationMixin):
         base_ring,
         *basis,
         unit=None,
-        use_operators=False):
+        ):
 
         """A Finite Module.
 
@@ -43,10 +44,9 @@ class FiniteModule(GlslStruct, BinaryOperationMixin):
         self.base_ring = base_ring
         self.basis = basis
         self.unit = unit
-        self.use_operators = use_operators
 
-    def gl(self, expr):
-        return glsl_code(expr, array_constructor=self.name, glsl_types=False, use_operators=self.use_operators)
+    def gl(self, expr, use_operators=False):
+        return glsl_code(expr, array_constructor=self.name, glsl_types=False, use_operators=use_operators)
 
     def zero_symbols(self):
         return symbols([self.base_ring_zero]*len(self.basis))
@@ -79,14 +79,7 @@ class FiniteModule(GlslStruct, BinaryOperationMixin):
         base_ring = self.base_ring
         a = Symbol(self.A)
         x = self.element(self.X)
-        inputs = [
-            base_ring+' '+self.A,
-            name+' '+self.X
-        ]
-        result = (name, self.gl(a*x))
-        return operator('mul', *inputs, result)
-
-    def algebraic_product(self, product):
-        u,v = self.argument_pair()
-        return self.binary_operation('mul', product(u,v))
+        input_types = [base_ring, name]
+        input_argnames = [self.A, self.X]
+        return gl_map('mul', input_types, input_argnames, self.name, self.gl(a*x))
 

@@ -2,7 +2,6 @@ import unittest
 import snapshottest
 from alglbraic.functions import operator
 from sympy import glsl_code
-from sympy.abc import *
 
 from alglbraic.struct import GlslStruct
 

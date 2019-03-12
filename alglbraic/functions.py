@@ -7,21 +7,33 @@ $return_type $name($inputs){
 }\
 """)
 
-def operator(name, *args):
-    inputs = args[:-1]
-    return_type, return_value = args[-1]
-
-    if not isinstance(return_value, str):
+def map(name, input_types, input_argnames, return_type, return_value):
+    inputs = ', '.join(' '.join(type_name) for type_name in zip(input_types, input_argnames))
+    
+    if not isinstance(
+        return_value, str):
         return_value = glsl_code(return_value)
 
     gl = fn.substitute({
       'name': name,
       'return_type': return_type,
       'return_value': return_value,
-      'inputs': ', '.join([i for i in inputs])
+      'inputs': inputs
     })
 
     return gl
+
+def operator(name, *args):
+    input_types, input_argnames = [], []
+    try:
+        input_types, input_argnames = zip(*[i.split() for i in args[:-1]])
+    except:
+        pass
+    return_type, return_value = args[-1]
+
+    print(input_types, input_argnames, return_type, return_value)
+
+    return map(name, input_types, input_argnames, return_type, return_value)
     
 def constant(name, return_value):
     return operator(name, return_value)
