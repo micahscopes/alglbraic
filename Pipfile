@@ -1,0 +1,25 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+black = "*"
+snapshottest = "*"
+pytest = "*"
+v = {editable = true,version = "*"}
+nose = "*"
+nose-watch = "*"
+
+[packages]
+sympy = {git = "https://github.com/micahscopes/sympy.git",ref = "717d1bee0938dc431163d70f5814ef416855392f"}
+galgebra = {editable = true,git = "https://github.com/pygae/galgebra.git",ref = "a962ddcf74c14899c7999c217d2a0412de36cf94"}
+click = "*"
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prerelease = true
+allow_prereleases = true
