@@ -8,6 +8,7 @@ class TestOperator(snapshottest.TestCase):
 
     def test_simple_expr(self):
         op = operator(
+            'add',
             'float a',
             'float b',
             ('float', a+b*a)
@@ -16,6 +17,7 @@ class TestOperator(snapshottest.TestCase):
 
     def test_simple_str(self):
         op = operator(
+            'add',
             'float a',
             'float b',
             ('float', glsl_code(a*b))
@@ -28,6 +30,7 @@ class TestOperator(snapshottest.TestCase):
         b = MatrixSymbol('y', 5, 5)
 
         op = operator(
+            'mul',
             'float[25] x',
             'float[25] y',
             ('float[25]', Matrix(a*b))
@@ -45,6 +48,7 @@ class TestOperator(snapshottest.TestCase):
         result = glsl_code(x*y, array_constructor='mat5x5')
 
         op = operator(
+            'mul',
             'mat5x5 x',
             'mat5x5 y',
             ('mat5x5', result)
@@ -56,6 +60,7 @@ from alglbraic.functions import constant
 class TestConstant(snapshottest.TestCase):
     def test_constant(self):
         one = constant(
+            'one',
             ('float', 1.0)
         )
 

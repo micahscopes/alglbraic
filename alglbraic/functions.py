@@ -7,7 +7,7 @@ $return_type $name($inputs){
 }\
 """)
 
-def operator(*args, name='fn'):
+def operator(name, *args):
     inputs = args[:-1]
     return_type, return_value = args[-1]
 
@@ -23,8 +23,8 @@ def operator(*args, name='fn'):
 
     return gl
     
-def constant(return_value, name='constant'):
-    return operator(return_value, name=name)
+def constant(name, return_value):
+    return operator(name, return_value)
 
 
 # Power = Template('''

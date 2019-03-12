@@ -1,103 +1,92 @@
-from sympy import Symbol, symbols
+from sympy import Symbol, Matrix, symbols, glsl_code
 from string import Template
 from .struct import GlslStruct
+from .functions import constant, operator
 
 
-class FiniteModule:
-    def __init__(self, name, base_ring):
-        self.name = name
-        self.base_ring = base_ring
+class BinaryOperationMixin:
+    A, B = AB = ['a', 'b']
+    U, V = UV = ['u', 'v']
+    X, Y = XY = ['x', 'y']
 
-        # GlslStruct.__init__(*args, **kwargs)
+    def argument_pair(self):
+        return [self.element(arg) for arg in self.UV]
 
+    def binary_operation(self, name, result):
+        inputs = [self.base_ring+' '+arg for arg in self.UV]
+        return operator(name, *inputs, (self.name, self.gl(result)))
+        
+class FiniteModule(GlslStruct, BinaryOperationMixin):
+    '''A GLSL helper class for a finite module over some ring.
+    '''
+    base_ring_zero='zero_base()'
+    base_ring_one='one_base()'
+    def __init__(self,
+        name,
+        base_ring,
+        *basis,
+        unit=None,
+        use_operators=False):
 
-class FiniteModuleWithBasis(FiniteModule, GlslStruct):
-    def __init__(self, name, base_ring, *basis):
-        FiniteModule.__init__(self, name, base_ring)
+        """A Finite Module.
+
+        Keyword arguments:
+        name -- the type name of this module
+        base_ring -- the type name of this module's base ring
+        *basis -- names of basis members
+        unit -- the name of the unit member (default None)
+        use_operators -- whether or not to generate GLSL using operators (default False)
+        """
+    
         basis_declarations = [base_ring + " " + b for b in basis]
-        GlslStruct.__init__(self, name, basis_declarations)
+        GlslStruct.__init__(self, name, *basis_declarations)
+        self.base_ring = base_ring
         self.basis = basis
+        self.unit = unit
+        self.use_operators = use_operators
 
+    def gl(self, expr):
+        return glsl_code(expr, array_constructor=self.name, glsl_types=False, use_operators=self.use_operators)
+
+    def zero_symbols(self):
+        return symbols([self.base_ring_zero]*len(self.basis))
+    
     def zero(self):
-        from .functions import constant
-        return constant(self.base_ring+' zero()')
+        module_zero = self.gl(self.zero_symbols())
+        return constant('zero', (self.name, module_zero))
 
-#     def zero(self):
-#       return zero.substitute({'N': self.size})
+    def one_symbols(self):
+        if self.unit == None:
+            raise Exception('No unit is defined')
+        one = [Symbol(self.base_ring_zero)]*len(self.basis)
+        one[self.basis.index(self.unit)] = Symbol(self.base_ring_one)
+        return one
 
-#     def unit(self):
-#       return zero.substitute({'N': self.size})
+    def one(self):
+        one = self.gl(self.one_symbols())
+        return constant('one', (self.name, one))
 
-#     def zero(self):
-#       return zero.substitute({'N': self.size})
+    def add(self):
+        u,v = self.argument_pair()
+        return self.binary_operation('add', u+v)
 
-#     def zero(self):
-#       return zero.substitute({'N': self.size})
+    def sub(self):
+        u,v = self.argument_pair()
+        return self.binary_operation('sub', u-v)
 
+    def scalar_mul(self):
+        name = self.name
+        base_ring = self.base_ring
+        a = Symbol(self.A)
+        x = self.element(self.X)
+        inputs = [
+            base_ring+' '+self.A,
+            name+' '+self.X
+        ]
+        result = (name, self.gl(a*x))
+        return operator('mul', *inputs, result)
 
-# zero = Template(
-#     """
-# $base_ring[${N}] zero() {
-#   $base_ring zero[${N}]()
-# }
+    def algebraic_product(self, product):
+        u,v = self.argument_pair()
+        return self.binary_operation('mul', product(u,v))
 
-# #pragma glslify: export(zero)
-# """
-# )
-
-# unit = Template(
-#     """
-# #pragma glslify: zero = require(./zero.glsl)
-# $base_ring[${N}] unit(int i) {
-#   $base_ring[${N}] unit = zero();
-#   unit[i] = base_ring_unit;
-#   return unit;
-# }
-
-# #pragma glslify: export(unit)
-# """
-# )
-
-# add = Template(
-#     """
-# $base_ring[$N] add($base_ring a[$N], $base_ring b[$N]) {
-#   $base_ring c[$N];
-#   for (int i = 0; i < $N; ++i){
-#     c[i] = a[i]+b[i];
-#   }
-#   return c;
-# }
-# """
-# )
-
-# sub = Template(
-#     """\
-# $base_ring[$N] sub($base_ring a[$N], $base_ring b[$N]) {
-#   $base_ring c[$N];
-#   for (int i = 0; i < $N; ++i){
-#     c[i] = a[i]-b[i];
-#   }
-#   return c;
-# }\
-# """
-# )
-
-
-# mul = Template(
-#     '''\
-# float[N] mul(float b[N], float a) {
-#   return mul(a,b);
-# }
-
-# float[N] mul(int a, float b[N]) {
-#   return mul(float(a),b);
-# }
-
-# float[N] mul(float b[N], int a) {
-#   return mul(float(a),b);
-# }
-
-# float[N] mul3(float a[N], float b[N], float c[N]) {
-#   return mul(mul(a,b),c);
-# }\
-# '''

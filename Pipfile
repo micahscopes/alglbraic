@@ -11,9 +11,10 @@ pytest = "*"
 v = {editable = true,version = "*"}
 nose = "*"
 nose-watch = "*"
+pdoc = "*"
 
 [packages]
-sympy = {git = "https://github.com/micahscopes/sympy.git",ref = "717d1bee0938dc431163d70f5814ef416855392f"}
+sympy = {git = "https://github.com/micahscopes/sympy.git",ref = "2f7e14edfe54e4e7a5eac4240c089c367444f714"}
 galgebra = {editable = true,git = "https://github.com/pygae/galgebra.git",ref = "a962ddcf74c14899c7999c217d2a0412de36cf94"}
 click = "*"
 
