@@ -15,7 +15,15 @@ class Algebra(FiniteModule):
         raise Exception("Be sure to override the `_coefficients_from_algebraic_element` method!")
 
     def algebraic_arguments(self, n=2):
-        return [self._algebraic_element_from_coefficients(syms) for syms in self.symbolic_arguments(n)]
+        args = [self._algebraic_element_from_coefficients(syms) for syms in self.symbolic_arguments(n)]
+        if len(args) > 1:
+            return args
+        else:
+            return args[0]
+
+    def algebraic_operation(self, name, result, n=2, use_operators=False):
+        result = self._coefficients_from_algebraic_element(result)
+        return self.n_ary_operation(n, name, result, use_operators=use_operators)
 
     def algebraic_product(self, name='product', fn=None, use_operators=False):
         fn = fn if fn else lambda u,v: u*v

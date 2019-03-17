@@ -18,3 +18,7 @@ class CliffordAlgebra(Algebra):
 
     def _coefficients_from_algebraic_element(self, element):
         return element.blade_coefs()
+
+    def reverse(self):
+        result = self.algebraic_arguments(1).rev()
+        return self.algebraic_operation('reverse', result, n=1)

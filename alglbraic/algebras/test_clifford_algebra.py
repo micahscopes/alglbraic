@@ -20,6 +20,10 @@ class TestCliffordAlgebra(snapshottest.TestCase):
         self.assert_match_snapshot(
             str(self.algebra.algebraic_product())
         )
+
+        self.assert_match_snapshot(
+            str(self.algebra.reverse())
+        )
     
     def test_big_clifford_algebra_product(self):
         Cl = CliffordAlgebra(

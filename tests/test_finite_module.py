@@ -55,7 +55,6 @@ class TestFiniteModule(snapshottest.TestCase):
         v = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(v_co, Cl.blades_lst0)],0))
 
         result = (u*v).blade_coefs()
-        # print(result)
 
         gl = module.binary_operation('mul', result, use_operators=True)
 

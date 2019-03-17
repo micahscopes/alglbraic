@@ -14,3 +14,7 @@ snapshots['TestCliffordAlgebra::test_big_clifford_algebra_product 1'] = '''Compl
 snapshots['TestCliffordAlgebra::test_clifford_algebra_product 1'] = '''ComplexCl1_1 product(ComplexCl1_1 u, ComplexCl1_1 v){
     return ComplexCl1_1(sub(add(add(mul(u.ONE, v.ONE), mul(u.e12, v.e12)), mul(u.e2, v.e2)), mul(u.e1, v.e1)), sub(add(add(mul(u.ONE, v.e1), mul(u.e1, v.ONE)), mul(u.e12, v.e2)), mul(u.e2, v.e12)), sub(add(add(mul(u.ONE, v.e2), mul(u.e12, v.e1)), mul(u.e2, v.ONE)), mul(u.e1, v.e12)), sub(add(add(mul(u.ONE, v.e12), mul(u.e1, v.e2)), mul(u.e12, v.ONE)), mul(u.e2, v.e1)));
 }'''
+
+snapshots['TestCliffordAlgebra::test_clifford_algebra_product 2'] = '''ComplexCl1_1 reverse(ComplexCl1_1 u){
+    return ComplexCl1_1(u.ONE, u.e1, u.e2, mul(-1, u.e12));
+}'''

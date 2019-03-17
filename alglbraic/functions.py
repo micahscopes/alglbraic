@@ -42,22 +42,21 @@ class OperationsMixin:
     A, B, C = ABC = ['a', 'b', 'c']
     U, V, W = UVW = ['u', 'v', 'w']
     X, Y, Z = XYZ = ['x', 'y', 'z']
+    L, M, N = LMN = ['l', 'm', 'n']
+    P, Q, R, S, T = PQRST = ['p', 'q', 'r', 's', 't']
 
     def symbolic_arguments(self, n=2):
-        return [self.symbols_vector_for(arg) for arg in (self.UVW+self.XYZ)[:n]]
+        return [self.symbols_vector_for(arg) for arg in self.n_ary_argnames(n)]
 
-    def unary_operation(self, name, result, use_operators=False):
-        input_types = [self.name]
-        input_argnames = [self.U]
+    def n_ary_argnames(self, n=2):
+        return (self.UVW+self.PQRST+self.LMN+self.XYZ)[:n]
+
+    def n_ary_operation(self, n, name, result, use_operators=False):
+        input_types = [self.name]*n
+        input_argnames = [str(x) for x in self.n_ary_argnames(n)]
         return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
 
-    def binary_operation(self, name, result, use_operators=False):
-        input_types = [self.name]*2
-        input_argnames = self.UVW
-        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
-
-    def ternary_operation(self, name, result, use_operators=False):
-        input_types = [self.name]*3
-        input_argnames = self.UVW
-        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
-
+    def unary_operation(self,*args,**kwargs): return self.n_ary_operation(1,*args,**kwargs)
+    def binary_operation(self,*args,**kwargs): return self.n_ary_operation(2,*args,**kwargs)
+    def ternary_operation(self,*args,**kwargs): return self.n_ary_operation(3,*args,**kwargs)
+    def quaternary_operation(self,*args,**kwargs): return self.n_ary_operation(4,*args,**kwargs)
