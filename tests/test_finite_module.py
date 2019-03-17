@@ -41,7 +41,15 @@ class TestFiniteModule(snapshottest.TestCase):
         )
 
         self.assert_match_snapshot(
-            str(module.scalar_mul())
+            str(module.scalar_base_mul())
+        )
+
+        self.assert_match_snapshot(
+            str(module.scalar_int_mul())
+        )
+
+        self.assert_match_snapshot(
+            str(module.scalar_float_mul())
         )
 
     def test_algebraic_product(self):

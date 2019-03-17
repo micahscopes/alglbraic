@@ -34,3 +34,11 @@ snapshots['TestFiniteModule::test_finite_module 5'] = '''ComplexCl2 sub(ComplexC
 snapshots['TestFiniteModule::test_finite_module 6'] = '''ComplexCl2 mul(C a, ComplexCl2 x){
     return ComplexCl2(mul(a, x.ONE), mul(a, x.e1), mul(a, x.e2), mul(a, x.e12));
 }'''
+
+snapshots['TestFiniteModule::test_finite_module 7'] = '''ComplexCl2 mul(int a, ComplexCl2 x){
+    return mul(float(a), x);
+}'''
+
+snapshots['TestFiniteModule::test_finite_module 8'] = '''ComplexCl2 mul(float a, ComplexCl2 x){
+    return mul(mul(a, one_base()), x);
+}'''

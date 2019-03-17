@@ -61,13 +61,18 @@ class FiniteModule(GlslStruct, OperationsMixin):
         return self.binary_operation('sub', u-v)
 
     def scalar_int_mul(self):
-        return '''\
+        return Template('''\
 $name mul(int a, $name x){
     return mul(float(a), x);
-}\
-'''
+}''').substitute(name=self.name)
 
-    def scalar_mul(self):
+    def scalar_float_mul(self):
+        return Template('''\
+$name mul(float a, $name x){
+    return mul(mul(a, $base_ring_one), x);
+}''').substitute(name=self.name, base_ring_one=self.base_ring_one)
+
+    def scalar_base_mul(self):
         name = self.name
         base_ring = self.base_ring
         a = Symbol(self.A)
