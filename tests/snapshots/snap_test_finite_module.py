@@ -7,20 +7,20 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
+snapshots['TestFiniteModule::test_algebraic_product 1'] = '''ComplexCl2 mul(ComplexCl2 u, ComplexCl2 v){
+    return ComplexCl2(u.ONE*v.ONE + u.e1*v.e1 - u.e12*v.e12 + u.e2*v.e2, u.ONE*v.e1 + u.e1*v.ONE + u.e12*v.e2 - u.e2*v.e12, u.ONE*v.e2 + u.e1*v.e12 - u.e12*v.e1 + u.e2*v.ONE, u.ONE*v.e12 + u.e1*v.e2 + u.e12*v.ONE - u.e2*v.e1);
+}'''
+
 snapshots['TestFiniteModule::test_finite_module 1'] = '''struct ComplexCl2 {
     C ONE; C e1; C e2; C e12;
 }'''
 
 snapshots['TestFiniteModule::test_finite_module 2'] = '''ComplexCl2 zero(){
-    return ComplexCl2(zero_base(), zero_base(), zero_base(), zero_base());
+    return ComplexCl2(zero(), zero(), zero(), zero());
 }'''
 
 snapshots['TestFiniteModule::test_finite_module 3'] = '''ComplexCl2 one(){
-    return ComplexCl2(one_base(), zero_base(), zero_base(), zero_base());
-}'''
-
-snapshots['TestFiniteModule::test_algebraic_product 1'] = '''ComplexCl2 mul(ComplexCl2 u, ComplexCl2 v){
-    return ComplexCl2(u.ONE*v.ONE + u.e1*v.e1 - u.e12*v.e12 + u.e2*v.e2, u.ONE*v.e1 + u.e1*v.ONE + u.e12*v.e2 - u.e2*v.e12, u.ONE*v.e2 + u.e1*v.e12 - u.e12*v.e1 + u.e2*v.ONE, u.ONE*v.e12 + u.e1*v.e2 + u.e12*v.ONE - u.e2*v.e1);
+    return ComplexCl2(one(), zero(), zero(), zero());
 }'''
 
 snapshots['TestFiniteModule::test_finite_module 4'] = '''ComplexCl2 add(ComplexCl2 u, ComplexCl2 v){
@@ -40,5 +40,5 @@ snapshots['TestFiniteModule::test_finite_module 7'] = '''ComplexCl2 mul(int a, C
 }'''
 
 snapshots['TestFiniteModule::test_finite_module 8'] = '''ComplexCl2 mul(float a, ComplexCl2 x){
-    return mul(mul(a, one_base()), x);
+    return mul(mul(a, one()), x);
 }'''

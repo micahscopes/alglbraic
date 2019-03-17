@@ -47,3 +47,8 @@ class TestComplexNumbers(snapshottest.TestCase):
         self.assert_match_snapshot(
             str(self.C.algebraic_product(use_operators=True))
         )
+
+    def test_one(self):
+        self.assert_match_snapshot(
+            str(self.C.one(use_operators=True))
+        )

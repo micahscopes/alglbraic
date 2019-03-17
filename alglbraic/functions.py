@@ -7,7 +7,7 @@ $return_type $name($inputs){
 }\
 """)
 
-def map(name, input_types, input_argnames, return_type, return_value):
+def map(name, input_types, input_argnames, return_type, return_value, **kwargs):
     inputs = ', '.join(' '.join(type_name) for type_name in zip(input_types, input_argnames))
     
     if not isinstance(
@@ -23,7 +23,7 @@ def map(name, input_types, input_argnames, return_type, return_value):
 
     return gl
 
-def operator(name, *args):
+def operator(name, *args, **kwargs):
     input_types, input_argnames = [], []
     try:
         input_types, input_argnames = zip(*[i.split() for i in args[:-1]])
@@ -33,10 +33,10 @@ def operator(name, *args):
 
     # print(input_types, input_argnames, return_type, return_value)
 
-    return map(name, input_types, input_argnames, return_type, return_value)
+    return map(name, input_types, input_argnames, return_type, return_value, **kwargs)
     
-def constant(name, return_value):
-    return operator(name, return_value)
+def constant(name, return_value, **kwargs):
+    return operator(name, return_value, **kwargs)
 
 class OperationsMixin:
     A, B, C = ABC = ['a', 'b', 'c']

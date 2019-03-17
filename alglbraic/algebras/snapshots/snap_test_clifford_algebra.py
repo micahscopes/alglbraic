@@ -15,10 +15,14 @@ snapshots['TestCliffordAlgebra::test_clifford_algebra_product 1'] = '''ComplexCl
     return ComplexCl1_1(u.ONE*v.ONE - u.e1*v.e1 + u.e12*v.e12 + u.e2*v.e2, u.ONE*v.e1 + u.e1*v.ONE + u.e12*v.e2 - u.e2*v.e12, u.ONE*v.e2 - u.e1*v.e12 + u.e12*v.e1 + u.e2*v.ONE, u.ONE*v.e12 + u.e1*v.e2 + u.e12*v.ONE - u.e2*v.e1);
 }'''
 
-snapshots['TestComplexNumbers::test_product 1'] = '''C product(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
-}'''
-
 snapshots['TestCliffordAlgebra::test_clifford_algebra_product 2'] = '''ComplexCl1_1 reverse(ComplexCl1_1 u){
     return ComplexCl1_1(u.ONE, u.e1, u.e2, -u.e12);
+}'''
+
+snapshots['TestComplexNumbers::test_one 1'] = '''C one(){
+    return C(one(), zero());
+}'''
+
+snapshots['TestComplexNumbers::test_product 1'] = '''C product(C u, C v){
+    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
 }'''

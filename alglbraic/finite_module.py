@@ -8,8 +8,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
     """A GLSL helper class for a finite module over some ring.
     """
 
-    base_ring_zero = "zero_base()"
-    base_ring_one = "one_base()"
+    base_ring_zero = "zero()"
+    base_ring_one = "one()"
 
     def __init__(self, name, base_ring, *basis, unit=None):
 
@@ -40,9 +40,9 @@ class FiniteModule(GlslStruct, OperationsMixin):
     def zero_symbols(self):
         return symbols([self.base_ring_zero] * len(self.basis))
 
-    def zero(self):
+    def zero(self, **kwargs):
         module_zero = self.gl(self.zero_symbols())
-        return constant("zero", (self.name, module_zero))
+        return constant("zero", (self.name, module_zero), **kwargs)
 
     def one_symbols(self):
         if self.unit == None:
@@ -51,25 +51,25 @@ class FiniteModule(GlslStruct, OperationsMixin):
         one[self.basis.index(self.unit)] = Symbol(self.base_ring_one)
         return one
 
-    def one(self):
+    def one(self, **kwargs):
         one = self.gl(self.one_symbols())
-        return constant("one", (self.name, one))
+        return constant("one", (self.name, one), **kwargs)
 
-    def add(self):
+    def add(self, **kwargs):
         u, v = self.symbolic_arguments(2)
-        return self.binary_operation("add", u + v)
+        return self.binary_operation("add", u + v, **kwargs)
 
-    def sub(self):
+    def sub(self, **kwargs):
         u, v = self.symbolic_arguments(2)
-        return self.binary_operation("sub", u - v)
+        return self.binary_operation("sub", u - v, **kwargs)
 
-    def scalar_int_mul(self):
+    def scalar_int_mul(self, **kwargs):
         return Template(
             """\
 $name mul(int a, $name x){
     return mul(float(a), x);
 }"""
-        ).substitute(name=self.name)
+        ).substitute(name=self.name, **kwargs)
 
     def scalar_float_mul(self):
         return Template(
