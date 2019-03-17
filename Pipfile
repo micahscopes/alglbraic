@@ -12,6 +12,8 @@ v = {editable = true,version = "*"}
 nose = "*"
 nose-watch = "*"
 pdoc = "*"
+ipdb = "*"
+ipdbplugin = "*"
 
 [packages]
 sympy = {git = "https://github.com/micahscopes/sympy.git",ref = "2f7e14edfe54e4e7a5eac4240c089c367444f714"}

@@ -1,23 +1,9 @@
 from sympy import Symbol, Matrix, symbols, glsl_code
 from string import Template
-from .struct import GlslStruct
-from .functions import constant, operator, map as gl_map
-
-
-class BinaryOperationMixin:
-    A, B = AB = ['a', 'b']
-    U, V = UV = ['u', 'v']
-    X, Y = XY = ['x', 'y']
-
-    def argument_pair(self):
-        return [self.element(arg) for arg in self.UV]
-
-    def binary_operation(self, name, result, use_operators=False):
-        input_types = [self.name]*2
-        input_argnames = self.UV
-        return gl_map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
+from alglbraic.struct import GlslStruct
+from alglbraic.functions import constant, operator, map as gl_map, OperationsMixin
         
-class FiniteModule(GlslStruct, BinaryOperationMixin):
+class FiniteModule(GlslStruct, OperationsMixin):
     '''A GLSL helper class for a finite module over some ring.
     '''
     base_ring_zero='zero_base()'
@@ -67,19 +53,18 @@ class FiniteModule(GlslStruct, BinaryOperationMixin):
         return constant('one', (self.name, one))
 
     def add(self):
-        u,v = self.argument_pair()
+        u,v = self.symbolic_arguments(2)
         return self.binary_operation('add', u+v)
 
     def sub(self):
-        u,v = self.argument_pair()
+        u,v = self.symbolic_arguments(2)
         return self.binary_operation('sub', u-v)
 
     def scalar_mul(self):
         name = self.name
         base_ring = self.base_ring
         a = Symbol(self.A)
-        x = self.element(self.X)
+        x = self.symbols_vector_for(self.X)
         input_types = [base_ring, name]
         input_argnames = [self.A, self.X]
         return gl_map('mul', input_types, input_argnames, self.name, self.gl(a*x))
-

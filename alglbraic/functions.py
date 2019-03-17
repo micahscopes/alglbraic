@@ -3,7 +3,7 @@ from sympy import glsl_code
 
 fn = Template("""\
 $return_type $name($inputs){
-    return $return_value
+    return $return_value;
 }\
 """)
 
@@ -31,53 +31,33 @@ def operator(name, *args):
         pass
     return_type, return_value = args[-1]
 
-    print(input_types, input_argnames, return_type, return_value)
+    # print(input_types, input_argnames, return_type, return_value)
 
     return map(name, input_types, input_argnames, return_type, return_value)
     
 def constant(name, return_value):
     return operator(name, return_value)
 
+class OperationsMixin:
+    A, B, C = ABC = ['a', 'b', 'c']
+    U, V, W = UVW = ['u', 'v', 'w']
+    X, Y, Z = XYZ = ['x', 'y', 'z']
 
-# Power = Template('''
-# float[$N] ${fn}Pwr(float a[$N],int n) {
-#   // multiple a by itself n times: a -> a**n
-# 	float r[$N] = a;
-# 	for (int i=0;i<n-1;i++){
-# 	   r = $fn(r,a);
-#     }
-#     return r;
-# }
-# ''')
+    def symbolic_arguments(self, n=2):
+        return [self.symbols_vector_for(arg) for arg in (self.UVW+self.XYZ)[:n]]
 
-# ThreeFn = Template('''
-# float[$N] ${fn}3(float a[$N], float b[$N], float c[$N]) {
-#   return $fn($fn(a,b),c);
-# }''')
+    def unary_operation(self, name, result, use_operators=False):
+        input_types = [self.name]
+        input_argnames = [self.U]
+        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
 
-# ScalarFn = Template('''
-# float[$N] $fn(float a, float b[$N]){
-#   float result[$N];
-#   for (int i = 0; i < $N; ++i){
-#     result[i] = a*b[i];
-#   }
-#   return result;
-# }
+    def binary_operation(self, name, result, use_operators=False):
+        input_types = [self.name]*2
+        input_argnames = self.UVW
+        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
 
-# float[$N] $fn(float b[$N], float a) {
-#   return $fn(a,b);
-# }
+    def ternary_operation(self, name, result, use_operators=False):
+        input_types = [self.name]*3
+        input_argnames = self.UVW
+        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
 
-# float[$N] $fn(int a, float b[$N]) {
-#   return $fn(float(a),b);
-# }
-
-# float[$N] $fn(float b[$N], int a) {
-#   return $fn(float(a),b);
-# }
-# ''')
-        
-        
-        
-        
-        

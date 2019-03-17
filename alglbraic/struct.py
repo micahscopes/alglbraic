@@ -17,7 +17,7 @@ class GlslStruct:
         members = self.member_names
         return symbols([str(instance_name) + "." + str(m) for m in members])
 
-    def element(self, instance_name="x"):
+    def symbols_vector_for(self, instance_name="x"):
         return Matrix(self.symbols_for(instance_name))
 
     def definition(self, separator="; "):

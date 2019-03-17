@@ -50,12 +50,12 @@ class TestFiniteModule(snapshottest.TestCase):
         from functools import reduce
         (Cl,_e1,_e2) = Ga.build('e1 e2', g=[1,1])
 
-        u_co, v_co = module.argument_pair()
+        u_co, v_co = module.symbolic_arguments(2)
         u = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(u_co, Cl.blades_lst0)],0))
         v = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(v_co, Cl.blades_lst0)],0))
 
         result = (u*v).blade_coefs()
-        print(result)
+        # print(result)
 
         gl = module.binary_operation('mul', result, use_operators=True)
 
