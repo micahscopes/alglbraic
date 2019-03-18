@@ -6,8 +6,8 @@ from string import Template
 
 
 class GlslStruct:
-    def __init__(self, name, *member_declarations):
-        self.name = name
+    def __init__(self, type_name, *member_declarations):
+        self.type_name = type_name
         self.member_declarations = member_declarations
         self.member_types, self.member_names = zip(
             *[mt.split() for mt in member_declarations]
@@ -22,12 +22,12 @@ class GlslStruct:
 
     def definition(self, separator="; "):
         members = separator.join(self.member_declarations) + separator.strip()
-        return struct_template.substitute(name=self.name, members=members)
+        return struct_template.substitute(type_name=self.type_name, members=members)
 
 
 struct_template = Template(
     """\
-struct $name {
+struct $type_name {
     $members
 }\
 """

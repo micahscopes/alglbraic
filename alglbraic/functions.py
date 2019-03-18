@@ -2,12 +2,12 @@ from string import Template
 from sympy import glsl_code
 
 fn = Template("""\
-$return_type $name($inputs){
+$return_type $fn_name($inputs){
     return $return_value;
 }\
 """)
 
-def map(name, input_types, input_argnames, return_type, return_value, **kwargs):
+def map(fn_name, input_types, input_argnames, return_type, return_value, **kwargs):
     inputs = ', '.join(' '.join(type_name) for type_name in zip(input_types, input_argnames))
     
     if not isinstance(
@@ -15,7 +15,7 @@ def map(name, input_types, input_argnames, return_type, return_value, **kwargs):
         return_value = glsl_code(return_value)
 
     gl = fn.substitute({
-      'name': name,
+      'fn_name': fn_name,
       'return_type': return_type,
       'return_value': return_value,
       'inputs': inputs
@@ -23,7 +23,7 @@ def map(name, input_types, input_argnames, return_type, return_value, **kwargs):
 
     return gl
 
-def operator(name, *args, **kwargs):
+def operator(fn_name, *args, **kwargs):
     input_types, input_argnames = [], []
     try:
         input_types, input_argnames = zip(*[i.split() for i in args[:-1]])
@@ -33,10 +33,10 @@ def operator(name, *args, **kwargs):
 
     # print(input_types, input_argnames, return_type, return_value)
 
-    return map(name, input_types, input_argnames, return_type, return_value, **kwargs)
+    return map(fn_name, input_types, input_argnames, return_type, return_value, **kwargs)
     
-def constant(name, return_value, **kwargs):
-    return operator(name, return_value, **kwargs)
+def constant(fn_name, return_value, **kwargs):
+    return operator(fn_name, return_value, **kwargs)
 
 class OperationsMixin:
     A, B, C = ABC = ['a', 'b', 'c']
@@ -51,10 +51,10 @@ class OperationsMixin:
     def n_ary_argnames(self, n=2):
         return (self.UVW+self.PQRST+self.LMN+self.XYZ)[:n]
 
-    def n_ary_operation(self, n, name, result, use_operators=False):
-        input_types = [self.name]*n
+    def n_ary_operation(self, n, fn_name, result, use_operators=False):
+        input_types = [self.type_name]*n
         input_argnames = [str(x) for x in self.n_ary_argnames(n)]
-        return map(name, input_types, input_argnames, self.name, self.gl(result, use_operators=use_operators))
+        return map(fn_name, input_types, input_argnames, self.type_name, self.gl(result, use_operators=use_operators))
 
     def unary_operation(self,*args,**kwargs): return self.n_ary_operation(1,*args,**kwargs)
     def binary_operation(self,*args,**kwargs): return self.n_ary_operation(2,*args,**kwargs)
