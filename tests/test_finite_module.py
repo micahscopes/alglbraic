@@ -3,7 +3,7 @@ import snapshottest
 from alglbraic.finite_module import FiniteModule
 from sympy import glsl_code
 
-from alglbraic.struct import GlslStruct
+from alglbraic.glsl import GlslStruct
 
 class TestFiniteModule(snapshottest.TestCase):
 

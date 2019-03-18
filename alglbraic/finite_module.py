@@ -1,20 +1,19 @@
-from sympy import Symbol, Matrix, symbols, glsl_code
+from sympy import Symbol, symbols, glsl_code
 from string import Template
-from alglbraic.struct import GlslStruct
-from alglbraic.functions import constant, operator, map as gl_map, OperationsMixin
+from alglbraic.glsl import GlslStruct
+from alglbraic import GLSL
+from alglbraic.functions import constant, map as gl_map, OperationsMixin
 
-def test_decorator(func):
-    print("evaluating for "+str(func))
-    return func
+
 class FiniteModule(GlslStruct, OperationsMixin):
     """A GLSL helper class for a finite module over some ring.
     """
 
-    base_ring_zero = "zero()"
-    base_ring_one = "one()"
-    mul_fn_name = "mul"
-    add_fn_name = "add"
-    sub_fn_name = "sub"
+    zero_fn = "zero"
+    one_fn = "one"
+    mul_fn = "mul"
+    add_fn = "add"
+    sub_fn = "sub"
 
     def __init__(self, type_name, base_ring, *basis, unit=None):
 
@@ -43,57 +42,60 @@ class FiniteModule(GlslStruct, OperationsMixin):
         )
 
     def zero_symbols(self):
-        return symbols([self.base_ring_zero] * len(self.basis))
+        return symbols([self.zero_fn + "()"] * len(self.basis))
 
-    def zero(self, **kwargs):
+    def zero(self, function_name=zero_fn, **kwargs):
         module_zero = self.gl(self.zero_symbols())
-        return constant("zero", (self.type_name, module_zero), **kwargs)
-        
-    @test_decorator
+        return constant(function_name, (self.type_name, module_zero), **kwargs)
+
     def one_symbols(self):
-        if self.unit == None:
+        if self.unit is None:
             raise Exception("No unit is defined")
-        one = [Symbol(self.base_ring_zero)] * len(self.basis)
-        one[self.basis.index(self.unit)] = Symbol(self.base_ring_one)
+        one = [Symbol(self.zero_fn + "()")] * len(self.basis)
+        one[self.basis.index(self.unit)] = Symbol(self.one_fn + "()")
         return one
 
-    def one(self, **kwargs):
+    def one(self, function_name=one_fn, **kwargs) -> GLSL:
         one = self.gl(self.one_symbols())
-        return constant("one", (self.type_name, one), **kwargs)
+        return constant(function_name, (self.type_name, one), **kwargs)
 
-    def add(self, **kwargs):
+    def add(self, function_name=add_fn, **kwargs) -> GLSL:
         u, v = self.symbolic_arguments(2)
-        return self.binary_operation("add", u + v, **kwargs)
+        return self.binary_operation(function_name, u + v, **kwargs)
 
-    def sub(self, **kwargs):
+    def sub(self, function_name=sub_fn, **kwargs) -> GLSL:
         u, v = self.symbolic_arguments(2)
-        return self.binary_operation("sub", u - v, **kwargs)
+        return self.binary_operation(function_name, u - v, **kwargs)
 
-    def scalar_int_mul(self, fn_name=None, **kwargs):
-        fn_name = self.mul_fn_name if not fn_name else fn_name
-        return Template(
-            """\
+    def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
+        return GLSL(
+            Template(
+                """\
 $type $fn(int a, $type x){
     return mul(float(a), x);
 }"""
-        ).substitute(type=self.type_name, fn=fn_name)
+            ).substitute(type=self.type_name, fn=function_name)
+        )
 
-    def scalar_float_mul(self, fn_name=None):
-        fn_name = self.mul_fn_name if not fn_name else fn_name
-        return Template(
-            """\
+    def scalar_float_mul(self, function_name=mul_fn) -> GLSL:
+        return GLSL(
+            Template(
+                """\
 $type $fn(float a, $type x){
-    return mul(mul(a, $base_ring_one), x);
+    return mul(mul(a, $one_fn), x);
 }"""
-        ).substitute(type=self.type_name, base_ring_one=self.base_ring_one, fn=fn_name)
+            ).substitute(
+                type=self.type_name, one_fn=self.one_fn + "()", fn=function_name
+            )
+        )
 
-    def scalar_base_mul(self, fn_name=None):
-        fn_name = self.mul_fn_name if not fn_name else fn_name
+    def scalar_base_mul(self, function_name=mul_fn) -> GLSL:
         type_name = self.type_name
         base_ring = self.base_ring
         a = Symbol(self.A)
         x = self.symbols_vector_for(self.X)
         input_types = [base_ring, type_name]
         input_argnames = [self.A, self.X]
-        return gl_map(fn_name, input_types, input_argnames, self.type_name, self.gl(a * x))
-
+        return gl_map(
+            function_name, input_types, input_argnames, self.type_name, self.gl(a * x)
+        )

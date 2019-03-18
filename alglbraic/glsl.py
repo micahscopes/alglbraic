@@ -1,8 +1,7 @@
-from sympy import glsl_code
 from sympy import symbols
 from sympy import Matrix
-
 from string import Template
+from alglbraic import GLSL
 
 
 class GlslStruct:
@@ -20,9 +19,11 @@ class GlslStruct:
     def symbols_vector_for(self, instance_name="x"):
         return Matrix(self.symbols_for(instance_name))
 
-    def definition(self, separator="; "):
+    def definition(self, separator="; ") -> GLSL:
         members = separator.join(self.member_declarations) + separator.strip()
-        return struct_template.substitute(type_name=self.type_name, members=members)
+        return GLSL(
+            struct_template.substitute(type_name=self.type_name, members=members)
+        )
 
 
 struct_template = Template(

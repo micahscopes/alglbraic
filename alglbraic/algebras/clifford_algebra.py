@@ -1,5 +1,6 @@
 from alglbraic.algebra import Algebra
 from galgebra.ga import Ga
+from alglbraic import GLSL
 from functools import reduce
 
 
@@ -28,7 +29,7 @@ class CliffordAlgebra(Algebra):
             "e", g=signature, coords=symbols(grade_1_basis)
         )
         basis_names = (
-            [unit] + build_basis_names(self.Cl) if basis_names == None else basis_names
+            [unit] + build_basis_names(self.Cl) if basis_names is None else basis_names
         )
         Algebra.__init__(self, name, base_ring, *basis_names, unit=unit, **kwargs)
 
@@ -44,7 +45,7 @@ class CliffordAlgebra(Algebra):
     def _coefficients_from_algebraic_element(self, element):
         return element.blade_coefs()
 
-    def reverse(self,**kwargs):
+    def reverse(self, **kwargs) -> GLSL:
         result = self.algebraic_arguments(1).rev()
         return self.algebraic_operation("reverse", result, n=1, **kwargs)
 
@@ -61,4 +62,3 @@ class ComplexNumbers(CliffordAlgebra):
             base_ring=base_ring,
             **kwargs
         )
-

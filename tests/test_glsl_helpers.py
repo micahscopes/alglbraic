@@ -3,7 +3,7 @@ import snapshottest
 from alglbraic.functions import operator
 from sympy import glsl_code
 
-from alglbraic.struct import GlslStruct
+from alglbraic.glsl import GlslStruct
 
 class TestGlslStruct(snapshottest.TestCase):
 
