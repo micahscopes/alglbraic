@@ -1,6 +1,6 @@
 import snapshottest
 
-from alglbraic.glsl import GlslStruct, get_glsl_meta
+from alglbraic.glsl import GlslStruct, get_meta_glsl, meta_glsl
 from alglbraic.glsl import sort_glsl_dependencies
 from alglbraic import GLSL
 
@@ -28,39 +28,51 @@ class TestGlslStruct(snapshottest.TestCase):
         assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition",)
 
 
-class TestGlslMeta(snapshottest.TestCase):
+class TestMetaGlsl(snapshottest.TestCase):
     def test_get_meta(self):
-        misc_info = 'Did you know that some sharks have belly buttons?'
+        misc_info = "Did you know that some sharks have belly buttons?"
 
-        def glsl_snippet() -> GLSL(depends_on=['someFunction'], misc_info=misc_info):
-            return GLSL('float x = someFunction(1);')
+        def glsl_snippet() -> GLSL(depends_on=["someFunction"], misc_info=misc_info):
+            return GLSL("float x = someFunction(1);")
 
-        assert get_glsl_meta(glsl_snippet).misc_info == misc_info
+        assert get_meta_glsl(glsl_snippet).misc_info == misc_info
+
+    def test_meta_glsl_decorator(self):
+        
+        @meta_glsl(info='wow')
+        def a():
+            return "a"
+
+        assert get_meta_glsl(a).info == 'wow'
+
+        @meta_glsl(info='woah')
+        def b():
+            return "b"
+
+        assert get_meta_glsl(b).info == 'woah'
+
 
 class TestGlslDependencyGraph(snapshottest.TestCase):
     def test_sort_dependencies(self):
+
         def a() -> GLSL:
-            return 'a'
+            return "a"
 
-        def b() -> GLSL(depends_on=['a']):
-            return 'b'
-        
-        def c() -> GLSL(depends_on=['b']):
-            return 'c'
+        def b() -> GLSL(depends_on=[a]):
+            return "b"
 
-        def y() -> GLSL(depends_on=['c', 'b', 'a']):
-            return 'y'
+        def c() -> GLSL(depends_on=[b]):
+            return "c"
 
-        def z() -> GLSL(depends_on=['y']):
-            return 'z'
+        def y() -> GLSL(depends_on=[c, b, a]):
+            return "y"
 
+        def z() -> GLSL(depends_on=[y]):
+            return "z"
 
-        glsl_methods = [a, b, c, y, z]
-        glsl_methods = dict([(x.__name__, x) for x in glsl_methods])
+        sorted_glsl_methods = [a, b, c, y, z]
 
-        def sort(k='a'):
-            return sort_glsl_dependencies(glsl_methods, k)
-
-        assert sort('a') == sort('b')
-        assert sort('b') == sort('c')
-        assert sort('y') == sort('z')
+        # print([x.__name__ for x in sort_glsl_dependencies(sorted_glsl_methods)])
+        for _i in range(50):
+            # make sure that sorting isn't dependent on the starting node
+            assert sort_glsl_dependencies(sorted_glsl_methods) == sorted_glsl_methods

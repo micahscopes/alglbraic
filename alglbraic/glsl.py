@@ -10,17 +10,30 @@ class GLSL(MetaString):
     depends_on: list = []
     pass
 
-def get_glsl_meta(func):
+
+def meta_glsl(*args, **kwargs):
+    MetaGLSL_type = GLSL(*args, **kwargs)
+
+    def meta_glsl_decorator(func):
+        def wrapper(*gl_args, **gl_kwargs) -> MetaGLSL_type:
+            return MetaGLSL_type(func(*gl_args, **gl_kwargs))
+
+        return wrapper
+
+    return meta_glsl_decorator
+
+
+def get_meta_glsl(func):
     try:
-        glsl_meta = signature(func).return_annotation
-        if issubclass(glsl_meta, GLSL):
-            return glsl_meta
+        meta_glsl = signature(func).return_annotation
+        if issubclass(meta_glsl, GLSL):
+            return meta_glsl
     except Exception:
         return None
 
 
 def is_glsl_method(func):
-    return get_glsl_meta(func) is not None
+    return get_meta_glsl(func) is not None
 
 
 def is_glsl_helper(func):
@@ -69,25 +82,25 @@ class GlslStruct:
         )
 
 
-def sort_glsl_dependencies(glsl_node_graph, glsl_node):
+def sort_glsl_dependencies(glsl_nodes):
     # from Blckknght @ https://stackoverflow.com/a/47234034
     result = []
     seen = set()
-    unseen = set(glsl_node_graph.keys())
+    unseen = set(glsl_nodes)
 
     def hop(node):
         nonlocal unseen
-        for neighbor in get_glsl_meta(glsl_node_graph[node]).depends_on:
+        for neighbor in get_meta_glsl(node).depends_on:
             if neighbor not in seen:
                 seen.add(neighbor)
-                unseen = seen - unseen
+                unseen = unseen - seen
                 hop(neighbor)
-        result.insert(0, node)
+        if node not in result:
+            result.insert(0, node)
 
     while len(unseen) > 0:
         hop(unseen.pop())
-    return result
-
+    return result[::-1]
 
 
 struct_template = Template(
