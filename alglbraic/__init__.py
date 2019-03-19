@@ -1,3 +1,1 @@
-from typing import NewType
-
-GLSL = NewType("GLSL", str)
+from alglbraic.glsl import GLSL

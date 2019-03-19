@@ -12,7 +12,3 @@ snapshots['TestGlslStruct::test_struct_definition 1'] = '''struct Cl_1_1 {
 }'''
 
 snapshots['TestGlslStruct::test_struct_member_symbols 1'] = '[a.x, a.y, a.z]'
-
-snapshots['TestGlslStruct::test_glsl_generators 1'] = (
-    'definition'
-)
