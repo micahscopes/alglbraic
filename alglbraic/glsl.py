@@ -44,7 +44,30 @@ def is_glsl_snippet(func):
     return is_glsl_method(func) and len(get_arguments(func)) == 0
 
 
-class GlslStruct:
+class GlslBundler:
+    def _glsl_methods(self):
+        members = sorted(getmembers(self))
+        glsl_methods = [func for name, func in members if is_glsl_method(func)]
+        return sort_glsl_dependencies(glsl_methods)
+
+    def glsl_methods(self):
+        return tuple(self._glsl_methods())
+
+    def glsl_helpers(self):
+        return tuple(
+            func for func in self._glsl_methods() if len(get_arguments(func)) > 0
+        )
+
+    def glsl_snippets(self):
+        return tuple(
+            func for func in self._glsl_methods() if len(get_arguments(func)) == 0
+        )
+
+    def compile_snippet_bundle(self):
+        return "\n\n".join(s() for s in self.glsl_snippets())
+
+
+class GlslStruct(GlslBundler):
     def __init__(self, type_name, *member_declarations):
         self.type_name = type_name
         self.member_declarations = member_declarations
@@ -65,42 +88,16 @@ class GlslStruct:
             struct_template.substitute(type_name=self.type_name, members=members)
         )
 
-    def _glsl_methods(self):
-        return (func for name, func in getmembers(self) if is_glsl_method(func))
-
-    def glsl_methods(self):
-        return tuple(self._glsl_methods())
-
-    def glsl_helpers(self):
-        return tuple(
-            func for func in self._glsl_methods() if len(get_arguments(func)) > 0
-        )
-
-    def glsl_snippets(self):
-        return tuple(
-            func for func in self._glsl_methods() if len(get_arguments(func)) == 0
-        )
-
 
 def sort_glsl_dependencies(glsl_nodes):
-    # from Blckknght @ https://stackoverflow.com/a/47234034
-    result = []
-    seen = set()
-    unseen = set(glsl_nodes)
+    from toposort import toposort_flatten
 
-    def hop(node):
-        nonlocal unseen
-        for neighbor in get_meta_glsl(node).depends_on:
-            if neighbor not in seen:
-                seen.add(neighbor)
-                unseen = unseen - seen
-                hop(neighbor)
-        if node not in result:
-            result.insert(0, node)
-
-    while len(unseen) > 0:
-        hop(unseen.pop())
-    return result[::-1]
+    lookup = {node.__name__: node for node in glsl_nodes}
+    graph = {
+        node.__name__: set(d.__name__ for d in get_meta_glsl(node).depends_on)
+        for node in glsl_nodes
+    }
+    return [lookup[k] for k in toposort_flatten(graph)]
 
 
 struct_template = Template(

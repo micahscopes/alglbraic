@@ -11,6 +11,7 @@ galgebra = "^0.4.3"
 click = "*"
 nodeenv = "*"
 sympy = {path = "../sympy"}
+toposort = "^1.5"
 
 
 [tool.poetry.dev-dependencies]
