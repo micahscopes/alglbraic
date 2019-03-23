@@ -6,3 +6,4 @@ dist
 sys
 .mypy_cache/**
 .vscode
+node_modules
