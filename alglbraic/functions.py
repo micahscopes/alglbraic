@@ -87,14 +87,14 @@ class OperationsMixin:
             self.gl(result, use_operators=use_operators),
         )
 
-    def unary_operation(self, *args, **kwargs) -> GLSL:
-        return self.n_ary_operation(1, *args, **kwargs)
+    def unary_operation(self, function_name, result, **kwargs) -> GLSL:
+        return self.n_ary_operation(1, function_name, result, **kwargs)
 
-    def binary_operation(self, *args, **kwargs) -> GLSL:
-        return self.n_ary_operation(2, *args, **kwargs)
+    def binary_operation(self, function_name, result, **kwargs) -> GLSL:
+        return self.n_ary_operation(2, function_name, result, **kwargs)
 
-    def ternary_operation(self, *args, **kwargs) -> GLSL:
-        return self.n_ary_operation(3, *args, **kwargs)
+    def ternary_operation(self, function_name, result, **kwargs) -> GLSL:
+        return self.n_ary_operation(3, function_name, result, **kwargs)
 
-    def quaternary_operation(self, *args, **kwargs) -> GLSL:
-        return self.n_ary_operation(4, *args, **kwargs)
+    def quaternary_operation(self, function_name, result, **kwargs) -> GLSL:
+        return self.n_ary_operation(4, function_name, result, **kwargs)

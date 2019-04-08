@@ -1,9 +1,10 @@
 from sympy import symbols
 from sympy import Matrix
 from string import Template
-from inspect import getmembers, ismethod, signature
-from alglbraic.util import get_arguments
-from alglbraic.util import MetaString
+from inspect import getmembers, signature
+from alglbraic.util import get_arguments, MetaString
+from typing import List, Union
+from types import FunctionType
 
 
 class GLSL(MetaString):
@@ -18,6 +19,7 @@ def meta_glsl(*args, **kwargs):
         def wrapper(*gl_args, **gl_kwargs) -> MetaGLSL_type:
             return MetaGLSL_type(func(*gl_args, **gl_kwargs))
 
+        wrapper.__name__ = func.__name__
         return wrapper
 
     return meta_glsl_decorator
@@ -82,22 +84,38 @@ class GlslStruct(GlslBundler):
     def symbols_vector_for(self, instance_name="x"):
         return Matrix(self.symbols_for(instance_name))
 
-    def definition(self, separator="; ") -> GLSL:
+    @meta_glsl(depends_on=[])
+    def definition(self, separator="; "):
         members = separator.join(self.member_declarations) + separator.strip()
         return GLSL(
             struct_template.substitute(type_name=self.type_name, members=members)
         )
 
 
-def sort_glsl_dependencies(glsl_nodes):
+def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
+    """
+        Parameters
+        ----------
+        glsl_nodes :
+            A set of functions, each of which has a `GLSL` return type containing
+            a `depends_on` attribute defining its dependencies.
+    """
     from toposort import toposort_flatten
 
-    lookup = {node.__name__: node for node in glsl_nodes}
+    def fn_name(str_or_fn) -> str:
+        try:
+            return str_or_fn.__name__
+        except AttributeError:
+            return str_or_fn
+
+    fn_lookup = {fn_name(node): node for node in glsl_nodes}
     graph = {
-        node.__name__: set(d.__name__ for d in get_meta_glsl(node).depends_on)
+        fn_name(node): set(fn_name(d) for d in get_meta_glsl(node).depends_on)
         for node in glsl_nodes
     }
-    return [lookup[k] for k in toposort_flatten(graph)]
+
+    sorted_by_dependencies = toposort_flatten(graph)
+    return [fn_lookup[k] for k in sorted_by_dependencies]
 
 
 struct_template = Template(

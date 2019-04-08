@@ -1,5 +1,6 @@
 from alglbraic.finite_module import FiniteModule
 from alglbraic import GLSL
+from alglbraic.glsl import meta_glsl
 
 
 class Algebra(FiniteModule):
@@ -34,6 +35,7 @@ class Algebra(FiniteModule):
         result = self._coefficients_from_algebraic_element(result)
         return self.n_ary_operation(n, name, result, use_operators=use_operators)
 
+    @meta_glsl(depends_on=['definition'])
     def algebraic_product(self, name="product", fn=None, use_operators=False) -> GLSL:
         fn = fn if fn else lambda u, v: u * v
         u, v = self.algebraic_arguments(2)

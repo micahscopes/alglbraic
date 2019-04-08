@@ -36,6 +36,7 @@ class TestGlslBundler(snapshottest.TestCase):
 
     def test_compile_snippet_bundle(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
+
         C = ComplexNumbers()
         self.assertMatchSnapshot(C.compile_snippet_bundle())
 
@@ -66,15 +67,15 @@ class TestMetaGlsl(snapshottest.TestCase):
 class TestGlslDependencyGraph(snapshottest.TestCase):
     def test_sort_snippets(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
+
         C = ComplexNumbers()
 
         snippets = C.glsl_snippets()
         for _ in range(30):
             assert C.glsl_snippets() == snippets
 
-
     def test_sort_dependencies(self):
-        def a() -> GLSL:
+        def a() -> GLSL(depends_on=[]):
             return "a"
 
         def b() -> GLSL(depends_on=[a]):
@@ -90,7 +91,6 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
             return "z"
 
         sorted_glsl_methods = [a, b, c, y, z]
-
         # print([x.__name__ for x in sort_glsl_dependencies(sorted_glsl_methods)])
         for _i in range(50):
             # make sure that sorting isn't dependent on the starting node
