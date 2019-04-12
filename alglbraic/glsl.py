@@ -7,11 +7,7 @@ from alglbraic.util import get_arguments, MetaString
 from typing import List, Union
 from types import FunctionType
 from rop import read_only_properties
-from functools import total_ordering
-from functools import wraps, update_wrapper
-import types
-from sortable_callable import sortable, SortableCallable
-import functools
+from sortable_callable import sortable
 
 
 class GLSL(MetaString):
@@ -24,10 +20,9 @@ def less_than(self, other):
 
 
 def meta_glsl(*args, **kwargs):
-
     def meta_glsl_decorator(func):
         sig = inspect.signature(func)
-        
+
         if issubclass(sig.return_annotation, GLSL):
             MetaGLSL_type = sig.return_annotation(*args, **kwargs)
         else:
@@ -36,9 +31,7 @@ def meta_glsl(*args, **kwargs):
         def wrapper(*gl_args, **gl_kwargs) -> MetaGLSL_type:
             return MetaGLSL_type(func(*gl_args, **gl_kwargs))
 
-        wrapper.__signature__ = sig.replace(
-            return_annotation=MetaGLSL_type
-        )
+        wrapper.__signature__ = sig.replace(return_annotation=MetaGLSL_type)
 
         wrapper = sortable(less_than)(wrapper)
         wrapper.__name__ = func.__name__
@@ -73,28 +66,16 @@ import inspect
 
 
 class GlslBase:
-    # def __init_subclass__(cls):
-    #     for name, func in cls.__dict__.items():
-    #         if is_glsl_method(func):
-    #             def __lt__(self, other):
-    #                 return func.__name__ < other.__name__
-    #             func.__lt__ = __lt__
     pass
 
 
-# @decorate_class
 class GlslBundler(GlslBase):
-    # __metaclass__ = GlslMetaclass
-    # __glsl_methods__ = []
     def _glsl_methods(self):
         members = getmembers(self)
         glsl_methods = [
             getattr(self, name) for name, func in members if is_glsl_method(func)
         ]
-        # import ipdb; ipdb.set_trace()
         wrapped_glsl_methods = [meta_glsl()(gl) for gl in glsl_methods]
-        # import ipdb; ipdb.set_trace()
-        # return wrapped_glsl_methods
         return sort_glsl_dependencies(wrapped_glsl_methods)
 
     def glsl_methods(self):
@@ -106,7 +87,6 @@ class GlslBundler(GlslBase):
         )
 
     def glsl_snippets(self):
-        # import ipdb; ipdb.set_trace()
         return tuple(
             func for func in self._glsl_methods() if len(get_arguments(func)) == 0
         )
@@ -199,6 +179,4 @@ def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
         for node in glsl_nodes
     }
 
-    # sorted_by_dependencies = toposort_flatten(graph)
     return toposort_flatten(graph)
-    # return [fn_lookup[k] for k in sorted_by_dependencies]
