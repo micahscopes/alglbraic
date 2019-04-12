@@ -33,6 +33,7 @@ class TestGlslTypes(snapshottest.TestCase):
         snippets = set(x.__name__ for x in self.algebra.glsl_snippets())
         expected_snippets = {
             "definition",
+            "build_from_array",
             "algebraic_product",
             "scalar_float_mul",
             "sub",

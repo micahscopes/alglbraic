@@ -12,7 +12,7 @@ click = "*"
 nodeenv = "*"
 sympy = {path = "../sympy"}
 toposort = "^1.5"
-
+read-only-property = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.3"
@@ -30,6 +30,7 @@ flake8-mypy = "^17.8"
 autopep8 = "^1.4"
 black = {version = "^18.3-alpha.0",allows-prereleases = true}
 flake8-black = "^0.0.4"
+ipython = "^7.4"
 
 [build-system]
 requires = ["poetry>=0.12"]

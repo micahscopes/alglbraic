@@ -29,6 +29,10 @@ C product(C u, C v){
     return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
 }
 
+C fromArray(float x[2]){
+    return C(x[0], x[1]);
+}
+
 C one(){
     return C(one(), zero());
 }
@@ -51,4 +55,8 @@ C mul(float a, C x){
 
 C mul(int a, C x){
     return mul(float(a), x);
+}'''
+
+snapshots['TestGlslStruct::test_array_constructor 1'] = '''Cl_1_1 fromArray(float x[4]){
+    return Cl_1_1(x[0], x[1], x[2], x[3]);
 }'''

@@ -19,7 +19,21 @@ class TestGlslStruct(snapshottest.TestCase):
     def test_struct_definition(self):
         struct = GlslStruct("Cl_1_1", "float ONE", "float e1", "float e2", "float e12")
 
-        self.assert_match_snapshot(str(struct.definition()))
+        self.assert_match_snapshot(
+            str(struct.definition())
+        )
+
+    def test_uniform_member_type(self):
+        uniform_struct = GlslStruct("UniformStruct", "float x", "float y", "float z")
+        assert uniform_struct.uniform_member_type == "float"
+
+        nonuniform_struct = GlslStruct("NonuniformStruct", "int x", "float y")
+        assert not nonuniform_struct.uniform_member_type
+
+    def test_array_constructor(self):
+        self.assert_match_snapshot(
+            str(self.struct.build_from_array())
+        )
 
 
 class TestGlslBundler(snapshottest.TestCase):
@@ -32,7 +46,7 @@ class TestGlslBundler(snapshottest.TestCase):
         assert len(tuple(x.__name__ for x in self.struct.glsl_helpers())) == 0
 
     def test_glsl_snippets(self):
-        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition",)
+        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition", "build_from_array",)
 
     def test_compile_snippet_bundle(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
@@ -57,6 +71,8 @@ class TestMetaGlsl(snapshottest.TestCase):
 
         assert get_meta_glsl(a).info == "wow"
 
+    def test_layered_meta_glsl(self):
+        @meta_glsl()
         @meta_glsl(info="woah")
         def b():
             return "b"
@@ -70,19 +86,22 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
 
         C = ComplexNumbers()
 
-        snippets = C.glsl_snippets()
+        snippets = [x.__name__ for x in C.glsl_snippets()]
         for _ in range(30):
-            assert C.glsl_snippets() == snippets
+            snippets2 = [x.__name__ for x in C.glsl_snippets()]
+            assert snippets == snippets2
+            if (snippets != snippets2):
+                print(snippets, snippets2)
 
     def test_sort_dependencies(self):
         def a() -> GLSL(depends_on=[]):
             return "a"
 
-        def b() -> GLSL(depends_on=[a]):
-            return "b"
-
-        def c() -> GLSL(depends_on=[b]):
+        def c() -> GLSL(depends_on=[a]):
             return "c"
+
+        def b() -> GLSL(depends_on=[c]):
+            return "b"
 
         def y() -> GLSL(depends_on=[c, b, a]):
             return "y"
@@ -90,7 +109,7 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
         def z() -> GLSL(depends_on=[y]):
             return "z"
 
-        sorted_glsl_methods = [a, b, c, y, z]
+        sorted_glsl_methods = [a, c, b, y, z]
         # print([x.__name__ for x in sort_glsl_dependencies(sorted_glsl_methods)])
         for _i in range(50):
             # make sure that sorting isn't dependent on the starting node

@@ -5,7 +5,9 @@ def get_arguments(fn):
     return [
         x
         for i, x in inspect.signature(fn).parameters.items()
-        if x.kind == x.POSITIONAL_OR_KEYWORD and x.default == inspect._empty
+        if x.kind == x.POSITIONAL_OR_KEYWORD
+        and x.default == inspect._empty
+        and x.name != "self"
     ]
 
 
