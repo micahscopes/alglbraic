@@ -4,13 +4,16 @@ from sympy.matrices import Matrix
 from string import Template
 from . import array_tools
 
-class GlslStruct(GlslBundler, array_tools.Mixin):
+class GlslStruct(GlslBundler, array_tools.BuildFromArray):
     def __init__(self, type_name, *member_declarations):
         self.type_name = type_name
         self.member_declarations = member_declarations
         self.member_types, self.member_names = zip(
             *[mt.split() for mt in member_declarations]
         )
+
+    def injections(self, size, inject_fn_name='inject'):
+        return array_tools.struct_injections(self, size, inject_fn_name=inject_fn_name)
 
     def __len__(self):
         return len(self.member_declarations)
