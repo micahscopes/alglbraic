@@ -70,6 +70,7 @@ class TestMetaGlsl(snapshottest.TestCase):
             return "a"
 
         assert get_meta_glsl(a).info == "wow"
+        assert a.meta_glsl.info == "wow"
 
     def test_layered_meta_glsl(self):
         @meta_glsl()
@@ -78,6 +79,7 @@ class TestMetaGlsl(snapshottest.TestCase):
             return "b"
 
         assert get_meta_glsl(b).info == "woah"
+        assert b.meta_glsl.info == "woah"
 
 
 class TestGlslDependencyGraph(snapshottest.TestCase):

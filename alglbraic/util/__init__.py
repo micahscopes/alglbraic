@@ -29,7 +29,6 @@ class Callable(object):
     def __repr__(self):
         return self.__func__.__repr__()
 
-    # for functions
     def __call__(self, *args, **kwargs):
         return self.__func__(*args, **kwargs)
 
@@ -38,4 +37,5 @@ class Callable(object):
 
         bound = partial(self.__func__, instance)
         bound = update_wrapper(bound, self)
+        setattr(bound, 'meta_glsl', self.meta_glsl)
         return bound
