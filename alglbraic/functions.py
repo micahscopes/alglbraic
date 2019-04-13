@@ -59,7 +59,7 @@ def constant(function_name, return_value, **kwargs) -> GLSL:
     return operator(function_name, return_value, **kwargs)
 
 
-class OperationsMixin:
+class OperationsMixin(object):
     A, B, C = ABC = ["a", "b", "c"]
     U, V, W = UVW = ["u", "v", "w"]
     X, Y, Z = XYZ = ["x", "y", "z"]

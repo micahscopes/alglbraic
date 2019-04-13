@@ -6,36 +6,32 @@ from inspect import getmembers, signature
 from alglbraic.util import get_arguments, MetaString
 from typing import List, Union
 from types import FunctionType
-from rop import read_only_properties
-from sortable_callable import sortable
-
-
-class GLSL(MetaString):
-    depends_on: list = []
-    pass
-
-
-def less_than(self, other):
-    return self.__name__ < other.__name__
+import inspect
 
 
 def meta_glsl(*args, **kwargs):
+    from alglbraic.util import Callable
+
     def meta_glsl_decorator(func):
         sig = inspect.signature(func)
+        MetaGLSL_type = GLSL(*args, **kwargs)
+        MetaGLSL_type.special = False
 
         if issubclass(sig.return_annotation, GLSL):
-            MetaGLSL_type = sig.return_annotation(*args, **kwargs)
-        else:
-            MetaGLSL_type = GLSL(*args, **kwargs)
+            MetaGLSL_type = sig.return_annotation(*args, special=True, **kwargs)
 
         def wrapper(*gl_args, **gl_kwargs) -> MetaGLSL_type:
             return MetaGLSL_type(func(*gl_args, **gl_kwargs))
 
+        from functools import partial, update_wrapper
+
+        class MetaCallable(Callable):
+            def __set_name__(self, cls, name):
+                MetaGLSL_type.glsl_type = cls
+
+        wrapper = update_wrapper(MetaCallable(wrapper), MetaGLSL_type)
         wrapper.__signature__ = sig.replace(return_annotation=MetaGLSL_type)
-
-        wrapper = sortable(less_than)(wrapper)
         wrapper.__name__ = func.__name__
-
         return wrapper
 
     return meta_glsl_decorator
@@ -46,7 +42,7 @@ def get_meta_glsl(func):
         meta_glsl = signature(func).return_annotation
         if issubclass(meta_glsl, GLSL):
             return meta_glsl
-    except Exception:
+    except (TypeError, ValueError):
         return None
 
 
@@ -55,47 +51,46 @@ def is_glsl_method(func):
 
 
 def is_glsl_helper(func):
-    return is_glsl_method(func) and len(get_arguments(func)) > 0
+    return is_glsl_method(func) and len(get_arguments(func)) > 1
 
 
 def is_glsl_snippet(func):
     return is_glsl_method(func) and len(get_arguments(func)) == 0
 
 
-import inspect
 
-
-class GlslBase:
+class GlslBaseType(object):
     pass
 
+class GLSL(MetaString):
+    depends_on: list = []
+    glsl_type = GlslBaseType
+    pass
 
-class GlslBundler(GlslBase):
+class GlslBundler(GlslBaseType):
     def _glsl_methods(self):
         members = getmembers(self)
         glsl_methods = [
             getattr(self, name) for name, func in members if is_glsl_method(func)
         ]
-        wrapped_glsl_methods = [meta_glsl()(gl) for gl in glsl_methods]
-        return sort_glsl_dependencies(wrapped_glsl_methods)
+        return sort_glsl_dependencies(glsl_methods)
+        # wrapped_glsl_methods = [meta_glsl()(gl) for gl in glsl_methods]
+        # return sort_glsl_dependencies(wrapped_glsl_methods)
 
     def glsl_methods(self):
         return tuple(self._glsl_methods())
 
     def glsl_helpers(self):
-        return tuple(
-            func for func in self._glsl_methods() if len(get_arguments(func)) > 0
-        )
+        return tuple(func for func in self._glsl_methods() if is_glsl_helper(func))
 
     def glsl_snippets(self):
-        return tuple(
-            func for func in self._glsl_methods() if len(get_arguments(func)) == 0
-        )
+        return tuple(func for func in self._glsl_methods() if is_glsl_snippet(func))
 
     def compile_snippet_bundle(self):
         return "\n\n".join(s() for s in self.glsl_snippets())
 
 
-@read_only_properties("type_name", "member_declarations", "member_types")
+# @read_only_properties("type_name", "member_declarations", "member_types")
 class GlslStruct(GlslBundler):
     def __init__(self, type_name, *member_declarations):
         self.type_name = type_name
@@ -119,7 +114,7 @@ class GlslStruct(GlslBundler):
     def symbols_vector_for(self, instance_name="x"):
         return Matrix(self.symbols_for(instance_name))
 
-    @meta_glsl(depends_on=[])
+    @meta_glsl()
     def definition(self, separator="; "):
         template = Template(
             """\
@@ -164,7 +159,28 @@ def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
             A set of functions, each of which has a `GLSL` return type containing
             a `depends_on` attribute defining its dependencies.
     """
-    from toposort import toposort_flatten
+    from toposort import toposort
+
+    def get_deps(node):
+        try:
+            return get_meta_glsl(node).depends_on + [get_meta_glsl(node).glsl_type]
+        except AttributeError:
+            return node.mro()
+
+    def key(node):
+        try:
+            return str(len(node.mro()))
+        except AttributeError:
+            return (
+                str(len(get_meta_glsl(node).glsl_type.mro()))
+                + "."
+                + str.lower(node.__name__)
+            )
+
+    # glsl_nodes = [meta_glsl()(n) for n in glsl_nodes]
+    glsl_types = set(sum([get_meta_glsl(n).glsl_type.mro() for n in glsl_nodes], []))
+    # for glsl_type in glsl_types:
+    #     print(glsl_type)
 
     def fn_name(str_or_fn) -> str:
         try:
@@ -172,11 +188,20 @@ def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
         except AttributeError:
             return str_or_fn
 
-    fn_lookup = {fn_name(node): node for node in glsl_nodes}
+    nodes = list(glsl_types) + glsl_nodes
 
-    graph = {
-        node: set(fn_lookup[fn_name(d)] for d in get_meta_glsl(node).depends_on)
-        for node in glsl_nodes
-    }
+    fn_lookup = {fn_name(node): node for node in nodes}
 
-    return toposort_flatten(graph)
+    graph = {node: set(fn_lookup[fn_name(d)] for d in get_deps(node)) for node in nodes}
+
+    graph_toposorted = toposort(graph)
+    graph_sorted = (
+        sorted(
+            (n for n in layer if type(n) is not type),
+            key=key,
+        )
+        for layer in graph_toposorted
+    )
+    graph_sorted_flattened = sum(graph_sorted, [])
+
+    return graph_sorted_flattened

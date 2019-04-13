@@ -90,8 +90,6 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
         for _ in range(30):
             snippets2 = [x.__name__ for x in C.glsl_snippets()]
             assert snippets == snippets2
-            if (snippets != snippets2):
-                print(snippets, snippets2)
 
     def test_sort_dependencies(self):
         def a() -> GLSL(depends_on=[]):
@@ -113,4 +111,5 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
         # print([x.__name__ for x in sort_glsl_dependencies(sorted_glsl_methods)])
         for _i in range(50):
             # make sure that sorting isn't dependent on the starting node
-            assert sort_glsl_dependencies(sorted_glsl_methods) == sorted_glsl_methods
+            resorted_glsl_methods = sort_glsl_dependencies(sorted_glsl_methods)
+            assert resorted_glsl_methods == sorted_glsl_methods

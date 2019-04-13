@@ -1,6 +1,7 @@
 from alglbraic.algebra import Algebra
 from galgebra.ga import Ga
 from alglbraic import GLSL
+from alglbraic.glsl import meta_glsl
 from functools import reduce
 
 
@@ -45,6 +46,7 @@ class CliffordAlgebra(Algebra):
     def _coefficients_from_algebraic_element(self, element):
         return element.blade_coefs()
 
+    @meta_glsl()
     def reverse(self, **kwargs) -> GLSL:
         result = self.algebraic_arguments(1).rev()
         return self.algebraic_operation("reverse", result, n=1, **kwargs)

@@ -1,3 +1,4 @@
+from functools import update_wrapper
 import inspect
 
 
@@ -18,3 +19,23 @@ class MetaString(str):
         else:
             MetaStringClass = type(_prefix + cls.__name__, (cls,), kwargs)
             return MetaStringClass
+
+
+class Callable(object):
+    def __init__(self, func):
+        self.__func__ = func
+        update_wrapper(self, func)
+
+    def __repr__(self):
+        return self.__func__.__repr__()
+
+    # for functions
+    def __call__(self, *args, **kwargs):
+        return self.__func__(*args, **kwargs)
+
+    def __get__(self, instance, owner):
+        from functools import partial
+
+        bound = partial(self.__func__, instance)
+        bound = update_wrapper(bound, self)
+        return bound

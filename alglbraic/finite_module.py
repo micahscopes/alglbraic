@@ -44,8 +44,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
     def zero_symbols(self):
         return symbols([self.zero_fn + "()"] * len(self.basis))
 
-    @meta_glsl(depends_on=['definition'])
-    def zero(self, function_name=zero_fn, **kwargs):
+    @meta_glsl()
+    def zero(self, function_name=zero_fn, **kwargs) -> GLSL:
         module_zero = self.gl(self.zero_symbols())
         return constant(function_name, (self.type_name, module_zero), **kwargs)
 
@@ -56,22 +56,22 @@ class FiniteModule(GlslStruct, OperationsMixin):
         one[self.basis.index(self.unit)] = Symbol(self.one_fn + "()")
         return one
 
-    @meta_glsl(depends_on=['definition'])
+    @meta_glsl()
     def one(self, function_name=one_fn, **kwargs) -> GLSL:
         one = self.gl(self.one_symbols())
         return constant(function_name, (self.type_name, one), **kwargs)
 
-    @meta_glsl(depends_on=['definition'])
+    @meta_glsl()
     def add(self, function_name=add_fn, **kwargs) -> GLSL:
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u + v, **kwargs)
 
-    @meta_glsl(depends_on=['definition'])
+    @meta_glsl()
     def sub(self, function_name=sub_fn, **kwargs) -> GLSL:
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u - v, **kwargs)
 
-    @meta_glsl(depends_on=['definition', 'scalar_float_mul'])
+    @meta_glsl(depends_on=['scalar_float_mul'])
     def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
         return GLSL(
             Template(
@@ -82,7 +82,7 @@ $type $fn(int a, $type x){
             ).substitute(type=self.type_name, fn=function_name)
         )
 
-    @meta_glsl(depends_on=['definition'])
+    @meta_glsl()
     def scalar_float_mul(self, function_name=mul_fn) -> GLSL:
         return GLSL(
             Template(
@@ -95,7 +95,7 @@ $type $fn(float a, $type x){
             )
         )
 
-    @meta_glsl(depends_on=['definition', 'scalar_float_mul'])
+    @meta_glsl(depends_on=['scalar_float_mul'])
     def scalar_base_mul(self, function_name=mul_fn):
         type_name = self.type_name
         base_ring = self.base_ring

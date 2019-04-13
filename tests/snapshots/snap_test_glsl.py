@@ -17,20 +17,12 @@ snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''struct C {
     float real; float imag;
 }
 
-C reverse(C u){
-    return C(u.real, u.imag);
+C fromArray(float x[2]){
+    return C(x[0], x[1]);
 }
 
 C add(C u, C v){
     return C(add(u.real, v.real), add(u.imag, v.imag));
-}
-
-C product(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
-}
-
-C fromArray(float x[2]){
-    return C(x[0], x[1]);
 }
 
 C one(){
@@ -55,6 +47,14 @@ C mul(float a, C x){
 
 C mul(int a, C x){
     return mul(float(a), x);
+}
+
+C product(C u, C v){
+    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+}
+
+C reverse(C u){
+    return C(u.real, u.imag);
 }'''
 
 snapshots['TestGlslStruct::test_array_constructor 1'] = '''Cl_1_1 fromArray(float x[4]){
