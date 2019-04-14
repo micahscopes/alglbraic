@@ -15,24 +15,28 @@ class GLSL(MetaString):
 
 
 class GlslBundler(GlslBaseType):
-    def _glsl_methods(self):
+    
+    def glsl_methods(self):
         members = getmembers(self)
         glsl_methods = [
             getattr(self, name) for name, func in members if is_glsl_method(func)
         ]
-        return sort_glsl_dependencies(glsl_methods)
 
-    def glsl_methods(self):
-        return tuple(self._glsl_methods())
+        return list(sort_glsl_dependencies(glsl_methods))
 
     def glsl_helpers(self):
-        return tuple(func for func in self._glsl_methods() if is_glsl_helper(func))
+        return list(func for func in self.glsl_methods() if is_glsl_helper(func))
 
     def glsl_snippets(self):
-        return tuple(func for func in self._glsl_methods() if is_glsl_snippet(func))
+        return list(func for func in self.glsl_methods() if is_glsl_snippet(func))
 
-    def compile_snippet_bundle(self):
-        return "\n\n".join(s() for s in self.glsl_snippets())
+    @staticmethod
+    def compile(*snippet_lists):
+        snippets = sort_glsl_dependencies(sum((list(l) for l in snippet_lists), []))
+        return "\n\n".join(s() for s in snippets)
+
+    def bundle(self):
+        return self.compile(self.glsl_snippets())
 
 
 def meta_glsl(*args, **kwargs):

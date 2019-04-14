@@ -34,6 +34,7 @@ class TestGlslTypes(snapshottest.TestCase):
         expected_snippets = {
             "definition",
             "build_from_array",
+            "export_to_array",
             "algebraic_product",
             "scalar_float_mul",
             "sub",

@@ -15,13 +15,13 @@ class TestGlslBundler(snapshottest.TestCase):
         assert len(tuple(x.__name__ for x in self.struct.glsl_helpers())) == 0
 
     def test_glsl_snippets(self):
-        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition", "build_from_array",)
+        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition", "build_from_array", "export_to_array", )
 
     def test_compile_snippet_bundle(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
 
         C = ComplexNumbers()
-        self.assertMatchSnapshot(C.compile_snippet_bundle())
+        self.assertMatchSnapshot(C.bundle())
 
 
 class TestMetaGlsl(snapshottest.TestCase):

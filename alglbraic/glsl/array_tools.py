@@ -29,11 +29,37 @@ $type_name $fn_name($base_type x[$size]){
             size=len(self),
         )
 
+    @meta_glsl(depends_on=["definition"])
+    def export_to_array(self, name="toArray", separator=", "):
+        if not self.uniform_member_type:
+            raise TypeError(
+                "To generate an array constructor, GlslStruct must have members of\
+                uniform type"
+            )
+
+        template = Template(
+            """\
+$base_type[$size] $fn_name($type_name x){
+    return $base_type[$size]($array_members);
+}"""
+        )
+
+        array_members = separator.join(str(x) for x in self.symbols_vector_for('x'))
+
+        return template.substitute(
+            fn_name=name,
+            type_name=self.type_name,
+            base_type=self.uniform_member_type,
+            array_members=array_members,
+            size=len(self),
+        )
+
+
 from .struct import GlslBundler
 
 def struct_injections(struct, size, inject_fn_name="inject"):
     class Injections(GlslBundler):
-        @meta_glsl(depends_on=["build_from_array"])
+        @meta_glsl(depends_on=[struct.build_from_array])
         def into_array_from_subarray_at_indices(self):
             from sympy.tensor import IndexedBase
 
