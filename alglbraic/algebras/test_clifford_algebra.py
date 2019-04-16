@@ -40,3 +40,17 @@ class TestComplexNumbers(snapshottest.TestCase):
 
     def test_one(self):
         self.assert_match_snapshot(str(self.C.one(use_operators=True)))
+
+
+class TestDualNumbers(snapshottest.TestCase):
+    def setUp(self):
+        from alglbraic.algebras.clifford_algebra import DualNumbers
+
+        self.D = DualNumbers()
+
+    def test_product(self):
+        self.assert_match_snapshot(str(self.D.algebraic_product(use_operators=True)))
+
+    def test_one(self):
+        self.assert_match_snapshot(str(self.D.one(use_operators=True)))
+

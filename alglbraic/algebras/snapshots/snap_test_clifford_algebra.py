@@ -26,3 +26,11 @@ snapshots['TestComplexNumbers::test_one 1'] = '''C one(){
 snapshots['TestComplexNumbers::test_product 1'] = '''C product(C u, C v){
     return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
 }'''
+
+snapshots['TestDualNumbers::test_one 1'] = '''Dual one(){
+    return Dual(one(), zero());
+}'''
+
+snapshots['TestDualNumbers::test_product 1'] = '''Dual product(Dual u, Dual v){
+    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
+}'''

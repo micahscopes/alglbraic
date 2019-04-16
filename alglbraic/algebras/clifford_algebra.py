@@ -26,9 +26,8 @@ class CliffordAlgebra(Algebra):
     ):
         from sympy import symbols
 
-        self.Cl, *self._grade_1_basis = Ga.build(
-            "e", g=signature, coords=symbols(grade_1_basis)
-        )
+        gens = "e*"+"|".join("%i" % (i+1) for i in range(len(grade_1_basis)))
+        self.Cl, *self._grade_1_basis = Ga.build(gens, g=signature)
         basis_names = (
             [unit] + build_basis_names(self.Cl) if basis_names is None else basis_names
         )
@@ -60,6 +59,20 @@ class ComplexNumbers(CliffordAlgebra):
             [-1],
             "imag",
             basis_names=["real", "imag"],
+            unit="real",
+            base_ring=base_ring,
+            **kwargs
+        )
+
+
+class DualNumbers(CliffordAlgebra):
+    def __init__(self, name="Dual", base_ring="float", unit="real", **kwargs):
+        CliffordAlgebra.__init__(
+            self,
+            name,
+            [0],
+            "imag",
+            basis_names=["real", "nilpotent"],
             unit="real",
             base_ring=base_ring,
             **kwargs
