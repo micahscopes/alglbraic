@@ -8,11 +8,12 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.6"
 galgebra = "^0.4.3"
-click = "*"
 nodeenv = "*"
 sympy = {path = "../sympy"}
 toposort = "^1.5"
 read-only-property = "^0.1.0"
+click = "*"
+click-configfile = "^0.2.3"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.3"
