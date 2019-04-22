@@ -44,7 +44,7 @@ $base_type[$size] $fn_name($type_name x){
 }"""
         )
 
-        array_members = separator.join(str(x) for x in self.symbols_vector_for('x'))
+        array_members = separator.join(str(x) for x in self.symbols_vector_for("x"))
 
         return template.substitute(
             fn_name=name,
@@ -56,6 +56,7 @@ $base_type[$size] $fn_name($type_name x){
 
 
 from .struct import GlslBundler
+
 
 def struct_injections(struct, size, inject_fn_name="inject"):
     class Injections(GlslBundler):
@@ -114,7 +115,7 @@ $base_type float[$base_size] $fn_name(inout $base_type u[$size], int i_u[$size],
                 base_size=len(struct),
             )
 
-        @meta_glsl(depends_on=["build_from_array", into_array_from_subarray])
+        @meta_glsl(depends_on=[struct.build_from_array, into_array_from_subarray])
         def into_struct_from_subarray_at_indices(self):
             template = Template(
                 """\
@@ -149,5 +150,18 @@ $type_name $fn_name(inout $base_type u[$size], int i_u[$size], $base_type v[$bas
                 size=size,
                 base_size=len(struct),
             )
+
+        @staticmethod
+        def glsl_snippets():
+            return [
+                Injections.into_array_from_subarray_at_indices,
+                Injections.into_array_from_subarray,
+                Injections.into_struct_from_subarray_at_indices,
+                Injections.into_struct_from_subarray,
+            ]
+
+        @staticmethod
+        def bundle():
+            return "\n\n".join(s() for s in Injections.glsl_snippets())
 
     return Injections

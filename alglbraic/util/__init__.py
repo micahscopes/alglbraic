@@ -39,3 +39,21 @@ class Callable(object):
         bound = update_wrapper(bound, self)
         setattr(bound, 'meta_glsl', self.meta_glsl)
         return bound
+
+
+def with_outfile(f):
+    import click
+    from functools import update_wrapper
+
+    def wrapper(ctx, *args, **opts):
+        outfile = opts.pop("outfile")
+        result = f(ctx, *args, **opts)
+        if result:
+            if outfile:
+                outfile.write(result)
+            else:
+                click.echo(result)
+
+    wrapper = update_wrapper(wrapper, f)    
+
+    return click.option("--outfile", type=click.File("w"))(wrapper)

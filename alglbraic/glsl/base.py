@@ -7,7 +7,6 @@ import inspect
 class GlslBaseType(object):
     pass
 
-
 class GLSL(MetaString):
     depends_on: list = []
     glsl_type = GlslBaseType
@@ -22,7 +21,7 @@ class GlslBundler(GlslBaseType):
             getattr(self, name) for name, func in members if is_glsl_method(func)
         ]
 
-        return list(sort_glsl_dependencies(glsl_methods))
+        return list(self.sort_glsl_dependencies(glsl_methods))
 
     def glsl_helpers(self):
         return list(func for func in self.glsl_methods() if is_glsl_helper(func))
@@ -32,11 +31,61 @@ class GlslBundler(GlslBaseType):
 
     @staticmethod
     def compile(*snippet_lists):
-        snippets = sort_glsl_dependencies(sum((list(l) for l in snippet_lists), []))
-        return "\n\n".join(s() for s in snippets)
+        snippets = GlslBundler.sort_glsl_dependencies(sum((list(l) for l in snippet_lists), []))
+        return "\n\n".join(s() for s in snippets)+"\n"
 
-    def bundle(self):
+    def bundle(self=None):
         return self.compile(self.glsl_snippets())
+
+    @staticmethod
+    def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
+        """
+            Parameters
+            ----------
+            glsl_nodes :
+                A set of functions, each of which has a `GLSL` return type containing
+                a `depends_on` attribute defining its dependencies.
+        """
+        from toposort import toposort
+
+        def get_deps(node):
+            try:
+                return get_meta_glsl(node).depends_on + [get_meta_glsl(node).glsl_type]
+            except AttributeError:
+                return node.mro()
+
+        def key(node):
+            try:
+                return str(len(node.mro()))
+            except AttributeError:
+                return (
+                    str(len(get_meta_glsl(node).glsl_type.mro()))
+                    + "."
+                    + str.lower(node.__name__)
+                )
+
+        glsl_types = set(sum([get_meta_glsl(n).glsl_type.mro() for n in glsl_nodes], []))
+
+        def fn_name(str_or_fn) -> str:
+            try:
+                return str_or_fn.__name__
+            except AttributeError:
+                return str_or_fn
+
+        nodes = list(glsl_types) + glsl_nodes
+
+        fn_lookup = {fn_name(node): node for node in nodes}
+
+        graph = {node: set(fn_lookup[fn_name(d)] for d in get_deps(node)) for node in nodes}
+
+        graph_toposorted = toposort(graph)
+        graph_sorted = (
+            sorted((n for n in layer if type(n) is not type), key=key)
+            for layer in graph_toposorted
+        )
+        graph_sorted_flattened = sum(graph_sorted, [])
+
+        return graph_sorted_flattened
 
 
 def meta_glsl(*args, **kwargs):
@@ -91,51 +140,3 @@ def is_glsl_snippet(func):
     return is_glsl_method(func) and len(get_arguments(func)) == 0
 
 
-def sort_glsl_dependencies(glsl_nodes: List[Union[str, FunctionType]]):
-    """
-        Parameters
-        ----------
-        glsl_nodes :
-            A set of functions, each of which has a `GLSL` return type containing
-            a `depends_on` attribute defining its dependencies.
-    """
-    from toposort import toposort
-
-    def get_deps(node):
-        try:
-            return get_meta_glsl(node).depends_on + [get_meta_glsl(node).glsl_type]
-        except AttributeError:
-            return node.mro()
-
-    def key(node):
-        try:
-            return str(len(node.mro()))
-        except AttributeError:
-            return (
-                str(len(get_meta_glsl(node).glsl_type.mro()))
-                + "."
-                + str.lower(node.__name__)
-            )
-
-    glsl_types = set(sum([get_meta_glsl(n).glsl_type.mro() for n in glsl_nodes], []))
-
-    def fn_name(str_or_fn) -> str:
-        try:
-            return str_or_fn.__name__
-        except AttributeError:
-            return str_or_fn
-
-    nodes = list(glsl_types) + glsl_nodes
-
-    fn_lookup = {fn_name(node): node for node in nodes}
-
-    graph = {node: set(fn_lookup[fn_name(d)] for d in get_deps(node)) for node in nodes}
-
-    graph_toposorted = toposort(graph)
-    graph_sorted = (
-        sorted((n for n in layer if type(n) is not type), key=key)
-        for layer in graph_toposorted
-    )
-    graph_sorted_flattened = sum(graph_sorted, [])
-
-    return graph_sorted_flattened

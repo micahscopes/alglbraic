@@ -3,6 +3,8 @@ from sympy import symbols
 from sympy.matrices import Matrix
 from string import Template
 from . import array_tools
+from alglbraic.util import with_outfile
+
 
 class GlslStruct(GlslBundler, array_tools.BuildFromArray):
     def __init__(self, type_name, *member_declarations):
@@ -12,7 +14,12 @@ class GlslStruct(GlslBundler, array_tools.BuildFromArray):
             *[mt.split() for mt in member_declarations]
         )
 
-    def injections(self, size, inject_fn_name='inject'):
+    def injections(self, size, inject_fn_name="inject"):
+        if size > len(self):
+            raise ValueError(
+                f"Tried to generate injections of size {size} for a struct \
+of size {len(self)}!"
+            )
         return array_tools.struct_injections(self, size, inject_fn_name=inject_fn_name)
 
     def __len__(self):
@@ -42,3 +49,23 @@ struct $type_name {
         members = separator.join(self.member_declarations) + separator.strip()
         return GLSL(template.substitute(type_name=self.type_name, members=members))
 
+
+import click
+
+
+@click.group(chain=True)
+def commands():
+    pass
+
+@commands.command()
+@click.argument("size", type=int)
+@click.option("--name", type=str)
+@click.pass_context
+def injections(ctx, **opts):
+    struct = ctx.obj.get("latest_struct")
+    name = opts.pop("name")
+
+    if not name:
+        name = "inject%i" % opts["size"]
+
+    ctx.obj['results'][name] = struct.injections(inject_fn_name=name, **opts)
