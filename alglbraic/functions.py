@@ -84,7 +84,7 @@ class OperationsMixin(object):
             input_types,
             input_argnames,
             self.type_name,
-            self.gl(result, use_operators=use_operators),
+            self.gl(result, use_operators=use_operators) if not isinstance(result, str) else result,
         )
 
     def unary_operation(self, function_name, result, **kwargs) -> GLSL:

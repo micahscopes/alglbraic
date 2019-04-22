@@ -32,7 +32,8 @@ class Algebra(FiniteModule):
             return args[0]
 
     def algebraic_operation(self, name, result, n=2, use_operators=False) -> GLSL:
-        result = self._coefficients_from_algebraic_element(result)
+        if not isinstance(result, str):
+            result = self._coefficients_from_algebraic_element(result)
         return self.n_ary_operation(n, name, result, use_operators=use_operators)
 
     @meta_glsl(depends_on=['definition'])
