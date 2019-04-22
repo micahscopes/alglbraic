@@ -99,7 +99,8 @@ def process_result(obj, *args, **opts):
             os.makedirs(out)
         os.chdir(out)
         if glslify:
-            os.remove("index.glsl")
+            if os.path.exists("index.glsl"):
+                os.remove("index.glsl")
             index = open("index.glsl", "a+")
         for (name, bundle) in bundles.items():
             if glslify:
