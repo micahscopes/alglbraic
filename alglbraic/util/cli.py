@@ -2,6 +2,7 @@ import pkgutil
 import importlib
 import alglbraic
 import click
+from collections import OrderedDict
 
 
 def import_submodules(package, recursive=True):
@@ -76,10 +77,13 @@ class GroupWithCommandOptions(click.Group):
 @click.command(cls=click.CommandCollection, sources=subcommands, chain=True)
 @click.option("--out", type=click.Path())
 @click.option("--glslify", is_flag=True)
+@click.option("--glslify-append", is_flag=True)
 @click.pass_context
-def cli(ctx, out, glslify, **opts):
+def cli(ctx, out, glslify, glslify_append, **opts):
+    ctx.obj = {"results": OrderedDict()}
     ctx.obj["out"] = out
     ctx.obj["glslify"] = glslify
+    ctx.obj["glslify_append"] = glslify_append
 
 
 @cli.resultcallback()
@@ -92,14 +96,15 @@ def process_result(obj, *args, **opts):
     )
 
     out = obj.get("out")
-    glslify = obj.get("glslify")
+    glslify_append = obj.get("glslify_append")
+    glslify = obj.get("glslify") or glslify_append
     if out:
         existed = os.path.exists(out)
         if not existed:
             os.makedirs(out)
         os.chdir(out)
         if glslify:
-            if os.path.exists("index.glsl"):
+            if os.path.exists("index.glsl") and not glslify_append:
                 os.remove("index.glsl")
             index = open("index.glsl", "a+")
         for (name, bundle) in bundles.items():
@@ -118,7 +123,4 @@ def process_result(obj, *args, **opts):
 
 
 if __name__ == "__main__":
-    from collections import OrderedDict
-
-    cli(obj={"results": OrderedDict()})
-
+    cli()

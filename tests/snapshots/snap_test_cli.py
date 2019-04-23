@@ -51,8 +51,32 @@ C product(C u, C v){
     return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
 }
 
+C dual(){
+    return C(u.imag, mul(-1, u.real));
+}
+
 C involve(C u){
     return C(u.real, mul(-1, u.imag));
+}
+
+C inner(C u, C v){
+    return C(mul(mul(-1, u.imag), v.imag), 0.0);
+}
+
+C lcontract(C u, C v){
+    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.real, v.imag));
+}
+
+C outer(C u, C v){
+    return C(mul(u.real, v.real), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+}
+
+C I(){
+    return C(0.0, 1.0);
+}
+
+C rcontract(C u, C v){
+    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.imag, v.real));
 }
 
 C reverse(C u){
@@ -62,6 +86,7 @@ C reverse(C u){
 C conjugate(C u){
     return reverse(involve(u));
 }
+
 '''
 
 snapshots['TestCLI::test_dual_numbers 1'] = '''struct Dual {
@@ -108,15 +133,40 @@ Dual product(Dual u, Dual v){
     return Dual(mul(u.real, v.real), add(mul(u.nilpotent, v.real), mul(u.real, v.nilpotent)));
 }
 
+Dual dual(){
+    return Dual(0.0, 0.0);
+}
+
 Dual involve(Dual u){
     return Dual(u.real, mul(-1, u.nilpotent));
+}
+
+Dual inner(Dual u, Dual v){
+    return Dual(0.0, 0.0);
+}
+
+Dual lcontract(Dual u, Dual v){
+    return Dual(mul(u.real, v.real), mul(u.real, v.nilpotent));
+}
+
+Dual outer(Dual u, Dual v){
+    return Dual(mul(u.real, v.real), add(mul(u.nilpotent, v.real), mul(u.real, v.nilpotent)));
+}
+
+Dual rcontract(Dual u, Dual v){
+    return Dual(mul(u.real, v.real), mul(u.nilpotent, v.real));
 }
 
 Dual reverse(Dual u){
     return Dual(u.real, u.nilpotent);
 }
 
+Dual I(){
+    return Dual(0.0, 1.0);
+}
+
 Dual conjugate(Dual u){
     return reverse(involve(u));
 }
+
 '''

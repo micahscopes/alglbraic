@@ -19,6 +19,11 @@ class TestCliffordAlgebra(snapshottest.TestCase):
         Cl = CliffordAlgebra("ComplexCl4", [1, 1, 1, 1], base_ring="C", unit="ONE")
         self.assert_match_snapshot(str(Cl.algebraic_product(use_operators=True)))
 
+    def test_clifford_algebra_bundle(self):
+        self.assert_match_snapshot(
+            str(self.algebra.bundle())
+        )
+
 
 class TestComplexNumbers(snapshottest.TestCase):
     def setUp(self):

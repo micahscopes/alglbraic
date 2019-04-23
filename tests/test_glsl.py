@@ -1,7 +1,6 @@
 import snapshottest
 
-from alglbraic.glsl import GlslStruct, get_meta_glsl, meta_glsl
-from alglbraic.glsl import sort_glsl_dependencies
+from alglbraic.glsl import GlslBundler, GlslStruct, get_meta_glsl, meta_glsl
 from alglbraic.glsl import GLSL
 
 
@@ -82,5 +81,5 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
         # print([x.__name__ for x in sort_glsl_dependencies(sorted_glsl_methods)])
         for _i in range(50):
             # make sure that sorting isn't dependent on the starting node
-            resorted_glsl_methods = sort_glsl_dependencies(sorted_glsl_methods)
+            resorted_glsl_methods = GlslBundler.sort_glsl_dependencies(sorted_glsl_methods)
             assert resorted_glsl_methods == sorted_glsl_methods

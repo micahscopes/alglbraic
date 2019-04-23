@@ -51,8 +51,32 @@ C product(C u, C v){
     return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
 }
 
+C dual(){
+    return C(u.imag, mul(-1, u.real));
+}
+
 C involve(C u){
     return C(u.real, mul(-1, u.imag));
+}
+
+C inner(C u, C v){
+    return C(mul(mul(-1, u.imag), v.imag), 0.0);
+}
+
+C lcontract(C u, C v){
+    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.real, v.imag));
+}
+
+C outer(C u, C v){
+    return C(mul(u.real, v.real), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+}
+
+C I(){
+    return C(0.0, 1.0);
+}
+
+C rcontract(C u, C v){
+    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.imag, v.real));
 }
 
 C reverse(C u){
@@ -61,4 +85,5 @@ C reverse(C u){
 
 C conjugate(C u){
     return reverse(involve(u));
-}'''
+}
+'''

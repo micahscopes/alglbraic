@@ -3,12 +3,6 @@ from galgebra.ga import Ga
 from alglbraic import GLSL
 from alglbraic.glsl import meta_glsl
 from functools import reduce
-import click
-from alglbraic.util import with_outfile
-
-import contextlib
-import io
-
 
 def build_basis_names(clifford_algebra, prefix="e", separator=""):
     Cl = clifford_algebra
@@ -29,6 +23,8 @@ class CliffordAlgebra(Algebra):
         **kwargs
     ):
         from sympy import symbols
+        import contextlib
+        import io
 
         gens = "e*" + "|".join("%i" % (i + 1) for i in range(len(signature)))
 
@@ -54,7 +50,45 @@ class CliffordAlgebra(Algebra):
         )
 
     def _coefficients_from_algebraic_element(self, element):
-        return element.blade_coefs()
+        from sympy import sympify
+        if self.base_ring == 'float':
+            return [sympify(co).evalf() if co != 0 else 0.0 for co in element.blade_coefs()]
+        else:
+            return element.blade_coefs()
+
+    @meta_glsl()
+    def pseudoscalar(self, **kwargs) -> GLSL:
+        result = self.Cl.I()
+        return self.algebraic_operation("I", result, n=0, **kwargs)
+
+    @meta_glsl()
+    def dual(self, **kwargs) -> GLSL:
+        result = self.algebraic_arguments(1)/self.Cl.I()
+        return self.algebraic_operation("dual", result, n=0, **kwargs)
+
+    @meta_glsl()
+    def inner(self, **kwargs) -> GLSL:
+        u, v = self.algebraic_arguments(2)
+        result = u | v
+        return self.algebraic_operation("inner", result, n=2, **kwargs)
+
+    @meta_glsl()
+    def outer(self, **kwargs) -> GLSL:
+        u, v = self.algebraic_arguments(2)
+        result = u ^ v
+        return self.algebraic_operation("outer", result, n=2, **kwargs)
+
+    @meta_glsl()
+    def lcontract(self, **kwargs) -> GLSL:
+        u, v = self.algebraic_arguments(2)
+        result = u < v
+        return self.algebraic_operation("lcontract", result, n=2, **kwargs)
+
+    @meta_glsl()
+    def rcontract(self, **kwargs) -> GLSL:
+        u, v = self.algebraic_arguments(2)
+        result = u > v
+        return self.algebraic_operation("rcontract", result, n=2, **kwargs)
 
     @meta_glsl()
     def reverse(self, **kwargs) -> GLSL:
@@ -100,73 +134,9 @@ class DualNumbers(CliffordAlgebra):
         opts.update(kwargs)
         CliffordAlgebra.__init__(self, **opts)
 
-
-class IntListParamType(click.ParamType):
-    name = "IntList"
-
-    def convert(self, value, param, ctx):
-        try:
-            return [int(i) for i in value.split(" ")]
-        except ValueError:
-            self.fail("%s is not a valid integer list" % value, param, ctx)
+    @meta_glsl()
+    def pseudoscalar(self, **kwargs) -> GLSL:
+        result = self._grade_1_basis[0]
+        return self.algebraic_operation("I", result, n=0, **kwargs)
 
 
-INTLIST = IntListParamType()
-
-
-class StringListParamType(click.ParamType):
-    name = "StringList"
-
-    def convert(self, value, param, ctx):
-        try:
-            return [s for s in " ".split(value)]
-        except ValueError:
-            self.fail("%s is not a valid string list" % value, param, ctx)
-
-
-STRLIST = StringListParamType()
-
-
-@click.group(chain=True)
-def commands():
-    pass
-
-
-@commands.command()
-@click.argument("name")
-@click.argument("signature", type=INTLIST)
-@click.option("--base", "base_ring")
-@click.option("--basis_names", "basis_names", type=STRLIST)
-@click.option("--unit", "unit")
-def clifford_algebra(ctx, **kwargs):
-    kwargs = {k: v for (k, v) in kwargs.items() if v is not None}
-    alg = ctx.obj['latest_struct'] = CliffordAlgebra(**kwargs)
-    return alg.bundle()
-
-
-def simple_cli_options(function):
-    import click
-
-    function = click.pass_context(function)
-    function = click.option("--base", "base_ring")(function)
-    function = click.option("--basis_names", "basis_names", type=STRLIST)(function)
-    function = click.option("--name", "name")(function)
-    return function
-
-
-@commands.command()
-@simple_cli_options
-def complex_numbers(ctx, **opts):
-    opts = {k: v for (k, v) in opts.items() if v is not None}
-    alg = ctx.obj['latest_struct'] = ComplexNumbers(**opts)
-    ctx.obj['results'][alg.type_name] = alg
-    return alg.bundle()
-
-
-@commands.command()
-@simple_cli_options
-def dual_numbers(ctx, **opts):
-    opts = {k: v for (k, v) in opts.items() if v is not None}
-    alg = ctx.obj['latest_struct'] = DualNumbers(**opts)
-    ctx.obj['results'][alg.type_name] = alg
-    return alg.bundle()
