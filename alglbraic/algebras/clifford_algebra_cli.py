@@ -35,7 +35,7 @@ def commands():
 
 @commands.command()
 @click.argument("name")
-@click.argument("signature", type=INTLIST)
+@click.argument("quadratic_form", type=INTLIST)
 @click.option("--base", "base_ring")
 @click.option("--basis_names", "basis_names", type=STRLIST)
 @click.option("--unit", "unit")

@@ -2,7 +2,9 @@ from alglbraic.algebra import Algebra
 from galgebra.ga import Ga
 from alglbraic import GLSL
 from alglbraic.glsl import meta_glsl
+from sympy.matrices.matrices import MatrixError, NonSquareMatrixError
 from functools import reduce
+
 
 def build_basis_names(clifford_algebra, prefix="e", separator=""):
     Cl = clifford_algebra
@@ -16,21 +18,35 @@ class CliffordAlgebra(Algebra):
     def __init__(
         self,
         name,
-        signature,
+        quadratic_form,
+        grade_1_basis_names=None,
         base_ring="float",
         unit="scalar",
         basis_names=None,
+        ga=None,
         **kwargs
     ):
         from sympy import symbols
         import contextlib
         import io
 
-        gens = "e*" + "|".join("%i" % (i + 1) for i in range(len(signature)))
+        dimension = len(quadratic_form)
+        # if `quadratic_form` is a matrix, get its dimension from its shape instead:
+        try:
+            signature = quadratic_form.diagonalize()[1].diagonal()
+        except (MatrixError, NonSquareMatrixError) as e:
+            raise
+        except Exception:
+            signature = quadratic_form
 
-        the_void = io.StringIO()
-        with contextlib.redirect_stdout(the_void):
-            ga = Ga.build(gens, g=signature)
+        if not ga:
+            if not grade_1_basis_names:
+                grade_1_basis_names = "e*" + "|".join(
+                    "%i" % (i + 1) for i in range(len(signature))
+                )
+            the_void = io.StringIO()
+            with contextlib.redirect_stdout(the_void):
+                ga = Ga.build(" ".join(grade_1_basis_names), g=quadratic_form)
 
         self.Cl, *self._grade_1_basis = ga
         basis_names = (
@@ -51,8 +67,11 @@ class CliffordAlgebra(Algebra):
 
     def _coefficients_from_algebraic_element(self, element):
         from sympy import sympify
-        if self.base_ring == 'float':
-            return [sympify(co).evalf() if co != 0 else 0.0 for co in element.blade_coefs()]
+
+        if self.base_ring == "float":
+            return [
+                sympify(co).evalf() if co != 0 else 0.0 for co in element.blade_coefs()
+            ]
         else:
             return element.blade_coefs()
 
@@ -63,7 +82,7 @@ class CliffordAlgebra(Algebra):
 
     @meta_glsl()
     def dual(self, **kwargs) -> GLSL:
-        result = self.algebraic_arguments(1)/self.Cl.I()
+        result = self.algebraic_arguments(1) / self.Cl.I()
         return self.algebraic_operation("dual", result, n=0, **kwargs)
 
     @meta_glsl()
@@ -112,7 +131,7 @@ class ComplexNumbers(CliffordAlgebra):
         basis_names = ["real", "imag"]
         opts = {
             "name": name,
-            "signature": [-1],
+            "quadratic_form": [-1],
             "basis_names": basis_names,
             "unit": unit,
             "base_ring": base_ring,
@@ -126,7 +145,7 @@ class DualNumbers(CliffordAlgebra):
         basis_names = ["real", "nilpotent"]
         opts = {
             "name": name,
-            "signature": [0],
+            "quadratic_form": [0],
             "basis_names": basis_names,
             "unit": unit,
             "base_ring": base_ring,
@@ -138,5 +157,4 @@ class DualNumbers(CliffordAlgebra):
     def pseudoscalar(self, **kwargs) -> GLSL:
         result = self._grade_1_basis[0]
         return self.algebraic_operation("I", result, n=0, **kwargs)
-
 

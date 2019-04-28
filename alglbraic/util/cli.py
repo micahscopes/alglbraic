@@ -12,7 +12,7 @@ def import_submodules(package, recursive=True):
     :type package: str | module
     :rtype: dict[str, types.ModuleType]
     """
-    ignore_starts_with = ("snapshots", "__", "test_")
+    ignore_starts_with = ("snapshots", "__", "test_", "snap_test")
 
     if isinstance(package, str):
         package = importlib.import_module(package)
