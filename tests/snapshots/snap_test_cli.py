@@ -20,7 +20,7 @@ float[2] toArray(C x){
 }
 
 C add(C u, C v){
-    return C(add(u.real, v.real), add(u.imag, v.imag));
+    return C(u.real + v.real, u.imag + v.imag);
 }
 
 C one(){
@@ -32,7 +32,7 @@ C mul(float a, C x){
 }
 
 C sub(C u, C v){
-    return C(sub(u.real, v.real), sub(u.imag, v.imag));
+    return C(u.real - v.real, u.imag - v.imag);
 }
 
 C zero(){
@@ -40,35 +40,35 @@ C zero(){
 }
 
 C mul(float a, C x){
-    return C(mul(a, x.real), mul(a, x.imag));
+    return C(a*x.real, a*x.imag);
 }
 
 C mul(int a, C x){
     return mul(float(a), x);
 }
 
-C product(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+C mul(C u, C v){
+    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
 }
 
 C dual(){
-    return C(u.imag, mul(-1, u.real));
+    return C(u.imag, -u.real);
 }
 
 C involve(C u){
-    return C(u.real, mul(-1, u.imag));
+    return C(u.real, -u.imag);
 }
 
 C inner(C u, C v){
-    return C(mul(mul(-1, u.imag), v.imag), 0.0);
+    return C(-u.imag*v.imag, 0.0);
 }
 
 C lcontract(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.real, v.imag));
+    return C(-u.imag*v.imag + u.real*v.real, u.real*v.imag);
 }
 
 C outer(C u, C v){
-    return C(mul(u.real, v.real), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+    return C(u.real*v.real, u.imag*v.real + u.real*v.imag);
 }
 
 C I(){
@@ -76,7 +76,7 @@ C I(){
 }
 
 C rcontract(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.imag, v.real));
+    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real);
 }
 
 C reverse(C u){
@@ -102,7 +102,7 @@ float[2] toArray(Dual x){
 }
 
 Dual add(Dual u, Dual v){
-    return Dual(add(u.real, v.real), add(u.nilpotent, v.nilpotent));
+    return Dual(u.real + v.real, u.nilpotent + v.nilpotent);
 }
 
 Dual one(){
@@ -114,7 +114,7 @@ Dual mul(float a, Dual x){
 }
 
 Dual sub(Dual u, Dual v){
-    return Dual(sub(u.real, v.real), sub(u.nilpotent, v.nilpotent));
+    return Dual(u.real - v.real, u.nilpotent - v.nilpotent);
 }
 
 Dual zero(){
@@ -122,15 +122,15 @@ Dual zero(){
 }
 
 Dual mul(float a, Dual x){
-    return Dual(mul(a, x.real), mul(a, x.nilpotent));
+    return Dual(a*x.real, a*x.nilpotent);
 }
 
 Dual mul(int a, Dual x){
     return mul(float(a), x);
 }
 
-Dual product(Dual u, Dual v){
-    return Dual(mul(u.real, v.real), add(mul(u.nilpotent, v.real), mul(u.real, v.nilpotent)));
+Dual mul(Dual u, Dual v){
+    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
 }
 
 Dual dual(){
@@ -138,7 +138,7 @@ Dual dual(){
 }
 
 Dual involve(Dual u){
-    return Dual(u.real, mul(-1, u.nilpotent));
+    return Dual(u.real, -u.nilpotent);
 }
 
 Dual inner(Dual u, Dual v){
@@ -146,15 +146,15 @@ Dual inner(Dual u, Dual v){
 }
 
 Dual lcontract(Dual u, Dual v){
-    return Dual(mul(u.real, v.real), mul(u.real, v.nilpotent));
+    return Dual(u.real*v.real, u.real*v.nilpotent);
 }
 
 Dual outer(Dual u, Dual v){
-    return Dual(mul(u.real, v.real), add(mul(u.nilpotent, v.real), mul(u.real, v.nilpotent)));
+    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
 }
 
 Dual rcontract(Dual u, Dual v){
-    return Dual(mul(u.real, v.real), mul(u.nilpotent, v.real));
+    return Dual(u.real*v.real, u.nilpotent*v.real);
 }
 
 Dual reverse(Dual u){

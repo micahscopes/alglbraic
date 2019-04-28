@@ -38,7 +38,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
             expr,
             array_constructor=self.type_name,
             glsl_types=False,
-            use_operators=use_operators,
+            use_operators=use_operators or self.base_ring == 'float' or self.base_ring == 'int',
             zero=self.zero_fn + "()",
         )
 

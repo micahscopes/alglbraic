@@ -20,7 +20,7 @@ float[2] toArray(C x){
 }
 
 C add(C u, C v){
-    return C(add(u.real, v.real), add(u.imag, v.imag));
+    return C(u.real + v.real, u.imag + v.imag);
 }
 
 C one(){
@@ -32,7 +32,7 @@ C mul(float a, C x){
 }
 
 C sub(C u, C v){
-    return C(sub(u.real, v.real), sub(u.imag, v.imag));
+    return C(u.real - v.real, u.imag - v.imag);
 }
 
 C zero(){
@@ -40,35 +40,35 @@ C zero(){
 }
 
 C mul(float a, C x){
-    return C(mul(a, x.real), mul(a, x.imag));
+    return C(a*x.real, a*x.imag);
 }
 
 C mul(int a, C x){
     return mul(float(a), x);
 }
 
-C product(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+C mul(C u, C v){
+    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
 }
 
 C dual(){
-    return C(u.imag, mul(-1, u.real));
+    return C(u.imag, -u.real);
 }
 
 C involve(C u){
-    return C(u.real, mul(-1, u.imag));
+    return C(u.real, -u.imag);
 }
 
 C inner(C u, C v){
-    return C(mul(mul(-1, u.imag), v.imag), 0.0);
+    return C(-u.imag*v.imag, 0.0);
 }
 
 C lcontract(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.real, v.imag));
+    return C(-u.imag*v.imag + u.real*v.real, u.real*v.imag);
 }
 
 C outer(C u, C v){
-    return C(mul(u.real, v.real), add(mul(u.imag, v.real), mul(u.real, v.imag)));
+    return C(u.real*v.real, u.imag*v.real + u.real*v.imag);
 }
 
 C I(){
@@ -76,7 +76,7 @@ C I(){
 }
 
 C rcontract(C u, C v){
-    return C(sub(mul(u.real, v.real), mul(u.imag, v.imag)), mul(u.imag, v.real));
+    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real);
 }
 
 C reverse(C u){

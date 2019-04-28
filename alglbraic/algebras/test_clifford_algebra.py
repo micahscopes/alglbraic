@@ -58,7 +58,7 @@ class TestCGA(snapshottest.TestCase):
 
         self.CGA = ConformalGeometricAlgebra(2)
 
-    def test_product(self):
+    def test_bundle(self):
         self.assert_match_snapshot(str(self.CGA.bundle()))
 
     # def test_one(self):

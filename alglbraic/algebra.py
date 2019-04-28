@@ -37,7 +37,8 @@ class Algebra(FiniteModule):
         return self.n_ary_operation(n, name, result, use_operators=use_operators)
 
     @meta_glsl(depends_on=['definition'])
-    def algebraic_product(self, name="product", fn=None, use_operators=False) -> GLSL:
+    def algebraic_product(self, name=None, fn=None, use_operators=False) -> GLSL:
+        name = name if name else self.mul_fn
         fn = fn if fn else lambda u, v: u * v
         u, v = self.algebraic_arguments(2)
         result = self._coefficients_from_algebraic_element(fn(u, v))
