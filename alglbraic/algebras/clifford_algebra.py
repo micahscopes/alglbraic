@@ -3,6 +3,7 @@ from galgebra.ga import Ga
 from alglbraic import GLSL
 from alglbraic.glsl import meta_glsl
 from sympy.matrices.matrices import MatrixError, NonSquareMatrixError
+from sympy import diag, Matrix
 from functools import reduce
 
 
@@ -30,12 +31,13 @@ class CliffordAlgebra(Algebra):
         import contextlib
         import io
 
-        dimension = len(quadratic_form)
         # if `quadratic_form` is a matrix, get its dimension from its shape instead:
         try:
             signature = quadratic_form.diagonalize()[1].diagonal()
+            quadratic_form = quadratic_form.tolist()
+            quadratic_form = ' , '.join(' '.join(str(i) for i in row) for row in quadratic_form)
         except (MatrixError, NonSquareMatrixError) as e:
-            raise
+            raise e
         except Exception:
             signature = quadratic_form
 
@@ -44,9 +46,13 @@ class CliffordAlgebra(Algebra):
                 grade_1_basis_names = "e*" + "|".join(
                     "%i" % (i + 1) for i in range(len(signature))
                 )
+            else:
+                grade_1_basis_names = ' '.join(grade_1_basis_names)
+
+            # import ipdb; ipdb.set_trace()
             the_void = io.StringIO()
             with contextlib.redirect_stdout(the_void):
-                ga = Ga.build(" ".join(grade_1_basis_names), g=quadratic_form)
+                ga = Ga.build(grade_1_basis_names, g=quadratic_form)
 
         self.Cl, *self._grade_1_basis = ga
         basis_names = (
@@ -158,3 +164,19 @@ class DualNumbers(CliffordAlgebra):
         result = self._grade_1_basis[0]
         return self.algebraic_operation("I", result, n=0, **kwargs)
 
+
+class ConformalGeometricAlgebra(CliffordAlgebra):
+    def __init__(self, dimension, name=None, quadratic_form=None, **opts):
+        name = name if name else ("CGA%i" % dimension)
+        grade_1_basis_names = ["e%i" % (i+1) for i in range(dimension)] + ["nil", "inf"]
+
+        quadratic_form = (
+            diag(*dimension * [1], Matrix([[0, -1], [-1, 0]]))
+            if not quadratic_form
+            else quadratic_form
+        )
+
+        CliffordAlgebra.__init__(
+            self, name, quadratic_form, grade_1_basis_names, **opts
+        )
+        # import ipdb; ipdb.set_trace()

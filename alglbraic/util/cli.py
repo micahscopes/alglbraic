@@ -26,15 +26,19 @@ def import_submodules(package, recursive=True):
     return results
 
 
-submodules = import_submodules(alglbraic)
+def get_subcommands(modules=[]):
+    subcommands = []
 
-subcommands = []
+    for mod in modules:
+        submodules = import_submodules(mod)
 
-for (_, sub) in submodules.items():
-    try:
-        subcommands.append(sub.commands)
-    except AttributeError:
-        pass
+        for (_, sub) in submodules.items():
+            try:
+                subcommands.append(sub.commands)
+            except AttributeError:
+                pass
+
+    return subcommands
 
 
 class GroupWithCommandOptions(click.Group):
@@ -74,53 +78,62 @@ class GroupWithCommandOptions(click.Group):
         return command_invoke
 
 
-@click.command(cls=click.CommandCollection, sources=subcommands, chain=True)
-@click.option("--out", type=click.Path())
-@click.option("--glslify", is_flag=True)
-@click.option("--glslify-append", is_flag=True)
-@click.pass_context
-def cli(ctx, out, glslify, glslify_append, **opts):
-    ctx.obj = {"results": OrderedDict()}
-    ctx.obj["out"] = out
-    ctx.obj["glslify"] = glslify
-    ctx.obj["glslify_append"] = glslify_append
+def build_cli(subcommands=[], modules=[alglbraic]):
+    subcommands += get_subcommands(modules)
 
+    @click.command(cls=click.CommandCollection, sources=subcommands, chain=True)
+    @click.option("--out", type=click.Path())
+    @click.option("--glslify", is_flag=True)
+    @click.option("--glslify-append", is_flag=True)
+    @click.pass_context
+    def cli(ctx, out, glslify, glslify_append, **opts):
+        ctx.obj = {"results": OrderedDict()}
+        ctx.obj["out"] = out
+        ctx.obj["glslify"] = glslify
+        ctx.obj["glslify_append"] = glslify_append
 
-@cli.resultcallback()
-@click.pass_obj
-def process_result(obj, *args, **opts):
-    import os
+    @cli.resultcallback()
+    @click.pass_obj
+    def process_result(obj, *args, **opts):
+        import os
 
-    bundles = OrderedDict(
-        [(name, bundler.bundle()) for (name, bundler) in obj["results"].items()]
-    )
+        bundles = OrderedDict(
+            [(name, bundler.bundle()) for (name, bundler) in obj["results"].items()]
+        )
 
-    out = obj.get("out")
-    glslify_append = obj.get("glslify_append")
-    glslify = obj.get("glslify") or glslify_append
-    if out:
-        existed = os.path.exists(out)
-        if not existed:
-            os.makedirs(out)
-        os.chdir(out)
-        if glslify:
-            if os.path.exists("index.glsl") and not glslify_append:
-                os.remove("index.glsl")
-            index = open("index.glsl", "a+")
-        for (name, bundle) in bundles.items():
+        out = obj.get("out")
+        glslify_append = obj.get("glslify_append")
+        glslify = obj.get("glslify") or glslify_append
+        if out:
+            existed = os.path.exists(out)
+            if not existed:
+                os.makedirs(out)
+            os.chdir(out)
             if glslify:
-                index.write(
-                    f"// {name}.glsl\n#pragma glslify: import('./{name}.glsl')\n\n"
-                )
-            f = open(f"{name}.glsl", "w")
-            f.write(bundle)
-            f.close()
-        if glslify:
-            index.close()
-    else:
-        for (name, bundle) in bundles.items():
-            click.echo(bundle)
+                if os.path.exists("index.glsl") and not glslify_append:
+                    os.remove("index.glsl")
+                index = open("index.glsl", "a+")
+            for (name, bundle) in bundles.items():
+                if glslify:
+                    index.write(
+                        f"// {name}.glsl\n#pragma glslify: import('./{name}.glsl')\n\n"
+                    )
+                f = open(f"{name}.glsl", "w")
+                f.write(bundle)
+                f.close()
+            if glslify:
+                index.close()
+        else:
+            for (name, bundle) in bundles.items():
+                click.echo(bundle)
 
+    return cli
+
+
+@click.command()
+def dummy():
+    click.echo("I M DUM")
 
 if __name__ == "__main__":
+    cli = build_cli()
     cli()

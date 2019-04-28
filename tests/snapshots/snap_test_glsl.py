@@ -24,11 +24,11 @@ C add(C u, C v){
 }
 
 C one(){
-    return C(one(), zero());
+    return C(1.0, 0.0);
 }
 
 C mul(float a, C x){
-    return mul(mul(a, one()), x);
+    return mul(mul(a, 1.00000000000000), x);
 }
 
 C sub(C u, C v){
@@ -36,7 +36,7 @@ C sub(C u, C v){
 }
 
 C zero(){
-    return C(zero(), zero());
+    return C(0.0, 0.0);
 }
 
 C mul(float a, C x){

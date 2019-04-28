@@ -50,3 +50,18 @@ class TestDualNumbers(snapshottest.TestCase):
     def test_one(self):
         self.assert_match_snapshot(str(self.D.one(use_operators=True)))
 
+
+
+class TestCGA(snapshottest.TestCase):
+    def setUp(self):
+        from alglbraic.algebras.clifford_algebra import ConformalGeometricAlgebra
+
+        self.CGA = ConformalGeometricAlgebra(2)
+
+    def test_product(self):
+        self.assert_match_snapshot(str(self.CGA.bundle()))
+
+    # def test_one(self):
+    #     self.assert_match_snapshot(str(self.CGA.one(use_operators=True)))
+
+

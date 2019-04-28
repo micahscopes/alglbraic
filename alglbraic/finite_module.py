@@ -1,4 +1,4 @@
-from sympy import Symbol, symbols, glsl_code
+from sympy import Symbol, symbols, glsl_code, sympify
 from string import Template
 from alglbraic.glsl import GlslStruct, meta_glsl
 from alglbraic import GLSL
@@ -39,10 +39,27 @@ class FiniteModule(GlslStruct, OperationsMixin):
             array_constructor=self.type_name,
             glsl_types=False,
             use_operators=use_operators,
+            zero=self.zero_fn + "()",
         )
 
+    def base_zero(self):
+        if self.base_ring == "float":
+            return sympify(0.0)
+        elif self.base_ring == "int":
+            return sympify(0)
+        else:
+            return Symbol(self.zero_fn + "()")
+
     def zero_symbols(self):
-        return symbols([self.zero_fn + "()"] * len(self.basis))
+        return [self.base_zero()] * len(self.basis)
+
+    def base_one(self):
+        if self.base_ring == "float":
+            return sympify(1.0)
+        elif self.base_ring == "int":
+            return sympify(1)
+        else:
+            return Symbol(self.one_fn + "()")
 
     @meta_glsl()
     def zero(self, function_name=zero_fn, **kwargs) -> GLSL:
@@ -52,8 +69,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
     def one_symbols(self):
         if self.unit is None:
             raise Exception("No unit is defined")
-        one = [Symbol(self.zero_fn + "()")] * len(self.basis)
-        one[self.basis.index(self.unit)] = Symbol(self.one_fn + "()")
+        one = [self.base_zero()] * len(self.basis)
+        one[self.basis.index(self.unit)] = self.base_one()
         return one
 
     @meta_glsl()
@@ -71,7 +88,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u - v, **kwargs)
 
-    @meta_glsl(depends_on=['scalar_float_mul'])
+    @meta_glsl(depends_on=["scalar_float_mul"])
     def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
         return GLSL(
             Template(
@@ -91,11 +108,11 @@ $type $fn(float a, $type x){
     return mul(mul(a, $one_fn), x);
 }"""
             ).substitute(
-                type=self.type_name, one_fn=self.one_fn + "()", fn=function_name
+                type=self.type_name, one_fn=str(self.base_one()), fn=function_name
             )
         )
 
-    @meta_glsl(depends_on=['scalar_float_mul'])
+    @meta_glsl(depends_on=["scalar_float_mul"])
     def scalar_base_mul(self, function_name=mul_fn):
         type_name = self.type_name
         base_ring = self.base_ring
