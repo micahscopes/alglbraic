@@ -5,6 +5,12 @@ from string import Template
 from . import array_tools
 from alglbraic.util import with_outfile
 
+def RepresentsInt(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 class GlslStruct(GlslBundler, array_tools.BuildFromArray):
     def __init__(self, type_name, *member_declarations):
@@ -14,13 +20,19 @@ class GlslStruct(GlslBundler, array_tools.BuildFromArray):
             *[mt.split() for mt in member_declarations]
         )
 
-    def injections(self, size, inject_fn_name="inject"):
-        if size > len(self):
+    def member_index_const(self, member):
+        i = int(member) if RepresentsInt(member) else None
+        i = self.member_names.index(member) if i is None else i
+        member_name = self.member_names[i]
+        return "I_%s_%s" % (self.type_name, member_name)
+
+    def injections(self, members, inject_fn_name="inject"):
+        if len(members) > len(self):
             raise ValueError(
-                f"Tried to generate injections of size {size} for a struct \
+                f"Tried to generate injections of size {len(members)} for a struct \
 of size {len(self)}!"
             )
-        return array_tools.struct_injections(self, size, inject_fn_name=inject_fn_name)
+        return array_tools.struct_injections(self, members, inject_fn_name=inject_fn_name)
 
     def __len__(self):
         return len(self.member_declarations)
@@ -41,13 +53,19 @@ of size {len(self)}!"
     def definition(self, separator=";\n    "):
         template = Template(
             """\
+$indices;
+
 struct $type_name {
     $members
 };\
 """
         )
+        indices = ';\n'.join(
+            "const int "+self.member_index_const(i)+" = "+str(i)
+            for i in range(len(self))
+        )
         members = separator.join(self.member_declarations) + separator.strip()
-        return GLSL(template.substitute(type_name=self.type_name, members=members))
+        return GLSL(template.substitute(type_name=self.type_name, members=members, indices=indices))
 
 
 import click
@@ -58,14 +76,17 @@ def commands():
     pass
 
 @commands.command()
-@click.argument("size", type=int)
-@click.option("--name", type=str)
+@click.argument("name", type=str)
+@click.argument("members", type=str)
 @click.pass_context
 def injections(ctx, **opts):
     struct = ctx.obj.get("latest_struct")
     name = opts.pop("name")
+    members = opts.pop("members").split(" ")
+    if all(RepresentsInt(m) for m in members):
+        members = (int(m) for m in members)
 
     if not name:
-        name = "inject%i" % opts["size"]
+        name = "inject_"+"_".join(str(m) for m in members)
 
-    ctx.obj['results'][name] = struct.injections(inject_fn_name=name, **opts)
+    ctx.obj["results"][name] = struct.injections(members, inject_fn_name=name, **opts)

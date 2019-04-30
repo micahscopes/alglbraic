@@ -7,7 +7,10 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['TestCLI::test_complex_numbers 1'] = '''struct C {
+snapshots['TestCLI::test_complex_numbers 1'] = '''const int I_C_real = 0;
+const int I_C_imag = 1;
+
+struct C {
     float real;
     float imag;
 };
@@ -56,7 +59,7 @@ C mul(int a, C x){
     return mul(float(a), x);
 }
 
-C dual(){
+C dual(C u){
     return C(u.imag, -u.real);
 }
 
@@ -94,7 +97,10 @@ C conjugate(C u){
 
 '''
 
-snapshots['TestCLI::test_dual_numbers 1'] = '''struct Dual {
+snapshots['TestCLI::test_dual_numbers 1'] = '''const int I_Dual_real = 0;
+const int I_Dual_nilpotent = 1;
+
+struct Dual {
     float real;
     float nilpotent;
 };
@@ -143,7 +149,7 @@ Dual mul(int a, Dual x){
     return mul(float(a), x);
 }
 
-Dual dual(){
+Dual dual(Dual u){
     return Dual(0.0, 0.0);
 }
 

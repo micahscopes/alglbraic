@@ -7,7 +7,10 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''struct C {
+snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''const int I_C_real = 0;
+const int I_C_imag = 1;
+
+struct C {
     float real;
     float imag;
 };
@@ -56,7 +59,7 @@ C mul(int a, C x){
     return mul(float(a), x);
 }
 
-C dual(){
+C dual(C u){
     return C(u.imag, -u.real);
 }
 

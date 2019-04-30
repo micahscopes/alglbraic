@@ -39,12 +39,13 @@ class TestArrayTools(snapshottest.TestCase):
         )
 
     def test_inject(self):
-        self.assert_match_snapshot(self.struct.injections(4).into_array_from_subarray_at_indices())
-        self.assert_match_snapshot(self.struct.injections(4).into_array_from_subarray())
-        self.assert_match_snapshot(self.struct.injections(4).into_struct_from_subarray_at_indices())
-        self.assert_match_snapshot(self.struct.injections(4).into_struct_from_subarray())
+        members = ['ONE', 'e12']
+        # self.assert_match_snapshot(self.struct.injections(4).into_array_from_subarray_at_indices())
+        self.assert_match_snapshot(self.struct.injections(members).into_array_from_subarray())
+        # self.assert_match_snapshot(self.struct.injections(4).into_struct_from_subarray_at_indices())
+        self.assert_match_snapshot(self.struct.injections(members).into_struct_from_subarray())
 
-        self.assert_match_snapshot(self.struct.injections(3).into_array_from_subarray_at_indices())
-        self.assert_match_snapshot(self.struct.injections(3).into_array_from_subarray())
-        self.assert_match_snapshot(self.struct.injections(3).into_struct_from_subarray_at_indices())
-        self.assert_match_snapshot(self.struct.injections(3).into_struct_from_subarray())
+        # self.assert_match_snapshot(self.struct.injections(3).into_array_from_subarray_at_indices())
+        self.assert_match_snapshot(self.struct.injections(members).into_array_from_subarray())
+        # self.assert_match_snapshot(self.struct.injections(3).into_struct_from_subarray_at_indices())
+        self.assert_match_snapshot(self.struct.injections(members).into_struct_from_subarray())
