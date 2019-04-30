@@ -12,8 +12,11 @@ snapshots['TestFiniteModule::test_algebraic_product 1'] = '''ComplexCl2 mul(Comp
 }'''
 
 snapshots['TestFiniteModule::test_finite_module 1'] = '''struct ComplexCl2 {
-    C ONE; C e1; C e2; C e12;
-}'''
+    C ONE;
+    C e1;
+    C e2;
+    C e12;
+};'''
 
 snapshots['TestFiniteModule::test_finite_module 2'] = '''ComplexCl2 zero(){
     return ComplexCl2(zero(), zero(), zero(), zero());

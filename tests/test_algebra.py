@@ -43,5 +43,6 @@ class TestGlslTypes(snapshottest.TestCase):
             "add",
             "scalar_int_mul",
             "zero",
+            "zero_array"
         }
         assert snippets == expected_snippets

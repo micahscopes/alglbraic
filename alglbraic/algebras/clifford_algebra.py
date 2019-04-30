@@ -7,12 +7,15 @@ from sympy import diag, Matrix
 from functools import reduce
 
 
-def build_basis_names(clifford_algebra, prefix="e", separator=""):
-    Cl = clifford_algebra
-    base = (
-        lambda indexes: prefix + separator + separator.join(str(i + 1) for i in indexes)
-    )
-    return [base(indexes) for indexes in Cl.indexes_lst]
+def build_basis_names(
+    clifford_algebra, prefix="e", grade_1_basis_names=None, separator=""
+):
+    return [
+        prefix
+        + separator
+        + separator.join([x.strip(prefix).strip("_") for x in str(base).split("^")])
+        for base in clifford_algebra.blades_lst
+    ]
 
 
 class CliffordAlgebra(Algebra):
@@ -35,7 +38,9 @@ class CliffordAlgebra(Algebra):
         try:
             signature = quadratic_form.diagonalize()[1].diagonal()
             quadratic_form = quadratic_form.tolist()
-            quadratic_form = ' , '.join(' '.join(str(i) for i in row) for row in quadratic_form)
+            quadratic_form = " , ".join(
+                " ".join(str(i) for i in row) for row in quadratic_form
+            )
         except (MatrixError, NonSquareMatrixError) as e:
             raise e
         except Exception:
@@ -47,7 +52,7 @@ class CliffordAlgebra(Algebra):
                     "%i" % (i + 1) for i in range(len(signature))
                 )
             else:
-                grade_1_basis_names = ' '.join(grade_1_basis_names)
+                grade_1_basis_names = " ".join(grade_1_basis_names)
 
             # import ipdb; ipdb.set_trace()
             the_void = io.StringIO()
@@ -89,7 +94,7 @@ class CliffordAlgebra(Algebra):
     @meta_glsl()
     def dual(self, **kwargs) -> GLSL:
         result = self.algebraic_arguments(1) / self.Cl.I()
-        return self.algebraic_operation("dual", result, n=0, **kwargs)
+        return self.algebraic_operation("dual", result, n=1, **kwargs)
 
     @meta_glsl()
     def inner(self, **kwargs) -> GLSL:
@@ -168,8 +173,11 @@ class DualNumbers(CliffordAlgebra):
 class ConformalGeometricAlgebra(CliffordAlgebra):
     def __init__(self, dimension, name=None, quadratic_form=None, **opts):
         name = name if name else ("CGA%i" % dimension)
-        grade_1_basis_names = ["e%i" % (i+1) for i in range(dimension)] + ["nil", "inf"]
-
+        grade_1_basis_names = ["e%i" % (i + 1) for i in range(dimension)] + [
+            "nil",
+            "inf",
+        ]
+        build_basis_names
         quadratic_form = (
             diag(*dimension * [1], Matrix([[0, -1], [-1, 0]]))
             if not quadratic_form

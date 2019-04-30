@@ -14,7 +14,7 @@ class TestGlslBundler(snapshottest.TestCase):
         assert len(tuple(x.__name__ for x in self.struct.glsl_helpers())) == 0
 
     def test_glsl_snippets(self):
-        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition", "build_from_array", "export_to_array", )
+        assert tuple(x.__name__ for x in self.struct.glsl_snippets()) == ("definition", "build_from_array", "export_to_array", "zero_array")
 
     def test_compile_snippet_bundle(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers

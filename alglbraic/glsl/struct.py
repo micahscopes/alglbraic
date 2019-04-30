@@ -38,12 +38,12 @@ of size {len(self)}!"
         return Matrix(self.symbols_for(instance_name))
 
     @meta_glsl()
-    def definition(self, separator="; "):
+    def definition(self, separator=";\n    "):
         template = Template(
             """\
 struct $type_name {
     $members
-}\
+};\
 """
         )
         members = separator.join(self.member_declarations) + separator.strip()

@@ -38,7 +38,9 @@ class FiniteModule(GlslStruct, OperationsMixin):
             expr,
             array_constructor=self.type_name,
             glsl_types=False,
-            use_operators=use_operators or self.base_ring == 'float' or self.base_ring == 'int',
+            use_operators=use_operators
+            or self.base_ring == "float"
+            or self.base_ring == "int",
             zero=self.zero_fn + "()",
         )
 
@@ -88,28 +90,21 @@ class FiniteModule(GlslStruct, OperationsMixin):
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u - v, **kwargs)
 
-    @meta_glsl(depends_on=["scalar_float_mul"])
-    def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
-        return GLSL(
-            Template(
-                """\
-$type $fn(int a, $type x){
-    return mul(float(a), x);
-}"""
-            ).substitute(type=self.type_name, fn=function_name)
-        )
-
     @meta_glsl()
     def scalar_float_mul(self, function_name=mul_fn) -> GLSL:
-        return GLSL(
-            Template(
-                """\
+        return (
+            GLSL(
+                Template(
+                    """\
 $type $fn(float a, $type x){
     return mul(mul(a, $one_fn), x);
 }"""
-            ).substitute(
-                type=self.type_name, one_fn=str(self.base_one()), fn=function_name
+                ).substitute(
+                    type=self.type_name, one_fn=str(self.base_one()), fn=function_name
+                )
             )
+            if self.base_ring != "float" and self.base_ring != "int"
+            else ""
         )
 
     @meta_glsl(depends_on=["scalar_float_mul"])
@@ -122,4 +117,15 @@ $type $fn(float a, $type x){
         input_argnames = [self.A, self.X]
         return gl_map(
             function_name, input_types, input_argnames, self.type_name, self.gl(a * x)
+        )
+
+    @meta_glsl(depends_on=["scalar_base_mul"])
+    def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
+        return GLSL(
+            Template(
+                """\
+$type $fn(int a, $type x){
+    return mul(float(a), x);
+}"""
+            ).substitute(type=self.type_name, fn=function_name)
         )

@@ -8,15 +8,22 @@ from snapshottest import Snapshot
 snapshots = Snapshot()
 
 snapshots['TestCLI::test_complex_numbers 1'] = '''struct C {
-    float real; float imag;
-}
+    float real;
+    float imag;
+};
 
 C fromArray(float x[2]){
     return C(x[0], x[1]);
 }
 
-float[2] toArray(C x){
-    return float[2](x.real, x.imag);
+void toArray(C x, inout float x_ary[2]){
+    x_ary[0] = x.real;
+    x_ary[1] = x.imag;
+}
+
+void zero(inout float x[2]){
+    x[0] = 0.0;
+    x[1] = 0.0;
 }
 
 C add(C u, C v){
@@ -27,9 +34,7 @@ C one(){
     return C(1.0, 0.0);
 }
 
-C mul(float a, C x){
-    return mul(mul(a, 1.00000000000000), x);
-}
+
 
 C sub(C u, C v){
     return C(u.real - v.real, u.imag - v.imag);
@@ -43,12 +48,12 @@ C mul(float a, C x){
     return C(a*x.real, a*x.imag);
 }
 
-C mul(int a, C x){
-    return mul(float(a), x);
-}
-
 C mul(C u, C v){
     return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
+}
+
+C mul(int a, C x){
+    return mul(float(a), x);
 }
 
 C dual(){
@@ -90,15 +95,22 @@ C conjugate(C u){
 '''
 
 snapshots['TestCLI::test_dual_numbers 1'] = '''struct Dual {
-    float real; float nilpotent;
-}
+    float real;
+    float nilpotent;
+};
 
 Dual fromArray(float x[2]){
     return Dual(x[0], x[1]);
 }
 
-float[2] toArray(Dual x){
-    return float[2](x.real, x.nilpotent);
+void toArray(Dual x, inout float x_ary[2]){
+    x_ary[0] = x.real;
+    x_ary[1] = x.nilpotent;
+}
+
+void zero(inout float x[2]){
+    x[0] = 0.0;
+    x[1] = 0.0;
 }
 
 Dual add(Dual u, Dual v){
@@ -109,9 +121,7 @@ Dual one(){
     return Dual(1.0, 0.0);
 }
 
-Dual mul(float a, Dual x){
-    return mul(mul(a, 1.00000000000000), x);
-}
+
 
 Dual sub(Dual u, Dual v){
     return Dual(u.real - v.real, u.nilpotent - v.nilpotent);
@@ -125,12 +135,12 @@ Dual mul(float a, Dual x){
     return Dual(a*x.real, a*x.nilpotent);
 }
 
-Dual mul(int a, Dual x){
-    return mul(float(a), x);
-}
-
 Dual mul(Dual u, Dual v){
     return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
+}
+
+Dual mul(int a, Dual x){
+    return mul(float(a), x);
 }
 
 Dual dual(){
