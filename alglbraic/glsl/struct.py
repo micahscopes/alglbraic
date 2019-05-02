@@ -1,4 +1,4 @@
-from .base import GLSL, meta_glsl, GlslBundler
+from .base import glsl_snippet, GLSL, GlslBundler
 from sympy import symbols
 from sympy.matrices import Matrix
 from string import Template
@@ -49,7 +49,7 @@ of size {len(self)}!"
     def symbols_vector_for(self, instance_name="x"):
         return Matrix(self.symbols_for(instance_name))
 
-    @meta_glsl()
+    @GLSL
     def definition(self, separator=";\n    "):
         template = Template(
             """\
@@ -65,7 +65,7 @@ struct $type_name {
             for i in range(len(self))
         )
         members = separator.join(self.member_declarations) + separator.strip()
-        return GLSL(template.substitute(type_name=self.type_name, members=members, indices=indices))
+        return glsl_snippet(template.substitute(type_name=self.type_name, members=members, indices=indices))
 
 
 import click

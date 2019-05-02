@@ -1,10 +1,10 @@
 from string import Template
 from sympy.tensor import IndexedBase
-from alglbraic.glsl import meta_glsl
+from alglbraic.glsl import GLSL
 
 
 class BuildFromArray(object):
-    @meta_glsl(depends_on=["definition"])
+    @GLSL(depends_on=["definition"])
     def zero_array(self, name="zero", separator=";\n    "):
         if not self.uniform_member_type:
             raise TypeError(
@@ -33,7 +33,7 @@ void $fn_name(inout $base_type x[$size]){
             assignments=assignments,
         )
 
-    @meta_glsl(depends_on=["definition"])
+    @GLSL(depends_on=["definition"])
     def build_from_array(self, name="fromArray", separator=", "):
         if not self.uniform_member_type:
             raise TypeError(
@@ -58,7 +58,7 @@ $type_name $fn_name($base_type x[$size]){
             size=len(self),
         )
 
-    @meta_glsl(depends_on=["definition"])
+    @GLSL(depends_on=["definition"])
     def export_to_array(self, name="toArray", separator=";\n    "):
         if not self.uniform_member_type:
             raise TypeError(
@@ -92,7 +92,7 @@ from .struct import GlslBundler
 
 def struct_injections(struct, members, inject_fn_name="inject", separator=";\n    "):
     class Injections(GlslBundler):
-        @meta_glsl()
+        @GLSL
         def into_array_from_subarray(self, separator=";\n    "):
             from sympy.tensor import IndexedBase
 
@@ -126,7 +126,7 @@ void ${fn_name}Array(inout $base_type u[$struct_size], $base_type v[$injection_s
                 member_names=', '.join(members)
             )
 
-        @meta_glsl()
+        @GLSL
         def into_struct_from_subarray(self):
             template = Template(
                 """\

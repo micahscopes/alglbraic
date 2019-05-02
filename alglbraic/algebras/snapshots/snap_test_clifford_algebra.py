@@ -89,6 +89,14 @@ CGA2 add(CGA2 u, CGA2 v){
     return CGA2(u.scalar + v.scalar, u.e1 + v.e1, u.e2 + v.e2, u.enil + v.enil, u.einf + v.einf, u.e12 + v.e12, u.e1nil + v.e1nil, u.e1inf + v.e1inf, u.e2nil + v.e2nil, u.e2inf + v.e2inf, u.enilinf + v.enilinf, u.e12nil + v.e12nil, u.e12inf + v.e12inf, u.e1nilinf + v.e1nilinf, u.e2nilinf + v.e2nilinf, u.e12nilinf + v.e12nilinf);
 }
 
+CGA2 add(CGA2 u, CGA2 v, CGA2 w){
+    return add(add(u, v), w);
+}
+
+CGA2 add(CGA2 u, CGA2 v, CGA2 w, CGA2 p){
+    return add(add(add(u, v), w), p);
+}
+
 CGA2 one(){
     return CGA2(1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
@@ -113,6 +121,10 @@ CGA2 mul(CGA2 u, CGA2 v){
 
 CGA2 mul(int a, CGA2 x){
     return mul(float(a), x);
+}
+
+CGA2 mul(CGA2 u, CGA2 v, CGA2 w){
+    return mul(mul(u, v), w);
 }
 
 CGA2 dual(CGA2 u){
@@ -149,6 +161,10 @@ CGA2 reverse(CGA2 u){
 
 CGA2 conjugate(CGA2 u){
     return reverse(involve(u));
+}
+
+CGA2 outer(CGA2 u, CGA2 v, CGA2 w){
+    return outer(outer(u, v), w);
 }
 '''
 
@@ -190,6 +206,14 @@ ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v){
     return ComplexCl1_1(add(u.ONE, v.ONE), add(u.e1, v.e1), add(u.e2, v.e2), add(u.e12, v.e12));
 }
 
+ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
+    return add(add(u, v), w);
+}
+
+ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w, ComplexCl1_1 p){
+    return add(add(add(u, v), w), p);
+}
+
 ComplexCl1_1 one(){
     return ComplexCl1_1(one(), zero(), zero(), zero());
 }
@@ -216,6 +240,10 @@ ComplexCl1_1 mul(ComplexCl1_1 u, ComplexCl1_1 v){
 
 ComplexCl1_1 mul(int a, ComplexCl1_1 x){
     return mul(float(a), x);
+}
+
+ComplexCl1_1 mul(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
+    return mul(mul(u, v), w);
 }
 
 ComplexCl1_1 dual(ComplexCl1_1 u){
@@ -252,6 +280,10 @@ ComplexCl1_1 reverse(ComplexCl1_1 u){
 
 ComplexCl1_1 conjugate(ComplexCl1_1 u){
     return reverse(involve(u));
+}
+
+ComplexCl1_1 outer(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
+    return outer(outer(u, v), w);
 }
 '''
 

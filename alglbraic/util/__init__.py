@@ -37,7 +37,7 @@ class Callable(object):
 
         bound = partial(self.__func__, instance)
         bound = update_wrapper(bound, self)
-        setattr(bound, 'meta_glsl', self.meta_glsl)
+        setattr(bound, 'GLSL', self.GLSL)
         return bound
 
 

@@ -1,10 +1,11 @@
 from alglbraic.finite_module import FiniteModule
-from alglbraic import GLSL
-from alglbraic.glsl import meta_glsl
+from alglbraic import glsl_snippet
+from alglbraic.glsl import GLSL
 
 
 class Algebra(FiniteModule):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, associative=True, **kwargs):
+        self.associative = associative
         FiniteModule.__init__(self, *args, **kwargs)
         self.__init_algebra__(*args, **kwargs)
 
@@ -31,15 +32,25 @@ class Algebra(FiniteModule):
         else:
             return args[0]
 
-    def algebraic_operation(self, name, result, n=2, use_operators=False) -> GLSL:
+    def algebraic_operation(self, name, result, n=2, use_operators=False):
         if not isinstance(result, str):
             result = self._coefficients_from_algebraic_element(result)
         return self.n_ary_operation(n, name, result, use_operators=use_operators)
 
-    @meta_glsl(depends_on=['definition'])
-    def algebraic_product(self, name=None, fn=None, use_operators=False) -> GLSL:
+    @GLSL(depends_on=['definition'])
+    def algebraic_product(self, name=None, fn=None, use_operators=False):
         name = name if name else self.mul_fn
         fn = fn if fn else lambda u, v: u * v
         u, v = self.algebraic_arguments(2)
         result = self._coefficients_from_algebraic_element(fn(u, v))
         return self.binary_operation(name, result, use_operators=use_operators)
+
+    @GLSL(depends_on=[algebraic_product])
+    def algebraic_product_3(self, name=None, **kwargs):
+        if not self.associative:
+            return None
+        name = name if name else self.mul_fn
+        p, q, r = self.n_ary_argnames(3)
+        result = '%s(%s(%s, %s), %s)' % (name, name, p, q, r)
+        return self.algebraic_operation(name, result, n=3, **kwargs)
+

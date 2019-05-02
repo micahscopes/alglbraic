@@ -1,7 +1,7 @@
 from alglbraic.algebra import Algebra
 from galgebra.ga import Ga
-from alglbraic import GLSL
-from alglbraic.glsl import meta_glsl
+from alglbraic import glsl_snippet
+from alglbraic.glsl import GLSL
 from sympy.matrices.matrices import MatrixError, NonSquareMatrixError
 from sympy import diag, Matrix
 from functools import reduce
@@ -86,53 +86,59 @@ class CliffordAlgebra(Algebra):
         else:
             return element.blade_coefs()
 
-    @meta_glsl()
-    def pseudoscalar(self, **kwargs) -> GLSL:
+    @GLSL
+    def pseudoscalar(self, **kwargs):
         result = self.Cl.I()
         return self.algebraic_operation("I", result, n=0, **kwargs)
 
-    @meta_glsl()
-    def dual(self, **kwargs) -> GLSL:
+    @GLSL
+    def dual(self, **kwargs):
         result = self.algebraic_arguments(1) / self.Cl.I()
         return self.algebraic_operation("dual", result, n=1, **kwargs)
 
-    @meta_glsl()
-    def inner(self, **kwargs) -> GLSL:
+    @GLSL
+    def inner(self, **kwargs):
         u, v = self.algebraic_arguments(2)
         result = u | v
         return self.algebraic_operation("inner", result, n=2, **kwargs)
 
-    @meta_glsl()
-    def outer(self, **kwargs) -> GLSL:
+    @GLSL
+    def outer(self, **kwargs):
         u, v = self.algebraic_arguments(2)
         result = u ^ v
         return self.algebraic_operation("outer", result, n=2, **kwargs)
 
-    @meta_glsl()
-    def lcontract(self, **kwargs) -> GLSL:
+    @GLSL(depends_on=[outer])
+    def outer_3(self, **kwargs):
+        p, q, r = self.n_ary_argnames(3)
+        result = 'outer(outer(%s, %s), %s)' % (p, q, r)
+        return self.algebraic_operation("outer", result, n=3, **kwargs)
+
+    @GLSL
+    def lcontract(self, **kwargs):
         u, v = self.algebraic_arguments(2)
         result = u < v
         return self.algebraic_operation("lcontract", result, n=2, **kwargs)
 
-    @meta_glsl()
-    def rcontract(self, **kwargs) -> GLSL:
+    @GLSL
+    def rcontract(self, **kwargs):
         u, v = self.algebraic_arguments(2)
         result = u > v
         return self.algebraic_operation("rcontract", result, n=2, **kwargs)
 
-    @meta_glsl()
-    def reverse(self, **kwargs) -> GLSL:
+    @GLSL
+    def reverse(self, **kwargs):
         result = self.algebraic_arguments(1).rev()
         return self.algebraic_operation("reverse", result, n=1, **kwargs)
 
-    @meta_glsl()
-    def grade_involution(self, **kwargs) -> GLSL:
+    @GLSL
+    def grade_involution(self, **kwargs):
         x = self.algebraic_arguments(1)
         result = x.even() - x.odd()
         return self.algebraic_operation("involve", result, n=1, **kwargs)
 
-    @meta_glsl(depends_on=[reverse, grade_involution])
-    def conjugation(self, **kwargs) -> GLSL:
+    @GLSL(depends_on=[reverse, grade_involution])
+    def conjugation(self, **kwargs):
         result = "reverse(involve(u))"
         return self.algebraic_operation("conjugate", result, n=1, **kwargs)
 
@@ -164,8 +170,8 @@ class DualNumbers(CliffordAlgebra):
         opts.update(kwargs)
         CliffordAlgebra.__init__(self, **opts)
 
-    @meta_glsl()
-    def pseudoscalar(self, **kwargs) -> GLSL:
+    @GLSL
+    def pseudoscalar(self, **kwargs):
         result = self._grade_1_basis[0]
         return self.algebraic_operation("I", result, n=0, **kwargs)
 

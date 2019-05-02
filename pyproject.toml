@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "alglbraic"
 version = "0.1.4"
-description = "Tools for doing algebra in GLSL"
+description = "Tools for doing algebra in glsl_snippet"
 authors = ["Micah Fitch <micahscopes@gmail.com>"]
 license = "MIT"
 

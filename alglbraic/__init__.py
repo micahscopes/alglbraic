@@ -1,1 +1,1 @@
-from alglbraic.glsl import GLSL
+from alglbraic.glsl import glsl_snippet

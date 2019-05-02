@@ -7,7 +7,7 @@ import inspect
 class GlslBaseType(object):
     pass
 
-class GLSL(MetaString):
+class glsl_snippet(MetaString):
     depends_on: list = []
     glsl_type = GlslBaseType
     pass
@@ -43,14 +43,14 @@ class GlslBundler(GlslBaseType):
             Parameters
             ----------
             glsl_nodes :
-                A set of functions, each of which has a `GLSL` return type containing
+                A set of functions, each of which has a `glsl_snippet` return type containing
                 a `depends_on` attribute defining its dependencies.
         """
         from toposort import toposort
 
         def get_deps(node):
             try:
-                return get_meta_glsl(node).depends_on + [get_meta_glsl(node).glsl_type]
+                return glsl_meta(node).depends_on + [glsl_meta(node).glsl_type]
             except AttributeError:
                 return node.mro()
 
@@ -59,12 +59,12 @@ class GlslBundler(GlslBaseType):
                 return str(len(node.mro()))
             except AttributeError:
                 return (
-                    str(len(get_meta_glsl(node).glsl_type.mro()))
+                    str(len(glsl_meta(node).glsl_type.mro()))
                     + "."
                     + str.lower(node.__name__)
                 )
 
-        glsl_types = set(sum([get_meta_glsl(n).glsl_type.mro() for n in glsl_nodes], []))
+        glsl_types = set(sum([glsl_meta(n).glsl_type.mro() for n in glsl_nodes], []))
 
         def fn_name(str_or_fn) -> str:
             try:
@@ -88,15 +88,15 @@ class GlslBundler(GlslBaseType):
         return graph_sorted_flattened
 
 
-def meta_glsl(*args, **kwargs):
+def GLSL(*args, **kwargs):
     from alglbraic.util import Callable
 
     def meta_glsl_decorator(func):
         sig = inspect.signature(func)
-        MetaGLSL_type = GLSL(*args, **kwargs)
+        MetaGLSL_type = glsl_snippet(*args, **kwargs)
         MetaGLSL_type.special = False
 
-        if issubclass(sig.return_annotation, GLSL):
+        if issubclass(sig.return_annotation, glsl_snippet):
             MetaGLSL_type = sig.return_annotation(*args, special=True, **kwargs)
 
         def wrapper(*gl_args, **gl_kwargs) -> MetaGLSL_type:
@@ -104,7 +104,7 @@ def meta_glsl(*args, **kwargs):
 
         class MetaCallable(Callable):
             def __init__(self, *args, **kwargs):
-                self.meta_glsl = MetaGLSL_type
+                self.GLSL = MetaGLSL_type
                 super().__init__(*args, **kwargs)
 
             def __set_name__(self, cls, name):
@@ -116,20 +116,24 @@ def meta_glsl(*args, **kwargs):
 
         return wrapper
 
-    return meta_glsl_decorator
-
-
-def get_meta_glsl(func):
     try:
-        meta_glsl = signature(func).return_annotation
-        if issubclass(meta_glsl, GLSL):
-            return meta_glsl
+        if callable(args[0]):
+            return GLSL(**kwargs)(args[0])
+    except IndexError:
+        return meta_glsl_decorator
+
+
+def glsl_meta(func):
+    try:
+        GLSL = signature(func).return_annotation
+        if issubclass(GLSL, glsl_snippet):
+            return GLSL
     except (TypeError, ValueError):
         return None
 
 
 def is_glsl_method(func):
-    return get_meta_glsl(func) is not None
+    return glsl_meta(func) is not None
 
 
 def is_glsl_helper(func):

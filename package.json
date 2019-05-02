@@ -1,7 +1,7 @@
 {
   "name": "alglbraic",
   "version": "0.1.0",
-  "description": "Tools for doing algebra with GLSL.",
+  "description": "Tools for doing algebra with glsl_snippet.",
   "main": "index.js",
   "directories": {
     "test": "tests"

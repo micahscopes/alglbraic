@@ -1,7 +1,7 @@
 import snapshottest
 
-from alglbraic.glsl import GlslBundler, GlslStruct, get_meta_glsl, meta_glsl
-from alglbraic.glsl import GLSL
+from alglbraic.glsl import GlslBundler, GlslStruct, glsl_meta, GLSL
+from alglbraic.glsl import glsl_snippet
 
 
 class TestGlslBundler(snapshottest.TestCase):
@@ -27,27 +27,27 @@ class TestMetaGlsl(snapshottest.TestCase):
     def test_get_meta(self):
         misc_info = "Did you know that some sharks have belly buttons?"
 
-        def glsl_snippet() -> GLSL(depends_on=["someFunction"], misc_info=misc_info):
-            return GLSL("float x = someFunction(1);")
+        def glsl_snippet_maker() -> glsl_snippet(depends_on=["someFunction"], misc_info=misc_info):
+            return glsl_snippet("float x = someFunction(1);")
 
-        assert get_meta_glsl(glsl_snippet).misc_info == misc_info
+        assert glsl_meta(glsl_snippet_maker).misc_info == misc_info
 
     def test_meta_glsl_decorator(self):
-        @meta_glsl(info="wow")
+        @GLSL(info="wow")
         def a():
             return "a"
 
-        assert get_meta_glsl(a).info == "wow"
-        assert a.meta_glsl.info == "wow"
+        assert glsl_meta(a).info == "wow"
+        assert a.GLSL.info == "wow"
 
     def test_layered_meta_glsl(self):
-        @meta_glsl()
-        @meta_glsl(info="woah")
+        @GLSL
+        @GLSL(info="woah")
         def b():
             return "b"
 
-        assert get_meta_glsl(b).info == "woah"
-        assert b.meta_glsl.info == "woah"
+        assert glsl_meta(b).info == "woah"
+        assert b.GLSL.info == "woah"
 
 
 class TestGlslDependencyGraph(snapshottest.TestCase):
@@ -62,19 +62,19 @@ class TestGlslDependencyGraph(snapshottest.TestCase):
             assert snippets == snippets2
 
     def test_sort_dependencies(self):
-        def a() -> GLSL(depends_on=[]):
+        def a() -> glsl_snippet(depends_on=[]):
             return "a"
 
-        def c() -> GLSL(depends_on=[a]):
+        def c() -> glsl_snippet(depends_on=[a]):
             return "c"
 
-        def b() -> GLSL(depends_on=[c]):
+        def b() -> glsl_snippet(depends_on=[c]):
             return "b"
 
-        def y() -> GLSL(depends_on=[c, b, a]):
+        def y() -> glsl_snippet(depends_on=[c, b, a]):
             return "y"
 
-        def z() -> GLSL(depends_on=[y]):
+        def z() -> glsl_snippet(depends_on=[y]):
             return "z"
 
         sorted_glsl_methods = [a, c, b, y, z]

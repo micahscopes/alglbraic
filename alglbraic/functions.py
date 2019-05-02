@@ -1,6 +1,6 @@
 from string import Template
 from sympy import glsl_code
-from . import GLSL
+from . import glsl_snippet
 
 fn = Template(
     """\
@@ -13,7 +13,7 @@ $return_type $function_name($inputs){
 
 def map(
     function_name, input_types, input_argnames, return_type, return_value, **kwargs
-) -> GLSL:
+):
     inputs = ", ".join(
         " ".join(type_name) for type_name in zip(input_types, input_argnames)
     )
@@ -30,10 +30,10 @@ def map(
         }
     )
 
-    return GLSL(gl)
+    return glsl_snippet(gl)
 
 
-def operator(function_name, *args, **kwargs) -> GLSL:
+def operator(function_name, *args, **kwargs):
     try:
         input_types, input_argnames = zip(*[i.split() for i in args[:-1]])
     except ValueError:
@@ -43,7 +43,7 @@ def operator(function_name, *args, **kwargs) -> GLSL:
 
     # print(input_types, input_argnames, return_type, return_value)
 
-    return GLSL(
+    return glsl_snippet(
         map(
             function_name,
             input_types,
@@ -55,7 +55,7 @@ def operator(function_name, *args, **kwargs) -> GLSL:
     )
 
 
-def constant(function_name, return_value, **kwargs) -> GLSL:
+def constant(function_name, return_value, **kwargs):
     return operator(function_name, return_value, **kwargs)
 
 
@@ -76,7 +76,7 @@ class OperationsMixin(object):
     def n_ary_argnames(self, n=2):
         return (self.UVW + self.PQRST + self.LMN + self.XYZ)[:n]
 
-    def n_ary_operation(self, n, function_name, result, use_operators=False) -> GLSL:
+    def n_ary_operation(self, n, function_name, result, use_operators=False):
         input_types = [self.type_name] * n
         input_argnames = [str(x) for x in self.n_ary_argnames(n)]
         return map(
@@ -87,14 +87,14 @@ class OperationsMixin(object):
             self.gl(result, use_operators=use_operators) if not isinstance(result, str) else result,
         )
 
-    def unary_operation(self, function_name, result, **kwargs) -> GLSL:
+    def unary_operation(self, function_name, result, **kwargs):
         return self.n_ary_operation(1, function_name, result, **kwargs)
 
-    def binary_operation(self, function_name, result, **kwargs) -> GLSL:
+    def binary_operation(self, function_name, result, **kwargs):
         return self.n_ary_operation(2, function_name, result, **kwargs)
 
-    def ternary_operation(self, function_name, result, **kwargs) -> GLSL:
+    def ternary_operation(self, function_name, result, **kwargs):
         return self.n_ary_operation(3, function_name, result, **kwargs)
 
-    def quaternary_operation(self, function_name, result, **kwargs) -> GLSL:
+    def quaternary_operation(self, function_name, result, **kwargs):
         return self.n_ary_operation(4, function_name, result, **kwargs)

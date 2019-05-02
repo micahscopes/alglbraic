@@ -33,6 +33,14 @@ C add(C u, C v){
     return C(u.real + v.real, u.imag + v.imag);
 }
 
+C add(C u, C v, C w){
+    return add(add(u, v), w);
+}
+
+C add(C u, C v, C w, C p){
+    return add(add(add(u, v), w), p);
+}
+
 C one(){
     return C(1.0, 0.0);
 }
@@ -57,6 +65,10 @@ C mul(C u, C v){
 
 C mul(int a, C x){
     return mul(float(a), x);
+}
+
+C mul(C u, C v, C w){
+    return mul(mul(u, v), w);
 }
 
 C dual(C u){
@@ -95,6 +107,10 @@ C conjugate(C u){
     return reverse(involve(u));
 }
 
+C outer(C u, C v, C w){
+    return outer(outer(u, v), w);
+}
+
 '''
 
 snapshots['TestCLI::test_dual_numbers 1'] = '''const int I_Dual_real = 0;
@@ -123,6 +139,14 @@ Dual add(Dual u, Dual v){
     return Dual(u.real + v.real, u.nilpotent + v.nilpotent);
 }
 
+Dual add(Dual u, Dual v, Dual w){
+    return add(add(u, v), w);
+}
+
+Dual add(Dual u, Dual v, Dual w, Dual p){
+    return add(add(add(u, v), w), p);
+}
+
 Dual one(){
     return Dual(1.0, 0.0);
 }
@@ -147,6 +171,10 @@ Dual mul(Dual u, Dual v){
 
 Dual mul(int a, Dual x){
     return mul(float(a), x);
+}
+
+Dual mul(Dual u, Dual v, Dual w){
+    return mul(mul(u, v), w);
 }
 
 Dual dual(Dual u){
@@ -183,6 +211,10 @@ Dual I(){
 
 Dual conjugate(Dual u){
     return reverse(involve(u));
+}
+
+Dual outer(Dual u, Dual v, Dual w){
+    return outer(outer(u, v), w);
 }
 
 '''

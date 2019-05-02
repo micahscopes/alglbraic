@@ -33,6 +33,14 @@ C add(C u, C v){
     return C(u.real + v.real, u.imag + v.imag);
 }
 
+C add(C u, C v, C w){
+    return add(add(u, v), w);
+}
+
+C add(C u, C v, C w, C p){
+    return add(add(add(u, v), w), p);
+}
+
 C one(){
     return C(1.0, 0.0);
 }
@@ -57,6 +65,10 @@ C mul(C u, C v){
 
 C mul(int a, C x){
     return mul(float(a), x);
+}
+
+C mul(C u, C v, C w){
+    return mul(mul(u, v), w);
 }
 
 C dual(C u){
@@ -93,5 +105,9 @@ C reverse(C u){
 
 C conjugate(C u){
     return reverse(involve(u));
+}
+
+C outer(C u, C v, C w){
+    return outer(outer(u, v), w);
 }
 '''

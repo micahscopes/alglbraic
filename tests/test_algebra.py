@@ -11,6 +11,8 @@ class TestGlslTypes(snapshottest.TestCase):
         expected_helpers = set(
             [
                 "add",
+                "add_3",
+                "add_4",
                 "algebraic_operation",
                 "binary_operation",
                 "n_ary_operation",
@@ -36,11 +38,14 @@ class TestGlslTypes(snapshottest.TestCase):
             "build_from_array",
             "export_to_array",
             "algebraic_product",
+            "algebraic_product_3",
             "scalar_float_mul",
             "sub",
             "one",
             "scalar_base_mul",
             "add",
+            "add_3",
+            "add_4",
             "scalar_int_mul",
             "zero",
             "zero_array"

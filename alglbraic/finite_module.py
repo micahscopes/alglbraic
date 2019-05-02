@@ -1,12 +1,12 @@
 from sympy import Symbol, symbols, glsl_code, sympify
 from string import Template
-from alglbraic.glsl import GlslStruct, meta_glsl
-from alglbraic import GLSL
+from alglbraic.glsl import GlslStruct, GLSL
+from alglbraic import glsl_snippet
 from alglbraic.functions import constant, map as gl_map, OperationsMixin
 
 
 class FiniteModule(GlslStruct, OperationsMixin):
-    """A GLSL helper class for a finite module over some ring.
+    """A glsl_snippet helper class for a finite module over some ring.
     """
 
     zero_fn = "zero"
@@ -24,7 +24,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
         base_ring -- the type name of this module's base ring
         *basis -- names of basis members
         unit -- the name of the unit member (default None)
-        use_operators -- whether or not to generate GLSL using operators (default False)
+        use_operators -- whether or not to generate glsl_snippet using operators (default False)
         """
 
         basis_declarations = [base_ring + " " + b for b in basis]
@@ -63,8 +63,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
         else:
             return Symbol(self.one_fn + "()")
 
-    @meta_glsl()
-    def zero(self, function_name=zero_fn, **kwargs) -> GLSL:
+    @GLSL
+    def zero(self, function_name=zero_fn, **kwargs):
         module_zero = self.gl(self.zero_symbols())
         return constant(function_name, (self.type_name, module_zero), **kwargs)
 
@@ -75,25 +75,45 @@ class FiniteModule(GlslStruct, OperationsMixin):
         one[self.basis.index(self.unit)] = self.base_one()
         return one
 
-    @meta_glsl()
-    def one(self, function_name=one_fn, **kwargs) -> GLSL:
+    @GLSL
+    def one(self, function_name=one_fn, **kwargs):
         one = self.gl(self.one_symbols())
         return constant(function_name, (self.type_name, one), **kwargs)
 
-    @meta_glsl()
-    def add(self, function_name=add_fn, **kwargs) -> GLSL:
+    @GLSL
+    def add(self, function_name=add_fn, **kwargs):
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u + v, **kwargs)
 
-    @meta_glsl()
-    def sub(self, function_name=sub_fn, **kwargs) -> GLSL:
+    @GLSL
+    def add_3(self, function_name=add_fn, **kwargs):
+        u, v, w = self.n_ary_argnames(3)
+        result = "%s(%s(%s, %s), %s)" % (function_name, function_name, u, v, w)
+        return self.ternary_operation(function_name, result, **kwargs)
+
+    @GLSL
+    def add_4(self, function_name=add_fn, **kwargs):
+        u, v, w, x = self.n_ary_argnames(4)
+        result = "%s(%s(%s(%s, %s), %s), %s)" % (
+            function_name,
+            function_name,
+            function_name,
+            u,
+            v,
+            w,
+            x,
+        )
+        return self.quaternary_operation(function_name, result, **kwargs)
+
+    @GLSL
+    def sub(self, function_name=sub_fn, **kwargs):
         u, v = self.symbolic_arguments(2)
         return self.binary_operation(function_name, u - v, **kwargs)
 
-    @meta_glsl()
-    def scalar_float_mul(self, function_name=mul_fn) -> GLSL:
+    @GLSL
+    def scalar_float_mul(self, function_name=mul_fn):
         return (
-            GLSL(
+            glsl_snippet(
                 Template(
                     """\
 $type $fn(float a, $type x){
@@ -107,7 +127,7 @@ $type $fn(float a, $type x){
             else ""
         )
 
-    @meta_glsl(depends_on=["scalar_float_mul"])
+    @GLSL(depends_on=["scalar_float_mul"])
     def scalar_base_mul(self, function_name=mul_fn):
         type_name = self.type_name
         base_ring = self.base_ring
@@ -119,9 +139,9 @@ $type $fn(float a, $type x){
             function_name, input_types, input_argnames, self.type_name, self.gl(a * x)
         )
 
-    @meta_glsl(depends_on=["scalar_base_mul"])
-    def scalar_int_mul(self, function_name=mul_fn, **kwargs) -> GLSL:
-        return GLSL(
+    @GLSL(depends_on=["scalar_base_mul"])
+    def scalar_int_mul(self, function_name=mul_fn, **kwargs):
+        return glsl_snippet(
             Template(
                 """\
 $type $fn(int a, $type x){
