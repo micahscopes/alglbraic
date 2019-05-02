@@ -3,6 +3,7 @@ from string import Template
 from alglbraic.glsl import GlslStruct, GLSL
 from alglbraic import glsl_snippet
 from alglbraic.functions import constant, map as gl_map, OperationsMixin
+from collections.abc import Iterable
 
 
 class FiniteModule(GlslStruct, OperationsMixin):
@@ -34,6 +35,12 @@ class FiniteModule(GlslStruct, OperationsMixin):
         self.unit = unit
 
     def gl(self, expr, use_operators=False):
+        def to_float(x): return sympify(x).evalf() if x != 0 else 0.0
+        if self.base_ring == 'float':
+            if isinstance(expr, Iterable):
+                expr = [to_float(co) for co in expr]
+            else:
+                expr = to_float(expr)
         return glsl_code(
             expr,
             array_constructor=self.type_name,
