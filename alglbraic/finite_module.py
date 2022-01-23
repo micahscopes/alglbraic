@@ -1,6 +1,6 @@
 from sympy import Symbol, symbols, glsl_code, sympify
 from string import Template
-from alglbraic.glsl import GlslStruct, GLSL
+from alglbraic.glsl import GlslStruct, GLSL, StructElement
 from alglbraic import glsl_snippet
 from alglbraic.functions import constant, map as gl_map, OperationsMixin
 from collections.abc import Iterable
@@ -34,16 +34,21 @@ class FiniteModule(GlslStruct, OperationsMixin):
         self.basis = basis
         self.unit = unit
 
-    def gl(self, expr, use_operators=False):
-        def to_float(x): return sympify(x).evalf() if x != 0 else 0.0
-        if self.base_ring == 'float':
+    def gl(self, expr, use_operators=False, element_type=None):
+        def to_float(x):
+            return sympify(x).evalf() if x != 0 else 0.0
+
+        if self.base_ring == "float":
             if isinstance(expr, Iterable):
                 expr = [to_float(co) for co in expr]
             else:
                 expr = to_float(expr)
+
+        element_type = element_type if element_type else self.type_name
+
+        # import ipdb;ipdb.set_trace()
         return glsl_code(
-            expr,
-            array_constructor=self.type_name,
+            StructElement(element_type, expr),
             glsl_types=False,
             use_operators=use_operators
             or self.base_ring == "float"

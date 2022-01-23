@@ -35,7 +35,7 @@ Cl_1_1 inject(Cl_1_1 u, float v[2]){
     return fromArray(u_ary);
 }'''
 
-snapshots['TestGlslStruct::test_array_constructor 1'] = '''Cl_1_1 fromArray(float x[4]){
+snapshots['TestGlslStruct::test_element_type 1'] = '''Cl_1_1 fromArray(float x[4]){
     return Cl_1_1(x[0], x[1], x[2], x[3]);
 }'''
 

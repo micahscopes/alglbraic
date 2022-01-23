@@ -3,7 +3,7 @@ from galgebra.ga import Ga
 from alglbraic import glsl_snippet
 from alglbraic.glsl import GLSL
 from sympy.matrices.matrices import MatrixError, NonSquareMatrixError
-from sympy import diag, Matrix
+from sympy import diag, eye, Matrix
 from functools import reduce
 
 
@@ -71,7 +71,7 @@ class CliffordAlgebra(Algebra):
         return self.Cl.mv(
             reduce(
                 lambda u, v: u + v,
-                [a * x for a, x in zip(coefficients, self.Cl.blades_lst0)],
+                [a * x for a, x in zip(coefficients, self.Cl._all_blades_lst)],
                 0,
             )
         )
@@ -85,6 +85,11 @@ class CliffordAlgebra(Algebra):
             ]
         else:
             return element.blade_coefs()
+
+    def algebraic_element(self, base_symbol):
+        return self._algebraic_element_from_coefficients(
+            self.symbols_vector_for(base_symbol)
+        )
 
     @GLSL
     def pseudoscalar(self, **kwargs):
@@ -111,7 +116,7 @@ class CliffordAlgebra(Algebra):
     @GLSL(depends_on=[outer])
     def outer_3(self, **kwargs):
         p, q, r = self.n_ary_argnames(3)
-        result = 'outer(outer(%s, %s), %s)' % (p, q, r)
+        result = "outer(outer(%s, %s), %s)" % (p, q, r)
         return self.algebraic_operation("outer", result, n=3, **kwargs)
 
     @GLSL
@@ -141,7 +146,6 @@ class CliffordAlgebra(Algebra):
     def conjugation(self, **kwargs):
         result = "reverse(involve(u))"
         return self.algebraic_operation("conjugate", result, n=1, **kwargs)
-
 
 class ComplexNumbers(CliffordAlgebra):
     def __init__(self, name="C", base_ring="float", unit="real", **kwargs):
@@ -185,7 +189,7 @@ class ConformalGeometricAlgebra(CliffordAlgebra):
         ]
         build_basis_names
         quadratic_form = (
-            diag(*dimension * [1], Matrix([[0, -1], [-1, 0]]))
+            diag(eye(dimension), Matrix([[0, 1], [1, 0]]))
             if not quadratic_form
             else quadratic_form
         )

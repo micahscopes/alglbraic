@@ -1,16 +1,28 @@
 from .base import glsl_snippet, GLSL, GlslBundler
-from sympy import symbols
+from sympy import symbols, Basic
 from sympy.matrices import Matrix
 from string import Template
 from . import array_tools
+import re
 from alglbraic.util import with_outfile
 
 def RepresentsInt(s):
-    try: 
+    try:
         int(s)
         return True
     except ValueError:
         return False
+
+
+class StructElement(Basic):
+    # this is really a hack because the GLSL code printer in Sympy
+    def __init__(self, struct, expr):
+        self.struct = struct
+        self.expr = expr
+
+    def _glsl(self, printer):
+        result = printer._print(self.expr)
+        return re.sub(r"([^\(]*)(\(.*)", r"{}\2".format(self.struct), result, flags=re.S)
 
 class GlslStruct(GlslBundler, array_tools.BuildFromArray):
     def __init__(self, type_name, *member_declarations):

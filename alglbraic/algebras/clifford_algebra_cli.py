@@ -33,18 +33,6 @@ def commands():
     pass
 
 
-@commands.command()
-@click.argument("name")
-@click.argument("quadratic_form", type=INTLIST)
-@click.option("--base", "base_ring")
-@click.option("--basis_names", "basis_names", type=STRLIST)
-@click.option("--unit", "unit")
-def clifford_algebra(ctx, **kwargs):
-    kwargs = {k: v for (k, v) in kwargs.items() if v is not None}
-    alg = ctx.obj["latest_struct"] = CliffordAlgebra(**kwargs)
-    return alg.bundle()
-
-
 def simple_cli_options(function):
     import click
 
@@ -53,6 +41,16 @@ def simple_cli_options(function):
     function = click.option("--basis_names", "basis_names", type=STRLIST)(function)
     function = click.option("--name", "name")(function)
     return function
+
+@commands.command()
+@click.argument("name")
+@click.argument("quadratic_form", type=INTLIST)
+@simple_cli_options
+def clifford_algebra(ctx, **kwargs):
+    kwargs = {k: v for (k, v) in kwargs.items() if v is not None}
+    alg = ctx.obj["latest_struct"] = CliffordAlgebra(**kwargs)
+    ctx.obj["results"][alg.type_name] = alg
+    return alg.bundle()
 
 
 @commands.command()

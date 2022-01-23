@@ -26,7 +26,7 @@ class TestGlslStruct(snapshottest.TestCase):
         nonuniform_struct = GlslStruct("NonuniformStruct", "int x", "float y")
         assert not nonuniform_struct.uniform_member_type
 
-    def test_array_constructor(self):
+    def test_element_type(self):
         self.assert_match_snapshot(
             str(self.struct.build_from_array())
         )

@@ -4,6 +4,7 @@ from sympy import glsl_code
 from sympy.abc import *
 
 from alglbraic.functions import operator
+from alglbraic.glsl import StructElement
 
 
 class TestOperator(snapshottest.TestCase):
@@ -32,7 +33,7 @@ class TestOperator(snapshottest.TestCase):
         n, m = 5, 5
         x = Matrix([[Symbol("x.i%ij%i" % (i, j)) for j in range(m)] for i in range(n)])
         y = Matrix([[Symbol("y.i%ij%i" % (i, j)) for j in range(m)] for i in range(n)])
-        result = glsl_code(x * y, array_constructor="mat5x5")
+        result = glsl_code(StructElement("mat5x5", x * y))
 
         op = operator("mul", "mat5x5 x", "mat5x5 y", ("mat5x5", result))
 

@@ -59,8 +59,8 @@ class TestFiniteModule(snapshottest.TestCase):
         (Cl,_e1,_e2) = Ga.build('e1 e2', g=[1,1])
 
         u_co, v_co = module.symbolic_arguments(2)
-        u = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(u_co, Cl.blades_lst0)],0))
-        v = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(v_co, Cl.blades_lst0)],0))
+        u = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(u_co, Cl._all_blades_lst)],0))
+        v = Cl.mv(reduce(lambda u,v: u+v, [a*x for a,x in zip(v_co, Cl._all_blades_lst)],0))
 
         result = (u*v).blade_coefs()
 
