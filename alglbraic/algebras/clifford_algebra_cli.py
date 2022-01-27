@@ -64,6 +64,7 @@ def complex_numbers(ctx, **opts):
 
 @commands.command()
 @simple_cli_options
+@click.option("--size", "size", type=int)
 def dual_numbers(ctx, **opts):
     opts = {k: v for (k, v) in opts.items() if v is not None}
     alg = ctx.obj["latest_struct"] = DualNumbers(**opts)

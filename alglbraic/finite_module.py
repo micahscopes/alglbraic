@@ -5,13 +5,14 @@ from alglbraic import glsl_snippet
 from alglbraic.functions import constant, map as gl_map, OperationsMixin
 from collections.abc import Iterable
 
+zero_fn = "zero"
+one_fn = "one"
 
 class FiniteModule(GlslStruct, OperationsMixin):
     """A glsl_snippet helper class for a finite module over some ring.
     """
 
-    zero_fn = "zero"
-    one_fn = "one"
+    scalar_fn = "scalar"
     mul_fn = "mul"
     add_fn = "add"
     sub_fn = "sub"
@@ -30,6 +31,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
 
         basis_declarations = [base_ring + " " + b for b in basis]
         GlslStruct.__init__(self, type_name, *basis_declarations)
+        self.zero_fn = zero_fn+type_name
+        self.one_fn = one_fn+type_name
         self.base_ring = base_ring
         self.basis = basis
         self.unit = unit
@@ -38,7 +41,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
         def to_float(x):
             return sympify(x).evalf() if x != 0 else 0.0
 
-        if self.base_ring == "float":
+        if self.base_ring == "float" or True:
             if isinstance(expr, Iterable):
                 expr = [to_float(co) for co in expr]
             else:
@@ -46,8 +49,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
 
         element_type = element_type if element_type else self.type_name
 
-        # import ipdb;ipdb.set_trace()
-        return glsl_code(
+        result = glsl_code(
             StructElement(element_type, expr),
             glsl_types=False,
             use_operators=use_operators
@@ -55,6 +57,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
             or self.base_ring == "int",
             zero=self.zero_fn + "()",
         )
+        # a hack to ensure base elements are used instead of floats; makes assumptions
+        return result if self.base_ring == "float" or self.base_ring == "int" else result.replace("0.0", str(self.base_zero())).replace("1.0", str(self.base_one()))
 
     def base_zero(self):
         if self.base_ring == "float":
@@ -62,7 +66,7 @@ class FiniteModule(GlslStruct, OperationsMixin):
         elif self.base_ring == "int":
             return sympify(0)
         else:
-            return Symbol(self.zero_fn + "()")
+            return Symbol(zero_fn + self.base_ring + "()")
 
     def zero_symbols(self):
         return [self.base_zero()] * len(self.basis)
@@ -73,10 +77,11 @@ class FiniteModule(GlslStruct, OperationsMixin):
         elif self.base_ring == "int":
             return sympify(1)
         else:
-            return Symbol(self.one_fn + "()")
+            return Symbol(one_fn + self.base_ring + "()")
 
     @GLSL
-    def zero(self, function_name=zero_fn, **kwargs):
+    def zero(self, function_name=None, **kwargs):
+        function_name = function_name if function_name else self.zero_fn
         module_zero = self.gl(self.zero_symbols())
         return constant(function_name, (self.type_name, module_zero), **kwargs)
 
@@ -88,7 +93,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
         return one
 
     @GLSL
-    def one(self, function_name=one_fn, **kwargs):
+    def one(self, function_name=None, **kwargs):
+        function_name = function_name if function_name else self.one_fn
         one = self.gl(self.one_symbols())
         return constant(function_name, (self.type_name, one), **kwargs)
 
@@ -128,8 +134,8 @@ class FiniteModule(GlslStruct, OperationsMixin):
             glsl_snippet(
                 Template(
                     """\
-$type $fn(float a, $type x){
-    return mul(mul(a, $one_fn), x);
+$type $fn(float a, $type X){
+    return mul(mul(a, $one_fn), X);
 }"""
                 ).substitute(
                     type=self.type_name, one_fn=str(self.base_one()), fn=function_name
@@ -139,14 +145,29 @@ $type $fn(float a, $type x){
             else ""
         )
 
+    @GLSL
+    def scalar(self, function_name=scalar_fn):
+        return (
+            glsl_snippet(
+                Template(
+                    """\
+$type $fn(float a){
+    return mul(a, $one_fn);
+}"""
+                ).substitute(
+                    type=self.type_name, one_fn=self.one_fn+"()", fn=function_name
+                )
+            )
+        )
+
     @GLSL(depends_on=["scalar_float_mul"])
     def scalar_base_mul(self, function_name=mul_fn):
         type_name = self.type_name
         base_ring = self.base_ring
         a = Symbol(self.A)
-        x = self.symbols_vector_for(self.X)
+        x = self.symbols_vector_for(self.X.upper())
         input_types = [base_ring, type_name]
-        input_argnames = [self.A, self.X]
+        input_argnames = [self.A, self.X.upper()]
         return gl_map(
             function_name, input_types, input_argnames, self.type_name, self.gl(a * x)
         )
@@ -156,8 +177,8 @@ $type $fn(float a, $type x){
         return glsl_snippet(
             Template(
                 """\
-$type $fn(int a, $type x){
-    return mul(float(a), x);
+$type $fn(int a, $type X){
+    return mul(float(a), X);
 }"""
             ).substitute(type=self.type_name, fn=function_name)
         )

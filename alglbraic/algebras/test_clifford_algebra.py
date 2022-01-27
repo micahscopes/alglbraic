@@ -1,8 +1,8 @@
-import snapshottest
+from snapshottest import TestCase
 from alglbraic.algebras.clifford_algebra import CliffordAlgebra
 
 
-class TestCliffordAlgebra(snapshottest.TestCase):
+class TestCliffordAlgebra(TestCase):
     def setUp(self):
         self.algebra = CliffordAlgebra(
             "ComplexCl1_1", [-1, 1], base_ring="C", unit="ONE"
@@ -25,7 +25,7 @@ class TestCliffordAlgebra(snapshottest.TestCase):
         )
 
 
-class TestComplexNumbers(snapshottest.TestCase):
+class TestComplexNumbers(TestCase):
     def setUp(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
 
@@ -38,7 +38,7 @@ class TestComplexNumbers(snapshottest.TestCase):
         self.assert_match_snapshot(str(self.C.one(use_operators=True)))
 
 
-class TestDualNumbers(snapshottest.TestCase):
+class TestDualNumbers(TestCase):
     def setUp(self):
         from alglbraic.algebras.clifford_algebra import DualNumbers
 
@@ -52,7 +52,7 @@ class TestDualNumbers(snapshottest.TestCase):
 
 
 
-class TestCGA(snapshottest.TestCase):
+class TestCGA(TestCase):
     def setUp(self):
         from alglbraic.algebras.clifford_algebra import ConformalGeometricAlgebra
 

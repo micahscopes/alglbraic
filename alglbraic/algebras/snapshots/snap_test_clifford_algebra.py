@@ -43,58 +43,58 @@ struct CGA2 {
     float e12nilinf;
 };
 
-CGA2 fromArray(float x[16]){
-    return CGA2(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12], x[13], x[14], x[15]);
+CGA2 fromArray(float X[16]){
+    return CGA2(X[0], X[1], X[2], X[3], X[4], X[5], X[6], X[7], X[8], X[9], X[10], X[11], X[12], X[13], X[14], X[15]);
 }
 
-void toArray(CGA2 x, inout float x_ary[16]){
-    x_ary[0] = x.scalar;
-    x_ary[1] = x.e1;
-    x_ary[2] = x.e2;
-    x_ary[3] = x.enil;
-    x_ary[4] = x.einf;
-    x_ary[5] = x.e12;
-    x_ary[6] = x.e1nil;
-    x_ary[7] = x.e1inf;
-    x_ary[8] = x.e2nil;
-    x_ary[9] = x.e2inf;
-    x_ary[10] = x.enilinf;
-    x_ary[11] = x.e12nil;
-    x_ary[12] = x.e12inf;
-    x_ary[13] = x.e1nilinf;
-    x_ary[14] = x.e2nilinf;
-    x_ary[15] = x.e12nilinf;
+void toArray(CGA2 X, inout float X_ary[16]){
+    X_ary[0] = X.scalar;
+    X_ary[1] = X.e1;
+    X_ary[2] = X.e2;
+    X_ary[3] = X.enil;
+    X_ary[4] = X.einf;
+    X_ary[5] = X.e12;
+    X_ary[6] = X.e1nil;
+    X_ary[7] = X.e1inf;
+    X_ary[8] = X.e2nil;
+    X_ary[9] = X.e2inf;
+    X_ary[10] = X.enilinf;
+    X_ary[11] = X.e12nil;
+    X_ary[12] = X.e12inf;
+    X_ary[13] = X.e1nilinf;
+    X_ary[14] = X.e2nilinf;
+    X_ary[15] = X.e12nilinf;
 }
 
-void zero(inout float x[16]){
-    x[0] = 0.0;
-    x[1] = 0.0;
-    x[2] = 0.0;
-    x[3] = 0.0;
-    x[4] = 0.0;
-    x[5] = 0.0;
-    x[6] = 0.0;
-    x[7] = 0.0;
-    x[8] = 0.0;
-    x[9] = 0.0;
-    x[10] = 0.0;
-    x[11] = 0.0;
-    x[12] = 0.0;
-    x[13] = 0.0;
-    x[14] = 0.0;
-    x[15] = 0.0;
+void zero(inout float X[16]){
+    X[0] = 0.0;
+    X[1] = 0.0;
+    X[2] = 0.0;
+    X[3] = 0.0;
+    X[4] = 0.0;
+    X[5] = 0.0;
+    X[6] = 0.0;
+    X[7] = 0.0;
+    X[8] = 0.0;
+    X[9] = 0.0;
+    X[10] = 0.0;
+    X[11] = 0.0;
+    X[12] = 0.0;
+    X[13] = 0.0;
+    X[14] = 0.0;
+    X[15] = 0.0;
 }
 
-CGA2 add(CGA2 u, CGA2 v){
-    return CGA2(u.scalar + v.scalar, u.e1 + v.e1, u.e2 + v.e2, u.enil + v.enil, u.einf + v.einf, u.e12 + v.e12, u.e1nil + v.e1nil, u.e1inf + v.e1inf, u.e2nil + v.e2nil, u.e2inf + v.e2inf, u.enilinf + v.enilinf, u.e12nil + v.e12nil, u.e12inf + v.e12inf, u.e1nilinf + v.e1nilinf, u.e2nilinf + v.e2nilinf, u.e12nilinf + v.e12nilinf);
+CGA2 add(CGA2 X, CGA2 Y){
+    return CGA2(X.scalar + Y.scalar, X.e1 + Y.e1, X.e2 + Y.e2, X.enil + Y.enil, X.einf + Y.einf, X.e12 + Y.e12, X.e1nil + Y.e1nil, X.e1inf + Y.e1inf, X.e2nil + Y.e2nil, X.e2inf + Y.e2inf, X.enilinf + Y.enilinf, X.e12nil + Y.e12nil, X.e12inf + Y.e12inf, X.e1nilinf + Y.e1nilinf, X.e2nilinf + Y.e2nilinf, X.e12nilinf + Y.e12nilinf);
 }
 
-CGA2 add(CGA2 u, CGA2 v, CGA2 w){
-    return add(add(u, v), w);
+CGA2 add(CGA2 X, CGA2 Y, CGA2 Z){
+    return add(add(X, Y), Z);
 }
 
-CGA2 add(CGA2 u, CGA2 v, CGA2 w, CGA2 p){
-    return add(add(add(u, v), w), p);
+CGA2 add(CGA2 X, CGA2 Y, CGA2 Z, CGA2 P){
+    return add(add(add(X, Y), Z), P);
 }
 
 CGA2 one(){
@@ -103,97 +103,73 @@ CGA2 one(){
 
 
 
-CGA2 sub(CGA2 u, CGA2 v){
-    return CGA2(u.scalar - v.scalar, u.e1 - v.e1, u.e2 - v.e2, u.enil - v.enil, u.einf - v.einf, u.e12 - v.e12, u.e1nil - v.e1nil, u.e1inf - v.e1inf, u.e2nil - v.e2nil, u.e2inf - v.e2inf, u.enilinf - v.enilinf, u.e12nil - v.e12nil, u.e12inf - v.e12inf, u.e1nilinf - v.e1nilinf, u.e2nilinf - v.e2nilinf, u.e12nilinf - v.e12nilinf);
+CGA2 sub(CGA2 X, CGA2 Y){
+    return CGA2(X.scalar - Y.scalar, X.e1 - Y.e1, X.e2 - Y.e2, X.enil - Y.enil, X.einf - Y.einf, X.e12 - Y.e12, X.e1nil - Y.e1nil, X.e1inf - Y.e1inf, X.e2nil - Y.e2nil, X.e2inf - Y.e2inf, X.enilinf - Y.enilinf, X.e12nil - Y.e12nil, X.e12inf - Y.e12inf, X.e1nilinf - Y.e1nilinf, X.e2nilinf - Y.e2nilinf, X.e12nilinf - Y.e12nilinf);
 }
 
 CGA2 zero(){
     return CGA2(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
-CGA2 mul(float a, CGA2 x){
-    return CGA2(a*x.scalar, a*x.e1, a*x.e2, a*x.enil, a*x.einf, a*x.e12, a*x.e1nil, a*x.e1inf, a*x.e2nil, a*x.e2inf, a*x.enilinf, a*x.e12nil, a*x.e12inf, a*x.e1nilinf, a*x.e2nilinf, a*x.e12nilinf);
+CGA2 mul(float a, CGA2 X){
+    return CGA2(X.scalar*a, X.e1*a, X.e2*a, X.enil*a, X.einf*a, X.e12*a, X.e1nil*a, X.e1inf*a, X.e2nil*a, X.e2inf*a, X.enilinf*a, X.e12nil*a, X.e12inf*a, X.e1nilinf*a, X.e2nilinf*a, X.e12nilinf*a);
 }
 
-CGA2 mul(CGA2 u, CGA2 v){
-    return CGA2(u.e1*v.e1 - u.e12*v.e12 + u.e12inf*v.e12nil + u.e12nil*v.e12inf - u.e12nilinf*v.e12nilinf + u.e1inf*v.e1nil + u.e1nil*v.e1inf + u.e1nilinf*v.e1nilinf + u.e2*v.e2 + u.e2inf*v.e2nil + u.e2nil*v.e2inf + u.e2nilinf*v.e2nilinf - u.einf*v.enil - u.enil*v.einf + u.enilinf*v.enilinf + u.scalar*v.scalar, u.e1*v.scalar + u.e12*v.e2 + u.e12inf*v.e2nil + u.e12nil*v.e2inf + u.e12nilinf*v.e2nilinf - u.e1inf*v.enil - u.e1nil*v.einf + u.e1nilinf*v.enilinf - u.e2*v.e12 + u.e2inf*v.e12nil + u.e2nil*v.e12inf - u.e2nilinf*v.e12nilinf + u.einf*v.e1nil + u.enil*v.e1inf + u.enilinf*v.e1nilinf + u.scalar*v.e1, u.e1*v.e12 - u.e12*v.e1 - u.e12inf*v.e1nil - u.e12nil*v.e1inf - u.e12nilinf*v.e1nilinf - u.e1inf*v.e12nil - u.e1nil*v.e12inf + u.e1nilinf*v.e12nilinf + u.e2*v.scalar - u.e2inf*v.enil - u.e2nil*v.einf + u.e2nilinf*v.enilinf + u.einf*v.e2nil + u.enil*v.e2inf + u.enilinf*v.e2nilinf + u.scalar*v.e2, u.e1*v.e1nil - u.e12*v.e12nil - u.e12nil*v.e12 - u.e12nil*v.e12nilinf + u.e12nilinf*v.e12nil - u.e1nil*v.e1 - u.e1nil*v.e1nilinf - u.e1nilinf*v.e1nil + u.e2*v.e2nil - u.e2nil*v.e2 - u.e2nil*v.e2nilinf - u.e2nilinf*v.e2nil + u.enil*v.enilinf + u.enil*v.scalar - u.enilinf*v.enil + u.scalar*v.enil, u.e1*v.e1inf - u.e12*v.e12inf - u.e12inf*v.e12 + u.e12inf*v.e12nilinf - u.e12nilinf*v.e12inf - u.e1inf*v.e1 + u.e1inf*v.e1nilinf + u.e1nilinf*v.e1inf + u.e2*v.e2inf - u.e2inf*v.e2 + u.e2inf*v.e2nilinf + u.e2nilinf*v.e2inf - u.einf*v.enilinf + u.einf*v.scalar + u.enilinf*v.einf + u.scalar*v.einf, u.e1*v.e2 + u.e12*v.scalar - u.e12inf*v.enil - u.e12nil*v.einf + u.e12nilinf*v.enilinf + u.e1inf*v.e2nil + u.e1nil*v.e2inf + u.e1nilinf*v.e2nilinf - u.e2*v.e1 - u.e2inf*v.e1nil - u.e2nil*v.e1inf - u.e2nilinf*v.e1nilinf - u.einf*v.e12nil - u.enil*v.e12inf + u.enilinf*v.e12nilinf + u.scalar*v.e12, u.e1*v.enil + u.e12*v.e2nil - u.e12nil*v.e2 - u.e12nil*v.e2nilinf - u.e12nilinf*v.e2nil + u.e1nil*v.enilinf + u.e1nil*v.scalar - u.e1nilinf*v.enil - u.e2*v.e12nil - u.e2nil*v.e12 - u.e2nil*v.e12nilinf + u.e2nilinf*v.e12nil - u.enil*v.e1 - u.enil*v.e1nilinf - u.enilinf*v.e1nil + u.scalar*v.e1nil, u.e1*v.einf + u.e12*v.e2inf - u.e12inf*v.e2 + u.e12inf*v.e2nilinf + u.e12nilinf*v.e2inf - u.e1inf*v.enilinf + u.e1inf*v.scalar + u.e1nilinf*v.einf - u.e2*v.e12inf - u.e2inf*v.e12 + u.e2inf*v.e12nilinf - u.e2nilinf*v.e12inf - u.einf*v.e1 + u.einf*v.e1nilinf + u.enilinf*v.e1inf + u.scalar*v.e1inf, u.e1*v.e12nil - u.e12*v.e1nil + u.e12nil*v.e1 + u.e12nil*v.e1nilinf + u.e12nilinf*v.e1nil + u.e1nil*v.e12 + u.e1nil*v.e12nilinf - u.e1nilinf*v.e12nil + u.e2*v.enil + u.e2nil*v.enilinf + u.e2nil*v.scalar - u.e2nilinf*v.enil - u.enil*v.e2 - u.enil*v.e2nilinf - u.enilinf*v.e2nil + u.scalar*v.e2nil, u.e1*v.e12inf - u.e12*v.e1inf + u.e12inf*v.e1 - u.e12inf*v.e1nilinf - u.e12nilinf*v.e1inf + u.e1inf*v.e12 - u.e1inf*v.e12nilinf + u.e1nilinf*v.e12inf + u.e2*v.einf - u.e2inf*v.enilinf + u.e2inf*v.scalar + u.e2nilinf*v.einf - u.einf*v.e2 + u.einf*v.e2nilinf + u.enilinf*v.e2inf + u.scalar*v.e2inf, u.e1*v.e1nilinf - u.e12*v.e12nilinf + u.e12inf*v.e12nil - u.e12nil*v.e12inf - u.e12nilinf*v.e12 + u.e1inf*v.e1nil - u.e1nil*v.e1inf + u.e1nilinf*v.e1 + u.e2*v.e2nilinf + u.e2inf*v.e2nil - u.e2nil*v.e2inf + u.e2nilinf*v.e2 - u.einf*v.enil + u.enil*v.einf + u.enilinf*v.scalar + u.scalar*v.enilinf, u.e1*v.e2nil + u.e12*v.enil + u.e12nil*v.enilinf + u.e12nil*v.scalar - u.e12nilinf*v.enil - u.e1nil*v.e2 - u.e1nil*v.e2nilinf - u.e1nilinf*v.e2nil - u.e2*v.e1nil + u.e2nil*v.e1 + u.e2nil*v.e1nilinf + u.e2nilinf*v.e1nil + u.enil*v.e12 + u.enil*v.e12nilinf - u.enilinf*v.e12nil + u.scalar*v.e12nil, u.e1*v.e2inf + u.e12*v.einf - u.e12inf*v.enilinf + u.e12inf*v.scalar + u.e12nilinf*v.einf - u.e1inf*v.e2 + u.e1inf*v.e2nilinf + u.e1nilinf*v.e2inf - u.e2*v.e1inf + u.e2inf*v.e1 - u.e2inf*v.e1nilinf - u.e2nilinf*v.e1inf + u.einf*v.e12 - u.einf*v.e12nilinf + u.enilinf*v.e12inf + u.scalar*v.e12inf, u.e1*v.enilinf + u.e12*v.e2nilinf + u.e12inf*v.e2nil - u.e12nil*v.e2inf + u.e12nilinf*v.e2 - u.e1inf*v.enil + u.e1nil*v.einf + u.e1nilinf*v.scalar - u.e2*v.e12nilinf + u.e2inf*v.e12nil - u.e2nil*v.e12inf - u.e2nilinf*v.e12 + u.einf*v.e1nil - u.enil*v.e1inf + u.enilinf*v.e1 + u.scalar*v.e1nilinf, u.e1*v.e12nilinf - u.e12*v.e1nilinf - u.e12inf*v.e1nil + u.e12nil*v.e1inf - u.e12nilinf*v.e1 - u.e1inf*v.e12nil + u.e1nil*v.e12inf + u.e1nilinf*v.e12 + u.e2*v.enilinf - u.e2inf*v.enil + u.e2nil*v.einf + u.e2nilinf*v.scalar + u.einf*v.e2nil - u.enil*v.e2inf + u.enilinf*v.e2 + u.scalar*v.e2nilinf, u.e1*v.e2nilinf + u.e12*v.enilinf - u.e12inf*v.enil + u.e12nil*v.einf + u.e12nilinf*v.scalar + u.e1inf*v.e2nil - u.e1nil*v.e2inf + u.e1nilinf*v.e2 - u.e2*v.e1nilinf - u.e2inf*v.e1nil + u.e2nil*v.e1inf - u.e2nilinf*v.e1 - u.einf*v.e12nil + u.enil*v.e12inf + u.enilinf*v.e12 + u.scalar*v.e12nilinf);
+CGA2 mul(CGA2 X, CGA2 Y){
+    return CGA2(X.e1*Y.e1 - X.e12*Y.e12 - X.e12inf*Y.e12nil - X.e12nil*Y.e12inf - X.e12nilinf*Y.e12nilinf - X.e1inf*Y.e1nil - X.e1nil*Y.e1inf + X.e1nilinf*Y.e1nilinf + X.e2*Y.e2 - X.e2inf*Y.e2nil - X.e2nil*Y.e2inf + X.e2nilinf*Y.e2nilinf + X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.enilinf + X.scalar*Y.scalar, X.e1*Y.scalar + X.e12*Y.e2 - X.e12inf*Y.e2nil - X.e12nil*Y.e2inf + X.e12nilinf*Y.e2nilinf + X.e1inf*Y.enil + X.e1nil*Y.einf + X.e1nilinf*Y.enilinf - X.e2*Y.e12 - X.e2inf*Y.e12nil - X.e2nil*Y.e12inf - X.e2nilinf*Y.e12nilinf - X.einf*Y.e1nil - X.enil*Y.e1inf + X.enilinf*Y.e1nilinf + X.scalar*Y.e1, X.e1*Y.e12 - X.e12*Y.e1 + X.e12inf*Y.e1nil + X.e12nil*Y.e1inf - X.e12nilinf*Y.e1nilinf + X.e1inf*Y.e12nil + X.e1nil*Y.e12inf + X.e1nilinf*Y.e12nilinf + X.e2*Y.scalar + X.e2inf*Y.enil + X.e2nil*Y.einf + X.e2nilinf*Y.enilinf - X.einf*Y.e2nil - X.enil*Y.e2inf + X.enilinf*Y.e2nilinf + X.scalar*Y.e2, X.e1*Y.e1nil - X.e12*Y.e12nil - X.e12nil*Y.e12 + X.e12nil*Y.e12nilinf - X.e12nilinf*Y.e12nil - X.e1nil*Y.e1 + X.e1nil*Y.e1nilinf + X.e1nilinf*Y.e1nil + X.e2*Y.e2nil - X.e2nil*Y.e2 + X.e2nil*Y.e2nilinf + X.e2nilinf*Y.e2nil - X.enil*Y.enilinf + X.enil*Y.scalar + X.enilinf*Y.enil + X.scalar*Y.enil, X.e1*Y.e1inf - X.e12*Y.e12inf - X.e12inf*Y.e12 - X.e12inf*Y.e12nilinf + X.e12nilinf*Y.e12inf - X.e1inf*Y.e1 - X.e1inf*Y.e1nilinf - X.e1nilinf*Y.e1inf + X.e2*Y.e2inf - X.e2inf*Y.e2 - X.e2inf*Y.e2nilinf - X.e2nilinf*Y.e2inf + X.einf*Y.enilinf + X.einf*Y.scalar - X.enilinf*Y.einf + X.scalar*Y.einf, X.e1*Y.e2 + X.e12*Y.scalar + X.e12inf*Y.enil + X.e12nil*Y.einf + X.e12nilinf*Y.enilinf - X.e1inf*Y.e2nil - X.e1nil*Y.e2inf + X.e1nilinf*Y.e2nilinf - X.e2*Y.e1 + X.e2inf*Y.e1nil + X.e2nil*Y.e1inf - X.e2nilinf*Y.e1nilinf + X.einf*Y.e12nil + X.enil*Y.e12inf + X.enilinf*Y.e12nilinf + X.scalar*Y.e12, X.e1*Y.enil + X.e12*Y.e2nil - X.e12nil*Y.e2 + X.e12nil*Y.e2nilinf + X.e12nilinf*Y.e2nil - X.e1nil*Y.enilinf + X.e1nil*Y.scalar + X.e1nilinf*Y.enil - X.e2*Y.e12nil - X.e2nil*Y.e12 + X.e2nil*Y.e12nilinf - X.e2nilinf*Y.e12nil - X.enil*Y.e1 + X.enil*Y.e1nilinf + X.enilinf*Y.e1nil + X.scalar*Y.e1nil, X.e1*Y.einf + X.e12*Y.e2inf - X.e12inf*Y.e2 - X.e12inf*Y.e2nilinf - X.e12nilinf*Y.e2inf + X.e1inf*Y.enilinf + X.e1inf*Y.scalar - X.e1nilinf*Y.einf - X.e2*Y.e12inf - X.e2inf*Y.e12 - X.e2inf*Y.e12nilinf + X.e2nilinf*Y.e12inf - X.einf*Y.e1 - X.einf*Y.e1nilinf - X.enilinf*Y.e1inf + X.scalar*Y.e1inf, X.e1*Y.e12nil - X.e12*Y.e1nil + X.e12nil*Y.e1 - X.e12nil*Y.e1nilinf - X.e12nilinf*Y.e1nil + X.e1nil*Y.e12 - X.e1nil*Y.e12nilinf + X.e1nilinf*Y.e12nil + X.e2*Y.enil - X.e2nil*Y.enilinf + X.e2nil*Y.scalar + X.e2nilinf*Y.enil - X.enil*Y.e2 + X.enil*Y.e2nilinf + X.enilinf*Y.e2nil + X.scalar*Y.e2nil, X.e1*Y.e12inf - X.e12*Y.e1inf + X.e12inf*Y.e1 + X.e12inf*Y.e1nilinf + X.e12nilinf*Y.e1inf + X.e1inf*Y.e12 + X.e1inf*Y.e12nilinf - X.e1nilinf*Y.e12inf + X.e2*Y.einf + X.e2inf*Y.enilinf + X.e2inf*Y.scalar - X.e2nilinf*Y.einf - X.einf*Y.e2 - X.einf*Y.e2nilinf - X.enilinf*Y.e2inf + X.scalar*Y.e2inf, X.e1*Y.e1nilinf - X.e12*Y.e12nilinf + X.e12inf*Y.e12nil - X.e12nil*Y.e12inf - X.e12nilinf*Y.e12 + X.e1inf*Y.e1nil - X.e1nil*Y.e1inf + X.e1nilinf*Y.e1 + X.e2*Y.e2nilinf + X.e2inf*Y.e2nil - X.e2nil*Y.e2inf + X.e2nilinf*Y.e2 - X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.scalar + X.scalar*Y.enilinf, X.e1*Y.e2nil + X.e12*Y.enil - X.e12nil*Y.enilinf + X.e12nil*Y.scalar + X.e12nilinf*Y.enil - X.e1nil*Y.e2 + X.e1nil*Y.e2nilinf + X.e1nilinf*Y.e2nil - X.e2*Y.e1nil + X.e2nil*Y.e1 - X.e2nil*Y.e1nilinf - X.e2nilinf*Y.e1nil + X.enil*Y.e12 - X.enil*Y.e12nilinf + X.enilinf*Y.e12nil + X.scalar*Y.e12nil, X.e1*Y.e2inf + X.e12*Y.einf + X.e12inf*Y.enilinf + X.e12inf*Y.scalar - X.e12nilinf*Y.einf - X.e1inf*Y.e2 - X.e1inf*Y.e2nilinf - X.e1nilinf*Y.e2inf - X.e2*Y.e1inf + X.e2inf*Y.e1 + X.e2inf*Y.e1nilinf + X.e2nilinf*Y.e1inf + X.einf*Y.e12 + X.einf*Y.e12nilinf - X.enilinf*Y.e12inf + X.scalar*Y.e12inf, X.e1*Y.enilinf + X.e12*Y.e2nilinf + X.e12inf*Y.e2nil - X.e12nil*Y.e2inf + X.e12nilinf*Y.e2 - X.e1inf*Y.enil + X.e1nil*Y.einf + X.e1nilinf*Y.scalar - X.e2*Y.e12nilinf + X.e2inf*Y.e12nil - X.e2nil*Y.e12inf - X.e2nilinf*Y.e12 + X.einf*Y.e1nil - X.enil*Y.e1inf + X.enilinf*Y.e1 + X.scalar*Y.e1nilinf, X.e1*Y.e12nilinf - X.e12*Y.e1nilinf - X.e12inf*Y.e1nil + X.e12nil*Y.e1inf - X.e12nilinf*Y.e1 - X.e1inf*Y.e12nil + X.e1nil*Y.e12inf + X.e1nilinf*Y.e12 + X.e2*Y.enilinf - X.e2inf*Y.enil + X.e2nil*Y.einf + X.e2nilinf*Y.scalar + X.einf*Y.e2nil - X.enil*Y.e2inf + X.enilinf*Y.e2 + X.scalar*Y.e2nilinf, X.e1*Y.e2nilinf + X.e12*Y.enilinf - X.e12inf*Y.enil + X.e12nil*Y.einf + X.e12nilinf*Y.scalar + X.e1inf*Y.e2nil - X.e1nil*Y.e2inf + X.e1nilinf*Y.e2 - X.e2*Y.e1nilinf - X.e2inf*Y.e1nil + X.e2nil*Y.e1inf - X.e2nilinf*Y.e1 - X.einf*Y.e12nil + X.enil*Y.e12inf + X.enilinf*Y.e12 + X.scalar*Y.e12nilinf);
 }
 
-CGA2 mul(int a, CGA2 x){
-    return mul(float(a), x);
+CGA2 mul(int a, CGA2 X){
+    return mul(float(a), X);
 }
 
-CGA2 mul(CGA2 u, CGA2 v, CGA2 w){
-    return mul(mul(u, v), w);
+CGA2 mul(CGA2 X, CGA2 Y, CGA2 Z){
+    return mul(mul(X, Y), Z);
 }
 
-CGA2 dual(CGA2 u){
-    return CGA2(u.e12nilinf, u.e2nilinf, -u.e1nilinf, u.e12nil, -u.e12inf, -u.enilinf, u.e2nil, -u.e2inf, -u.e1nil, u.e1inf, u.e12, -u.enil, u.einf, u.e2, -u.e1, -u.scalar);
+CGA2 dual(CGA2 X){
+    return CGA2(X.e12nilinf, X.e2nilinf, -X.e1nilinf, -X.e12nil, X.e12inf, -X.enilinf, -X.e2nil, X.e2inf, X.e1nil, -X.e1inf, X.e12, X.enil, -X.einf, X.e2, -X.e1, -X.scalar);
 }
 
-CGA2 involve(CGA2 u){
-    return CGA2(u.scalar, -u.e1, -u.e2, -u.enil, -u.einf, u.e12, u.e1nil, u.e1inf, u.e2nil, u.e2inf, u.enilinf, -u.e12nil, -u.e12inf, -u.e1nilinf, -u.e2nilinf, u.e12nilinf);
+CGA2 involve(CGA2 X){
+    return CGA2(X.scalar, -X.e1, -X.e2, -X.enil, -X.einf, X.e12, X.e1nil, X.e1inf, X.e2nil, X.e2inf, X.enilinf, -X.e12nil, -X.e12inf, -X.e1nilinf, -X.e2nilinf, X.e12nilinf);
 }
 
-CGA2 inner(CGA2 u, CGA2 v){
-    return CGA2(u.e1*v.e1 - u.e12*v.e12 + u.e12inf*v.e12nil + u.e12nil*v.e12inf - u.e12nilinf*v.e12nilinf + u.e1inf*v.e1nil + u.e1nil*v.e1inf + u.e1nilinf*v.e1nilinf + u.e2*v.e2 + u.e2inf*v.e2nil + u.e2nil*v.e2inf + u.e2nilinf*v.e2nilinf - u.einf*v.enil - u.enil*v.einf + u.enilinf*v.enilinf, u.e12*v.e2 + u.e12inf*v.e2nil + u.e12nil*v.e2inf + u.e12nilinf*v.e2nilinf - u.e1inf*v.enil - u.e1nil*v.einf + u.e1nilinf*v.enilinf - u.e2*v.e12 + u.e2inf*v.e12nil + u.e2nil*v.e12inf - u.e2nilinf*v.e12nilinf + u.einf*v.e1nil + u.enil*v.e1inf + u.enilinf*v.e1nilinf, u.e1*v.e12 - u.e12*v.e1 - u.e12inf*v.e1nil - u.e12nil*v.e1inf - u.e12nilinf*v.e1nilinf - u.e1inf*v.e12nil - u.e1nil*v.e12inf + u.e1nilinf*v.e12nilinf - u.e2inf*v.enil - u.e2nil*v.einf + u.e2nilinf*v.enilinf + u.einf*v.e2nil + u.enil*v.e2inf + u.enilinf*v.e2nilinf, u.e1*v.e1nil - u.e12*v.e12nil - u.e12nil*v.e12 - u.e12nil*v.e12nilinf + u.e12nilinf*v.e12nil - u.e1nil*v.e1 - u.e1nil*v.e1nilinf - u.e1nilinf*v.e1nil + u.e2*v.e2nil - u.e2nil*v.e2 - u.e2nil*v.e2nilinf - u.e2nilinf*v.e2nil + u.enil*v.enilinf - u.enilinf*v.enil, u.e1*v.e1inf - u.e12*v.e12inf - u.e12inf*v.e12 + u.e12inf*v.e12nilinf - u.e12nilinf*v.e12inf - u.e1inf*v.e1 + u.e1inf*v.e1nilinf + u.e1nilinf*v.e1inf + u.e2*v.e2inf - u.e2inf*v.e2 + u.e2inf*v.e2nilinf + u.e2nilinf*v.e2inf - u.einf*v.enilinf + u.enilinf*v.einf, -u.e12inf*v.enil - u.e12nil*v.einf + u.e12nilinf*v.enilinf - u.einf*v.e12nil - u.enil*v.e12inf + u.enilinf*v.e12nilinf, -u.e12nil*v.e2 - u.e12nilinf*v.e2nil - u.e1nilinf*v.enil - u.e2*v.e12nil - u.e2nil*v.e12nilinf - u.enil*v.e1nilinf, -u.e12inf*v.e2 + u.e12nilinf*v.e2inf + u.e1nilinf*v.einf - u.e2*v.e12inf + u.e2inf*v.e12nilinf + u.einf*v.e1nilinf, u.e1*v.e12nil + u.e12nil*v.e1 + u.e12nilinf*v.e1nil + u.e1nil*v.e12nilinf - u.e2nilinf*v.enil - u.enil*v.e2nilinf, u.e1*v.e12inf + u.e12inf*v.e1 - u.e12nilinf*v.e1inf - u.e1inf*v.e12nilinf + u.e2nilinf*v.einf + u.einf*v.e2nilinf, u.e1*v.e1nilinf - u.e12*v.e12nilinf - u.e12nilinf*v.e12 + u.e1nilinf*v.e1 + u.e2*v.e2nilinf + u.e2nilinf*v.e2, -u.e12nilinf*v.enil + u.enil*v.e12nilinf, u.e12nilinf*v.einf - u.einf*v.e12nilinf, u.e12nilinf*v.e2 - u.e2*v.e12nilinf, u.e1*v.e12nilinf - u.e12nilinf*v.e1, 0.0);
+CGA2 inner(CGA2 X, CGA2 Y){
+    return CGA2(X.e1*Y.e1 - X.e12*Y.e12 - X.e12inf*Y.e12nil - X.e12nil*Y.e12inf - X.e12nilinf*Y.e12nilinf - X.e1inf*Y.e1nil - X.e1nil*Y.e1inf + X.e1nilinf*Y.e1nilinf + X.e2*Y.e2 - X.e2inf*Y.e2nil - X.e2nil*Y.e2inf + X.e2nilinf*Y.e2nilinf + X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.enilinf, X.e12*Y.e2 - X.e12inf*Y.e2nil - X.e12nil*Y.e2inf + X.e12nilinf*Y.e2nilinf + X.e1inf*Y.enil + X.e1nil*Y.einf + X.e1nilinf*Y.enilinf - X.e2*Y.e12 - X.e2inf*Y.e12nil - X.e2nil*Y.e12inf - X.e2nilinf*Y.e12nilinf - X.einf*Y.e1nil - X.enil*Y.e1inf + X.enilinf*Y.e1nilinf, X.e1*Y.e12 - X.e12*Y.e1 + X.e12inf*Y.e1nil + X.e12nil*Y.e1inf - X.e12nilinf*Y.e1nilinf + X.e1inf*Y.e12nil + X.e1nil*Y.e12inf + X.e1nilinf*Y.e12nilinf + X.e2inf*Y.enil + X.e2nil*Y.einf + X.e2nilinf*Y.enilinf - X.einf*Y.e2nil - X.enil*Y.e2inf + X.enilinf*Y.e2nilinf, X.e1*Y.e1nil - X.e12*Y.e12nil - X.e12nil*Y.e12 + X.e12nil*Y.e12nilinf - X.e12nilinf*Y.e12nil - X.e1nil*Y.e1 + X.e1nil*Y.e1nilinf + X.e1nilinf*Y.e1nil + X.e2*Y.e2nil - X.e2nil*Y.e2 + X.e2nil*Y.e2nilinf + X.e2nilinf*Y.e2nil - X.enil*Y.enilinf + X.enilinf*Y.enil, X.e1*Y.e1inf - X.e12*Y.e12inf - X.e12inf*Y.e12 - X.e12inf*Y.e12nilinf + X.e12nilinf*Y.e12inf - X.e1inf*Y.e1 - X.e1inf*Y.e1nilinf - X.e1nilinf*Y.e1inf + X.e2*Y.e2inf - X.e2inf*Y.e2 - X.e2inf*Y.e2nilinf - X.e2nilinf*Y.e2inf + X.einf*Y.enilinf - X.enilinf*Y.einf, X.e12inf*Y.enil + X.e12nil*Y.einf + X.e12nilinf*Y.enilinf + X.einf*Y.e12nil + X.enil*Y.e12inf + X.enilinf*Y.e12nilinf, -X.e12nil*Y.e2 + X.e12nilinf*Y.e2nil + X.e1nilinf*Y.enil - X.e2*Y.e12nil + X.e2nil*Y.e12nilinf + X.enil*Y.e1nilinf, -X.e12inf*Y.e2 - X.e12nilinf*Y.e2inf - X.e1nilinf*Y.einf - X.e2*Y.e12inf - X.e2inf*Y.e12nilinf - X.einf*Y.e1nilinf, X.e1*Y.e12nil + X.e12nil*Y.e1 - X.e12nilinf*Y.e1nil - X.e1nil*Y.e12nilinf + X.e2nilinf*Y.enil + X.enil*Y.e2nilinf, X.e1*Y.e12inf + X.e12inf*Y.e1 + X.e12nilinf*Y.e1inf + X.e1inf*Y.e12nilinf - X.e2nilinf*Y.einf - X.einf*Y.e2nilinf, X.e1*Y.e1nilinf - X.e12*Y.e12nilinf - X.e12nilinf*Y.e12 + X.e1nilinf*Y.e1 + X.e2*Y.e2nilinf + X.e2nilinf*Y.e2, X.e12nilinf*Y.enil - X.enil*Y.e12nilinf, -X.e12nilinf*Y.einf + X.einf*Y.e12nilinf, X.e12nilinf*Y.e2 - X.e2*Y.e12nilinf, X.e1*Y.e12nilinf - X.e12nilinf*Y.e1, 0.0);
 }
 
-CGA2 lcontract(CGA2 u, CGA2 v){
-    return CGA2(u.e1*v.e1 - u.e12*v.e12 + u.e12inf*v.e12nil + u.e12nil*v.e12inf - u.e12nilinf*v.e12nilinf + u.e1inf*v.e1nil + u.e1nil*v.e1inf + u.e1nilinf*v.e1nilinf + u.e2*v.e2 + u.e2inf*v.e2nil + u.e2nil*v.e2inf + u.e2nilinf*v.e2nilinf - u.einf*v.enil - u.enil*v.einf + u.enilinf*v.enilinf + u.scalar*v.scalar, -u.e2*v.e12 + u.e2inf*v.e12nil + u.e2nil*v.e12inf - u.e2nilinf*v.e12nilinf + u.einf*v.e1nil + u.enil*v.e1inf + u.enilinf*v.e1nilinf + u.scalar*v.e1, u.e1*v.e12 - u.e1inf*v.e12nil - u.e1nil*v.e12inf + u.e1nilinf*v.e12nilinf + u.einf*v.e2nil + u.enil*v.e2inf + u.enilinf*v.e2nilinf + u.scalar*v.e2, u.e1*v.e1nil - u.e12*v.e12nil - u.e12nil*v.e12nilinf - u.e1nil*v.e1nilinf + u.e2*v.e2nil - u.e2nil*v.e2nilinf + u.enil*v.enilinf + u.scalar*v.enil, u.e1*v.e1inf - u.e12*v.e12inf + u.e12inf*v.e12nilinf + u.e1inf*v.e1nilinf + u.e2*v.e2inf + u.e2inf*v.e2nilinf - u.einf*v.enilinf + u.scalar*v.einf, -u.einf*v.e12nil - u.enil*v.e12inf + u.enilinf*v.e12nilinf + u.scalar*v.e12, -u.e2*v.e12nil - u.e2nil*v.e12nilinf - u.enil*v.e1nilinf + u.scalar*v.e1nil, -u.e2*v.e12inf + u.e2inf*v.e12nilinf + u.einf*v.e1nilinf + u.scalar*v.e1inf, u.e1*v.e12nil + u.e1nil*v.e12nilinf - u.enil*v.e2nilinf + u.scalar*v.e2nil, u.e1*v.e12inf - u.e1inf*v.e12nilinf + u.einf*v.e2nilinf + u.scalar*v.e2inf, u.e1*v.e1nilinf - u.e12*v.e12nilinf + u.e2*v.e2nilinf + u.scalar*v.enilinf, u.enil*v.e12nilinf + u.scalar*v.e12nil, -u.einf*v.e12nilinf + u.scalar*v.e12inf, -u.e2*v.e12nilinf + u.scalar*v.e1nilinf, u.e1*v.e12nilinf + u.scalar*v.e2nilinf, u.scalar*v.e12nilinf);
+CGA2 lcontract(CGA2 X, CGA2 Y){
+    return CGA2(X.e1*Y.e1 - X.e12*Y.e12 - X.e12inf*Y.e12nil - X.e12nil*Y.e12inf - X.e12nilinf*Y.e12nilinf - X.e1inf*Y.e1nil - X.e1nil*Y.e1inf + X.e1nilinf*Y.e1nilinf + X.e2*Y.e2 - X.e2inf*Y.e2nil - X.e2nil*Y.e2inf + X.e2nilinf*Y.e2nilinf + X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.enilinf + X.scalar*Y.scalar, -X.e2*Y.e12 - X.e2inf*Y.e12nil - X.e2nil*Y.e12inf - X.e2nilinf*Y.e12nilinf - X.einf*Y.e1nil - X.enil*Y.e1inf + X.enilinf*Y.e1nilinf + X.scalar*Y.e1, X.e1*Y.e12 + X.e1inf*Y.e12nil + X.e1nil*Y.e12inf + X.e1nilinf*Y.e12nilinf - X.einf*Y.e2nil - X.enil*Y.e2inf + X.enilinf*Y.e2nilinf + X.scalar*Y.e2, X.e1*Y.e1nil - X.e12*Y.e12nil + X.e12nil*Y.e12nilinf + X.e1nil*Y.e1nilinf + X.e2*Y.e2nil + X.e2nil*Y.e2nilinf - X.enil*Y.enilinf + X.scalar*Y.enil, X.e1*Y.e1inf - X.e12*Y.e12inf - X.e12inf*Y.e12nilinf - X.e1inf*Y.e1nilinf + X.e2*Y.e2inf - X.e2inf*Y.e2nilinf + X.einf*Y.enilinf + X.scalar*Y.einf, X.einf*Y.e12nil + X.enil*Y.e12inf + X.enilinf*Y.e12nilinf + X.scalar*Y.e12, -X.e2*Y.e12nil + X.e2nil*Y.e12nilinf + X.enil*Y.e1nilinf + X.scalar*Y.e1nil, -X.e2*Y.e12inf - X.e2inf*Y.e12nilinf - X.einf*Y.e1nilinf + X.scalar*Y.e1inf, X.e1*Y.e12nil - X.e1nil*Y.e12nilinf + X.enil*Y.e2nilinf + X.scalar*Y.e2nil, X.e1*Y.e12inf + X.e1inf*Y.e12nilinf - X.einf*Y.e2nilinf + X.scalar*Y.e2inf, X.e1*Y.e1nilinf - X.e12*Y.e12nilinf + X.e2*Y.e2nilinf + X.scalar*Y.enilinf, -X.enil*Y.e12nilinf + X.scalar*Y.e12nil, X.einf*Y.e12nilinf + X.scalar*Y.e12inf, -X.e2*Y.e12nilinf + X.scalar*Y.e1nilinf, X.e1*Y.e12nilinf + X.scalar*Y.e2nilinf, X.scalar*Y.e12nilinf);
 }
 
-CGA2 outer(CGA2 u, CGA2 v){
-    return CGA2(u.scalar*v.scalar, u.e1*v.scalar + u.scalar*v.e1, u.e2*v.scalar + u.scalar*v.e2, u.enil*v.scalar + u.scalar*v.enil, u.einf*v.scalar + u.scalar*v.einf, u.e1*v.e2 + u.e12*v.scalar - u.e2*v.e1 + u.scalar*v.e12, u.e1*v.enil + u.e1nil*v.scalar - u.enil*v.e1 + u.scalar*v.e1nil, u.e1*v.einf + u.e1inf*v.scalar - u.einf*v.e1 + u.scalar*v.e1inf, u.e2*v.enil + u.e2nil*v.scalar - u.enil*v.e2 + u.scalar*v.e2nil, u.e2*v.einf + u.e2inf*v.scalar - u.einf*v.e2 + u.scalar*v.e2inf, -u.einf*v.enil + u.enil*v.einf + u.enilinf*v.scalar + u.scalar*v.enilinf, u.e1*v.e2nil + u.e12*v.enil + u.e12nil*v.scalar - u.e1nil*v.e2 - u.e2*v.e1nil + u.e2nil*v.e1 + u.enil*v.e12 + u.scalar*v.e12nil, u.e1*v.e2inf + u.e12*v.einf + u.e12inf*v.scalar - u.e1inf*v.e2 - u.e2*v.e1inf + u.e2inf*v.e1 + u.einf*v.e12 + u.scalar*v.e12inf, u.e1*v.enilinf - u.e1inf*v.enil + u.e1nil*v.einf + u.e1nilinf*v.scalar + u.einf*v.e1nil - u.enil*v.e1inf + u.enilinf*v.e1 + u.scalar*v.e1nilinf, u.e2*v.enilinf - u.e2inf*v.enil + u.e2nil*v.einf + u.e2nilinf*v.scalar + u.einf*v.e2nil - u.enil*v.e2inf + u.enilinf*v.e2 + u.scalar*v.e2nilinf, u.e1*v.e2nilinf + u.e12*v.enilinf - u.e12inf*v.enil + u.e12nil*v.einf + u.e12nilinf*v.scalar + u.e1inf*v.e2nil - u.e1nil*v.e2inf + u.e1nilinf*v.e2 - u.e2*v.e1nilinf - u.e2inf*v.e1nil + u.e2nil*v.e1inf - u.e2nilinf*v.e1 - u.einf*v.e12nil + u.enil*v.e12inf + u.enilinf*v.e12 + u.scalar*v.e12nilinf);
+CGA2 outer(CGA2 X, CGA2 Y){
+    return CGA2(X.scalar*Y.scalar, X.e1*Y.scalar + X.scalar*Y.e1, X.e2*Y.scalar + X.scalar*Y.e2, X.enil*Y.scalar + X.scalar*Y.enil, X.einf*Y.scalar + X.scalar*Y.einf, X.e1*Y.e2 + X.e12*Y.scalar - X.e2*Y.e1 + X.scalar*Y.e12, X.e1*Y.enil + X.e1nil*Y.scalar - X.enil*Y.e1 + X.scalar*Y.e1nil, X.e1*Y.einf + X.e1inf*Y.scalar - X.einf*Y.e1 + X.scalar*Y.e1inf, X.e2*Y.enil + X.e2nil*Y.scalar - X.enil*Y.e2 + X.scalar*Y.e2nil, X.e2*Y.einf + X.e2inf*Y.scalar - X.einf*Y.e2 + X.scalar*Y.e2inf, -X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.scalar + X.scalar*Y.enilinf, X.e1*Y.e2nil + X.e12*Y.enil + X.e12nil*Y.scalar - X.e1nil*Y.e2 - X.e2*Y.e1nil + X.e2nil*Y.e1 + X.enil*Y.e12 + X.scalar*Y.e12nil, X.e1*Y.e2inf + X.e12*Y.einf + X.e12inf*Y.scalar - X.e1inf*Y.e2 - X.e2*Y.e1inf + X.e2inf*Y.e1 + X.einf*Y.e12 + X.scalar*Y.e12inf, X.e1*Y.enilinf - X.e1inf*Y.enil + X.e1nil*Y.einf + X.e1nilinf*Y.scalar + X.einf*Y.e1nil - X.enil*Y.e1inf + X.enilinf*Y.e1 + X.scalar*Y.e1nilinf, X.e2*Y.enilinf - X.e2inf*Y.enil + X.e2nil*Y.einf + X.e2nilinf*Y.scalar + X.einf*Y.e2nil - X.enil*Y.e2inf + X.enilinf*Y.e2 + X.scalar*Y.e2nilinf, X.e1*Y.e2nilinf + X.e12*Y.enilinf - X.e12inf*Y.enil + X.e12nil*Y.einf + X.e12nilinf*Y.scalar + X.e1inf*Y.e2nil - X.e1nil*Y.e2inf + X.e1nilinf*Y.e2 - X.e2*Y.e1nilinf - X.e2inf*Y.e1nil + X.e2nil*Y.e1inf - X.e2nilinf*Y.e1 - X.einf*Y.e12nil + X.enil*Y.e12inf + X.enilinf*Y.e12 + X.scalar*Y.e12nilinf);
 }
 
 CGA2 I(){
     return CGA2(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 }
 
-CGA2 rcontract(CGA2 u, CGA2 v){
-    return CGA2(u.e1*v.e1 - u.e12*v.e12 + u.e12inf*v.e12nil + u.e12nil*v.e12inf - u.e12nilinf*v.e12nilinf + u.e1inf*v.e1nil + u.e1nil*v.e1inf + u.e1nilinf*v.e1nilinf + u.e2*v.e2 + u.e2inf*v.e2nil + u.e2nil*v.e2inf + u.e2nilinf*v.e2nilinf - u.einf*v.enil - u.enil*v.einf + u.enilinf*v.enilinf + u.scalar*v.scalar, u.e1*v.scalar + u.e12*v.e2 + u.e12inf*v.e2nil + u.e12nil*v.e2inf + u.e12nilinf*v.e2nilinf - u.e1inf*v.enil - u.e1nil*v.einf + u.e1nilinf*v.enilinf, -u.e12*v.e1 - u.e12inf*v.e1nil - u.e12nil*v.e1inf - u.e12nilinf*v.e1nilinf + u.e2*v.scalar - u.e2inf*v.enil - u.e2nil*v.einf + u.e2nilinf*v.enilinf, -u.e12nil*v.e12 + u.e12nilinf*v.e12nil - u.e1nil*v.e1 - u.e1nilinf*v.e1nil - u.e2nil*v.e2 - u.e2nilinf*v.e2nil + u.enil*v.scalar - u.enilinf*v.enil, -u.e12inf*v.e12 - u.e12nilinf*v.e12inf - u.e1inf*v.e1 + u.e1nilinf*v.e1inf - u.e2inf*v.e2 + u.e2nilinf*v.e2inf + u.einf*v.scalar + u.enilinf*v.einf, u.e12*v.scalar - u.e12inf*v.enil - u.e12nil*v.einf + u.e12nilinf*v.enilinf, -u.e12nil*v.e2 - u.e12nilinf*v.e2nil + u.e1nil*v.scalar - u.e1nilinf*v.enil, -u.e12inf*v.e2 + u.e12nilinf*v.e2inf + u.e1inf*v.scalar + u.e1nilinf*v.einf, u.e12nil*v.e1 + u.e12nilinf*v.e1nil + u.e2nil*v.scalar - u.e2nilinf*v.enil, u.e12inf*v.e1 - u.e12nilinf*v.e1inf + u.e2inf*v.scalar + u.e2nilinf*v.einf, -u.e12nilinf*v.e12 + u.e1nilinf*v.e1 + u.e2nilinf*v.e2 + u.enilinf*v.scalar, u.e12nil*v.scalar - u.e12nilinf*v.enil, u.e12inf*v.scalar + u.e12nilinf*v.einf, u.e12nilinf*v.e2 + u.e1nilinf*v.scalar, -u.e12nilinf*v.e1 + u.e2nilinf*v.scalar, u.e12nilinf*v.scalar);
+CGA2 rcontract(CGA2 X, CGA2 Y){
+    return CGA2(X.e1*Y.e1 - X.e12*Y.e12 - X.e12inf*Y.e12nil - X.e12nil*Y.e12inf - X.e12nilinf*Y.e12nilinf - X.e1inf*Y.e1nil - X.e1nil*Y.e1inf + X.e1nilinf*Y.e1nilinf + X.e2*Y.e2 - X.e2inf*Y.e2nil - X.e2nil*Y.e2inf + X.e2nilinf*Y.e2nilinf + X.einf*Y.enil + X.enil*Y.einf + X.enilinf*Y.enilinf + X.scalar*Y.scalar, X.e1*Y.scalar + X.e12*Y.e2 - X.e12inf*Y.e2nil - X.e12nil*Y.e2inf + X.e12nilinf*Y.e2nilinf + X.e1inf*Y.enil + X.e1nil*Y.einf + X.e1nilinf*Y.enilinf, -X.e12*Y.e1 + X.e12inf*Y.e1nil + X.e12nil*Y.e1inf - X.e12nilinf*Y.e1nilinf + X.e2*Y.scalar + X.e2inf*Y.enil + X.e2nil*Y.einf + X.e2nilinf*Y.enilinf, -X.e12nil*Y.e12 - X.e12nilinf*Y.e12nil - X.e1nil*Y.e1 + X.e1nilinf*Y.e1nil - X.e2nil*Y.e2 + X.e2nilinf*Y.e2nil + X.enil*Y.scalar + X.enilinf*Y.enil, -X.e12inf*Y.e12 + X.e12nilinf*Y.e12inf - X.e1inf*Y.e1 - X.e1nilinf*Y.e1inf - X.e2inf*Y.e2 - X.e2nilinf*Y.e2inf + X.einf*Y.scalar - X.enilinf*Y.einf, X.e12*Y.scalar + X.e12inf*Y.enil + X.e12nil*Y.einf + X.e12nilinf*Y.enilinf, -X.e12nil*Y.e2 + X.e12nilinf*Y.e2nil + X.e1nil*Y.scalar + X.e1nilinf*Y.enil, -X.e12inf*Y.e2 - X.e12nilinf*Y.e2inf + X.e1inf*Y.scalar - X.e1nilinf*Y.einf, X.e12nil*Y.e1 - X.e12nilinf*Y.e1nil + X.e2nil*Y.scalar + X.e2nilinf*Y.enil, X.e12inf*Y.e1 + X.e12nilinf*Y.e1inf + X.e2inf*Y.scalar - X.e2nilinf*Y.einf, -X.e12nilinf*Y.e12 + X.e1nilinf*Y.e1 + X.e2nilinf*Y.e2 + X.enilinf*Y.scalar, X.e12nil*Y.scalar + X.e12nilinf*Y.enil, X.e12inf*Y.scalar - X.e12nilinf*Y.einf, X.e12nilinf*Y.e2 + X.e1nilinf*Y.scalar, -X.e12nilinf*Y.e1 + X.e2nilinf*Y.scalar, X.e12nilinf*Y.scalar);
 }
 
-CGA2 reverse(CGA2 u){
-    return CGA2(u.scalar, u.e1, u.e2, u.enil, u.einf, -u.e12, -u.e1nil, -u.e1inf, -u.e2nil, -u.e2inf, -u.enilinf, -u.e12nil, -u.e12inf, -u.e1nilinf, -u.e2nilinf, u.e12nilinf);
+CGA2 reverse(CGA2 X){
+    return CGA2(X.scalar, X.e1, X.e2, X.enil, X.einf, -X.e12, -X.e1nil, -X.e1inf, -X.e2nil, -X.e2inf, -X.enilinf, -X.e12nil, -X.e12inf, -X.e1nilinf, -X.e2nilinf, X.e12nilinf);
 }
 
-CGA2 conjugate(CGA2 u){
-    return reverse(involve(u));
+CGA2 conjugate(CGA2 X){
+    return reverse(involve(X));
 }
 
-CGA2 outer(CGA2 u, CGA2 v, CGA2 w){
-    return outer(outer(u, v), w);
+CGA2 outer(CGA2 X, CGA2 Y, CGA2 Z){
+    return outer(outer(X, Y), Z);
 }
 '''
 
-snapshots['TestCliffordAlgebra::test_big_clifford_algebra_product 1'] = '''ComplexCl4 mul(ComplexCl4 u, ComplexCl4 v){
-    return ComplexCl4(u.ONE*v.ONE + u.e1*v.e1 - u.e12*v.e12 - u.e123*v.e123 + u.e1234*v.e1234 - u.e124*v.e124 - u.e13*v.e13 - u.e134*v.e134 - u.e14*v.e14 + u.e2*v.e2 - u.e23*v.e23 - u.e234*v.e234 - u.e24*v.e24 + u.e3*v.e3 - u.e34*v.e34 + u.e4*v.e4, u.ONE*v.e1 + u.e1*v.ONE + u.e12*v.e2 - u.e123*v.e23 - u.e1234*v.e234 - u.e124*v.e24 + u.e13*v.e3 - u.e134*v.e34 + u.e14*v.e4 - u.e2*v.e12 - u.e23*v.e123 + u.e234*v.e1234 - u.e24*v.e124 - u.e3*v.e13 - u.e34*v.e134 - u.e4*v.e14, u.ONE*v.e2 + u.e1*v.e12 - u.e12*v.e1 + u.e123*v.e13 + u.e1234*v.e134 + u.e124*v.e14 + u.e13*v.e123 - u.e134*v.e1234 + u.e14*v.e124 + u.e2*v.ONE + u.e23*v.e3 - u.e234*v.e34 + u.e24*v.e4 - u.e3*v.e23 - u.e34*v.e234 - u.e4*v.e24, u.ONE*v.e3 + u.e1*v.e13 - u.e12*v.e123 - u.e123*v.e12 - u.e1234*v.e124 + u.e124*v.e1234 - u.e13*v.e1 + u.e134*v.e14 + u.e14*v.e134 + u.e2*v.e23 - u.e23*v.e2 + u.e234*v.e24 + u.e24*v.e234 + u.e3*v.ONE + u.e34*v.e4 - u.e4*v.e34, u.ONE*v.e4 + u.e1*v.e14 - u.e12*v.e124 - u.e123*v.e1234 + u.e1234*v.e123 - u.e124*v.e12 - u.e13*v.e134 - u.e134*v.e13 - u.e14*v.e1 + u.e2*v.e24 - u.e23*v.e234 - u.e234*v.e23 - u.e24*v.e2 + u.e3*v.e34 - u.e34*v.e3 + u.e4*v.ONE, u.ONE*v.e12 + u.e1*v.e2 + u.e12*v.ONE + u.e123*v.e3 - u.e1234*v.e34 + u.e124*v.e4 - u.e13*v.e23 - u.e134*v.e234 - u.e14*v.e24 - u.e2*v.e1 + u.e23*v.e13 + u.e234*v.e134 + u.e24*v.e14 + u.e3*v.e123 - u.e34*v.e1234 + u.e4*v.e124, u.ONE*v.e13 + u.e1*v.e3 + u.e12*v.e23 - u.e123*v.e2 + u.e1234*v.e24 + u.e124*v.e234 + u.e13*v.ONE + u.e134*v.e4 - u.e14*v.e34 - u.e2*v.e123 - u.e23*v.e12 - u.e234*v.e124 + u.e24*v.e1234 - u.e3*v.e1 + u.e34*v.e14 + u.e4*v.e134, u.ONE*v.e14 + u.e1*v.e4 + u.e12*v.e24 - u.e123*v.e234 - u.e1234*v.e23 - u.e124*v.e2 + u.e13*v.e34 - u.e134*v.e3 + u.e14*v.ONE - u.e2*v.e124 - u.e23*v.e1234 + u.e234*v.e123 - u.e24*v.e12 - u.e3*v.e134 - u.e34*v.e13 - u.e4*v.e1, u.ONE*v.e23 + u.e1*v.e123 - u.e12*v.e13 + u.e123*v.e1 - u.e1234*v.e14 - u.e124*v.e134 + u.e13*v.e12 + u.e134*v.e124 - u.e14*v.e1234 + u.e2*v.e3 + u.e23*v.ONE + u.e234*v.e4 - u.e24*v.e34 - u.e3*v.e2 + u.e34*v.e24 + u.e4*v.e234, u.ONE*v.e24 + u.e1*v.e124 - u.e12*v.e14 + u.e123*v.e134 + u.e1234*v.e13 + u.e124*v.e1 + u.e13*v.e1234 - u.e134*v.e123 + u.e14*v.e12 + u.e2*v.e4 + u.e23*v.e34 - u.e234*v.e3 + u.e24*v.ONE - u.e3*v.e234 - u.e34*v.e23 - u.e4*v.e2, u.ONE*v.e34 + u.e1*v.e134 - u.e12*v.e1234 - u.e123*v.e124 - u.e1234*v.e12 + u.e124*v.e123 - u.e13*v.e14 + u.e134*v.e1 + u.e14*v.e13 + u.e2*v.e234 - u.e23*v.e24 + u.e234*v.e2 + u.e24*v.e23 + u.e3*v.e4 + u.e34*v.ONE - u.e4*v.e3, u.ONE*v.e123 + u.e1*v.e23 + u.e12*v.e3 + u.e123*v.ONE + u.e1234*v.e4 - u.e124*v.e34 - u.e13*v.e2 + u.e134*v.e24 + u.e14*v.e234 - u.e2*v.e13 + u.e23*v.e1 - u.e234*v.e14 - u.e24*v.e134 + u.e3*v.e12 + u.e34*v.e124 - u.e4*v.e1234, u.ONE*v.e124 + u.e1*v.e24 + u.e12*v.e4 + u.e123*v.e34 - u.e1234*v.e3 + u.e124*v.ONE - u.e13*v.e234 - u.e134*v.e23 - u.e14*v.e2 - u.e2*v.e14 + u.e23*v.e134 + u.e234*v.e13 + u.e24*v.e1 + u.e3*v.e1234 - u.e34*v.e123 + u.e4*v.e12, u.ONE*v.e134 + u.e1*v.e34 + u.e12*v.e234 - u.e123*v.e24 + u.e1234*v.e2 + u.e124*v.e23 + u.e13*v.e4 + u.e134*v.ONE - u.e14*v.e3 - u.e2*v.e1234 - u.e23*v.e124 - u.e234*v.e12 + u.e24*v.e123 - u.e3*v.e14 + u.e34*v.e1 + u.e4*v.e13, u.ONE*v.e234 + u.e1*v.e1234 - u.e12*v.e134 + u.e123*v.e14 - u.e1234*v.e1 - u.e124*v.e13 + u.e13*v.e124 + u.e134*v.e12 - u.e14*v.e123 + u.e2*v.e34 + u.e23*v.e4 + u.e234*v.ONE - u.e24*v.e3 - u.e3*v.e24 + u.e34*v.e2 + u.e4*v.e23, u.ONE*v.e1234 + u.e1*v.e234 + u.e12*v.e34 + u.e123*v.e4 + u.e1234*v.ONE - u.e124*v.e3 - u.e13*v.e24 + u.e134*v.e2 + u.e14*v.e23 - u.e2*v.e134 + u.e23*v.e14 - u.e234*v.e1 - u.e24*v.e13 + u.e3*v.e124 + u.e34*v.e12 - u.e4*v.e123);
-}'''
-
-snapshots['TestCliffordAlgebra::test_clifford_algebra_product 1'] = '''ComplexCl1_1 mul(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(u.ONE*v.ONE - u.e1*v.e1 + u.e12*v.e12 + u.e2*v.e2, u.ONE*v.e1 + u.e1*v.ONE + u.e12*v.e2 - u.e2*v.e12, u.ONE*v.e2 - u.e1*v.e12 + u.e12*v.e1 + u.e2*v.ONE, u.ONE*v.e12 + u.e1*v.e2 + u.e12*v.ONE - u.e2*v.e1);
-}'''
-
-snapshots['TestCliffordAlgebra::test_clifford_algebra_product 2'] = '''ComplexCl1_1 reverse(ComplexCl1_1 u){
-    return ComplexCl1_1(u.ONE, u.e1, u.e2, -u.e12);
-}'''
-
-snapshots['TestComplexNumbers::test_one 1'] = '''C one(){
-    return C(1.0, 0.0);
-}'''
-
-snapshots['TestComplexNumbers::test_product 1'] = '''C mul(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
-}'''
-
-snapshots['TestDualNumbers::test_one 1'] = '''Dual one(){
-    return Dual(1.0, 0.0);
-}'''
-
-snapshots['TestDualNumbers::test_product 1'] = '''Dual mul(Dual u, Dual v){
-    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
+snapshots['TestCliffordAlgebra::test_big_clifford_algebra_product 1'] = '''ComplexCl4 mul(ComplexCl4 X, ComplexCl4 Y){
+    return ComplexCl4(X.ONE*Y.ONE + X.e1*Y.e1 - X.e12*Y.e12 - X.e123*Y.e123 + X.e1234*Y.e1234 - X.e124*Y.e124 - X.e13*Y.e13 - X.e134*Y.e134 - X.e14*Y.e14 + X.e2*Y.e2 - X.e23*Y.e23 - X.e234*Y.e234 - X.e24*Y.e24 + X.e3*Y.e3 - X.e34*Y.e34 + X.e4*Y.e4, X.ONE*Y.e1 + X.e1*Y.ONE + X.e12*Y.e2 - X.e123*Y.e23 - X.e1234*Y.e234 - X.e124*Y.e24 + X.e13*Y.e3 - X.e134*Y.e34 + X.e14*Y.e4 - X.e2*Y.e12 - X.e23*Y.e123 + X.e234*Y.e1234 - X.e24*Y.e124 - X.e3*Y.e13 - X.e34*Y.e134 - X.e4*Y.e14, X.ONE*Y.e2 + X.e1*Y.e12 - X.e12*Y.e1 + X.e123*Y.e13 + X.e1234*Y.e134 + X.e124*Y.e14 + X.e13*Y.e123 - X.e134*Y.e1234 + X.e14*Y.e124 + X.e2*Y.ONE + X.e23*Y.e3 - X.e234*Y.e34 + X.e24*Y.e4 - X.e3*Y.e23 - X.e34*Y.e234 - X.e4*Y.e24, X.ONE*Y.e3 + X.e1*Y.e13 - X.e12*Y.e123 - X.e123*Y.e12 - X.e1234*Y.e124 + X.e124*Y.e1234 - X.e13*Y.e1 + X.e134*Y.e14 + X.e14*Y.e134 + X.e2*Y.e23 - X.e23*Y.e2 + X.e234*Y.e24 + X.e24*Y.e234 + X.e3*Y.ONE + X.e34*Y.e4 - X.e4*Y.e34, X.ONE*Y.e4 + X.e1*Y.e14 - X.e12*Y.e124 - X.e123*Y.e1234 + X.e1234*Y.e123 - X.e124*Y.e12 - X.e13*Y.e134 - X.e134*Y.e13 - X.e14*Y.e1 + X.e2*Y.e24 - X.e23*Y.e234 - X.e234*Y.e23 - X.e24*Y.e2 + X.e3*Y.e34 - X.e34*Y.e3 + X.e4*Y.ONE, X.ONE*Y.e12 + X.e1*Y.e2 + X.e12*Y.ONE + X.e123*Y.e3 - X.e1234*Y.e34 + X.e124*Y.e4 - X.e13*Y.e23 - X.e134*Y.e234 - X.e14*Y.e24 - X.e2*Y.e1 + X.e23*Y.e13 + X.e234*Y.e134 + X.e24*Y.e14 + X.e3*Y.e123 - X.e34*Y.e1234 + X.e4*Y.e124, X.ONE*Y.e13 + X.e1*Y.e3 + X.e12*Y.e23 - X.e123*Y.e2 + X.e1234*Y.e24 + X.e124*Y.e234 + X.e13*Y.ONE + X.e134*Y.e4 - X.e14*Y.e34 - X.e2*Y.e123 - X.e23*Y.e12 - X.e234*Y.e124 + X.e24*Y.e1234 - X.e3*Y.e1 + X.e34*Y.e14 + X.e4*Y.e134, X.ONE*Y.e14 + X.e1*Y.e4 + X.e12*Y.e24 - X.e123*Y.e234 - X.e1234*Y.e23 - X.e124*Y.e2 + X.e13*Y.e34 - X.e134*Y.e3 + X.e14*Y.ONE - X.e2*Y.e124 - X.e23*Y.e1234 + X.e234*Y.e123 - X.e24*Y.e12 - X.e3*Y.e134 - X.e34*Y.e13 - X.e4*Y.e1, X.ONE*Y.e23 + X.e1*Y.e123 - X.e12*Y.e13 + X.e123*Y.e1 - X.e1234*Y.e14 - X.e124*Y.e134 + X.e13*Y.e12 + X.e134*Y.e124 - X.e14*Y.e1234 + X.e2*Y.e3 + X.e23*Y.ONE + X.e234*Y.e4 - X.e24*Y.e34 - X.e3*Y.e2 + X.e34*Y.e24 + X.e4*Y.e234, X.ONE*Y.e24 + X.e1*Y.e124 - X.e12*Y.e14 + X.e123*Y.e134 + X.e1234*Y.e13 + X.e124*Y.e1 + X.e13*Y.e1234 - X.e134*Y.e123 + X.e14*Y.e12 + X.e2*Y.e4 + X.e23*Y.e34 - X.e234*Y.e3 + X.e24*Y.ONE - X.e3*Y.e234 - X.e34*Y.e23 - X.e4*Y.e2, X.ONE*Y.e34 + X.e1*Y.e134 - X.e12*Y.e1234 - X.e123*Y.e124 - X.e1234*Y.e12 + X.e124*Y.e123 - X.e13*Y.e14 + X.e134*Y.e1 + X.e14*Y.e13 + X.e2*Y.e234 - X.e23*Y.e24 + X.e234*Y.e2 + X.e24*Y.e23 + X.e3*Y.e4 + X.e34*Y.ONE - X.e4*Y.e3, X.ONE*Y.e123 + X.e1*Y.e23 + X.e12*Y.e3 + X.e123*Y.ONE + X.e1234*Y.e4 - X.e124*Y.e34 - X.e13*Y.e2 + X.e134*Y.e24 + X.e14*Y.e234 - X.e2*Y.e13 + X.e23*Y.e1 - X.e234*Y.e14 - X.e24*Y.e134 + X.e3*Y.e12 + X.e34*Y.e124 - X.e4*Y.e1234, X.ONE*Y.e124 + X.e1*Y.e24 + X.e12*Y.e4 + X.e123*Y.e34 - X.e1234*Y.e3 + X.e124*Y.ONE - X.e13*Y.e234 - X.e134*Y.e23 - X.e14*Y.e2 - X.e2*Y.e14 + X.e23*Y.e134 + X.e234*Y.e13 + X.e24*Y.e1 + X.e3*Y.e1234 - X.e34*Y.e123 + X.e4*Y.e12, X.ONE*Y.e134 + X.e1*Y.e34 + X.e12*Y.e234 - X.e123*Y.e24 + X.e1234*Y.e2 + X.e124*Y.e23 + X.e13*Y.e4 + X.e134*Y.ONE - X.e14*Y.e3 - X.e2*Y.e1234 - X.e23*Y.e124 - X.e234*Y.e12 + X.e24*Y.e123 - X.e3*Y.e14 + X.e34*Y.e1 + X.e4*Y.e13, X.ONE*Y.e234 + X.e1*Y.e1234 - X.e12*Y.e134 + X.e123*Y.e14 - X.e1234*Y.e1 - X.e124*Y.e13 + X.e13*Y.e124 + X.e134*Y.e12 - X.e14*Y.e123 + X.e2*Y.e34 + X.e23*Y.e4 + X.e234*Y.ONE - X.e24*Y.e3 - X.e3*Y.e24 + X.e34*Y.e2 + X.e4*Y.e23, X.ONE*Y.e1234 + X.e1*Y.e234 + X.e12*Y.e34 + X.e123*Y.e4 + X.e1234*Y.ONE - X.e124*Y.e3 - X.e13*Y.e24 + X.e134*Y.e2 + X.e14*Y.e23 - X.e2*Y.e134 + X.e23*Y.e14 - X.e234*Y.e1 - X.e24*Y.e13 + X.e3*Y.e124 + X.e34*Y.e12 - X.e4*Y.e123);
 }'''
 
 snapshots['TestCliffordAlgebra::test_clifford_algebra_bundle 1'] = '''const int I_ComplexCl1_1_ONE = 0;
@@ -208,34 +184,34 @@ struct ComplexCl1_1 {
     C e12;
 };
 
-ComplexCl1_1 fromArray(C x[4]){
-    return ComplexCl1_1(x[0], x[1], x[2], x[3]);
+ComplexCl1_1 fromArray(C X[4]){
+    return ComplexCl1_1(X[0], X[1], X[2], X[3]);
 }
 
-void toArray(ComplexCl1_1 x, inout C x_ary[4]){
-    x_ary[0] = x.ONE;
-    x_ary[1] = x.e1;
-    x_ary[2] = x.e2;
-    x_ary[3] = x.e12;
+void toArray(ComplexCl1_1 X, inout C X_ary[4]){
+    X_ary[0] = X.ONE;
+    X_ary[1] = X.e1;
+    X_ary[2] = X.e2;
+    X_ary[3] = X.e12;
 }
 
-void zero(inout C x[4]){
-    x[0] = zero();
-    x[1] = zero();
-    x[2] = zero();
-    x[3] = zero();
+void zero(inout C X[4]){
+    X[0] = zero();
+    X[1] = zero();
+    X[2] = zero();
+    X[3] = zero();
 }
 
-ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(add(u.ONE, v.ONE), add(u.e1, v.e1), add(u.e2, v.e2), add(u.e12, v.e12));
+ComplexCl1_1 add(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(add(X.ONE, Y.ONE), add(X.e1, Y.e1), add(X.e2, Y.e2), add(X.e12, Y.e12));
 }
 
-ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
-    return add(add(u, v), w);
+ComplexCl1_1 add(ComplexCl1_1 X, ComplexCl1_1 Y, ComplexCl1_1 Z){
+    return add(add(X, Y), Z);
 }
 
-ComplexCl1_1 add(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w, ComplexCl1_1 p){
-    return add(add(add(u, v), w), p);
+ComplexCl1_1 add(ComplexCl1_1 X, ComplexCl1_1 Y, ComplexCl1_1 Z, ComplexCl1_1 P){
+    return add(add(add(X, Y), Z), P);
 }
 
 ComplexCl1_1 one(){
@@ -246,67 +222,91 @@ ComplexCl1_1 mul(float a, ComplexCl1_1 x){
     return mul(mul(a, one()), x);
 }
 
-ComplexCl1_1 sub(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(sub(u.ONE, v.ONE), sub(u.e1, v.e1), sub(u.e2, v.e2), sub(u.e12, v.e12));
+ComplexCl1_1 sub(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(sub(X.ONE, Y.ONE), sub(X.e1, Y.e1), sub(X.e2, Y.e2), sub(X.e12, Y.e12));
 }
 
 ComplexCl1_1 zero(){
     return ComplexCl1_1(zero(), zero(), zero(), zero());
 }
 
-ComplexCl1_1 mul(C a, ComplexCl1_1 x){
-    return ComplexCl1_1(mul(a, x.ONE), mul(a, x.e1), mul(a, x.e2), mul(a, x.e12));
+ComplexCl1_1 mul(C a, ComplexCl1_1 X){
+    return ComplexCl1_1(mul(X.ONE, a), mul(X.e1, a), mul(X.e2, a), mul(X.e12, a));
 }
 
-ComplexCl1_1 mul(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(sub(add(add(mul(u.ONE, v.ONE), mul(u.e12, v.e12)), mul(u.e2, v.e2)), mul(u.e1, v.e1)), sub(add(add(mul(u.ONE, v.e1), mul(u.e1, v.ONE)), mul(u.e12, v.e2)), mul(u.e2, v.e12)), sub(add(add(mul(u.ONE, v.e2), mul(u.e12, v.e1)), mul(u.e2, v.ONE)), mul(u.e1, v.e12)), sub(add(add(mul(u.ONE, v.e12), mul(u.e1, v.e2)), mul(u.e12, v.ONE)), mul(u.e2, v.e1)));
+ComplexCl1_1 mul(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(sub(add(add(mul(X.ONE, Y.ONE), mul(X.e12, Y.e12)), mul(X.e2, Y.e2)), mul(X.e1, Y.e1)), sub(add(add(mul(X.ONE, Y.e1), mul(X.e1, Y.ONE)), mul(X.e12, Y.e2)), mul(X.e2, Y.e12)), sub(add(add(mul(X.ONE, Y.e2), mul(X.e12, Y.e1)), mul(X.e2, Y.ONE)), mul(X.e1, Y.e12)), sub(add(add(mul(X.ONE, Y.e12), mul(X.e1, Y.e2)), mul(X.e12, Y.ONE)), mul(X.e2, Y.e1)));
 }
 
-ComplexCl1_1 mul(int a, ComplexCl1_1 x){
-    return mul(float(a), x);
+ComplexCl1_1 mul(int a, ComplexCl1_1 X){
+    return mul(float(a), X);
 }
 
-ComplexCl1_1 mul(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
-    return mul(mul(u, v), w);
+ComplexCl1_1 mul(ComplexCl1_1 X, ComplexCl1_1 Y, ComplexCl1_1 Z){
+    return mul(mul(X, Y), Z);
 }
 
-ComplexCl1_1 dual(ComplexCl1_1 u){
-    return ComplexCl1_1(u.e12, mul(-1, u.e2), mul(-1, u.e1), u.ONE);
+ComplexCl1_1 dual(ComplexCl1_1 X){
+    return ComplexCl1_1(X.e12, mul(-1, X.e2), mul(-1, X.e1), X.ONE);
 }
 
-ComplexCl1_1 involve(ComplexCl1_1 u){
-    return ComplexCl1_1(u.ONE, mul(-1, u.e1), mul(-1, u.e2), u.e12);
+ComplexCl1_1 involve(ComplexCl1_1 X){
+    return ComplexCl1_1(X.ONE, mul(-1, X.e1), mul(-1, X.e2), X.e12);
 }
 
-ComplexCl1_1 inner(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(sub(add(mul(u.e12, v.e12), mul(u.e2, v.e2)), mul(u.e1, v.e1)), sub(mul(u.e12, v.e2), mul(u.e2, v.e12)), sub(mul(u.e12, v.e1), mul(u.e1, v.e12)), 0);
+ComplexCl1_1 inner(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(sub(add(mul(X.e12, Y.e12), mul(X.e2, Y.e2)), mul(X.e1, Y.e1)), sub(mul(X.e12, Y.e2), mul(X.e2, Y.e12)), sub(mul(X.e12, Y.e1), mul(X.e1, Y.e12)), 0);
 }
 
-ComplexCl1_1 lcontract(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(sub(add(add(mul(u.ONE, v.ONE), mul(u.e12, v.e12)), mul(u.e2, v.e2)), mul(u.e1, v.e1)), sub(mul(u.ONE, v.e1), mul(u.e2, v.e12)), sub(mul(u.ONE, v.e2), mul(u.e1, v.e12)), mul(u.ONE, v.e12));
+ComplexCl1_1 lcontract(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(sub(add(add(mul(X.ONE, Y.ONE), mul(X.e12, Y.e12)), mul(X.e2, Y.e2)), mul(X.e1, Y.e1)), sub(mul(X.ONE, Y.e1), mul(X.e2, Y.e12)), sub(mul(X.ONE, Y.e2), mul(X.e1, Y.e12)), mul(X.ONE, Y.e12));
 }
 
-ComplexCl1_1 outer(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(mul(u.ONE, v.ONE), add(mul(u.ONE, v.e1), mul(u.e1, v.ONE)), add(mul(u.ONE, v.e2), mul(u.e2, v.ONE)), sub(add(add(mul(u.ONE, v.e12), mul(u.e1, v.e2)), mul(u.e12, v.ONE)), mul(u.e2, v.e1)));
+ComplexCl1_1 outer(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(mul(X.ONE, Y.ONE), add(mul(X.ONE, Y.e1), mul(X.e1, Y.ONE)), add(mul(X.ONE, Y.e2), mul(X.e2, Y.ONE)), sub(add(add(mul(X.ONE, Y.e12), mul(X.e1, Y.e2)), mul(X.e12, Y.ONE)), mul(X.e2, Y.e1)));
 }
 
 ComplexCl1_1 I(){
     return ComplexCl1_1(0, 0, 0, 1);
 }
 
-ComplexCl1_1 rcontract(ComplexCl1_1 u, ComplexCl1_1 v){
-    return ComplexCl1_1(sub(add(add(mul(u.ONE, v.ONE), mul(u.e12, v.e12)), mul(u.e2, v.e2)), mul(u.e1, v.e1)), add(mul(u.e1, v.ONE), mul(u.e12, v.e2)), add(mul(u.e12, v.e1), mul(u.e2, v.ONE)), mul(u.e12, v.ONE));
+ComplexCl1_1 rcontract(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(sub(add(add(mul(X.ONE, Y.ONE), mul(X.e12, Y.e12)), mul(X.e2, Y.e2)), mul(X.e1, Y.e1)), add(mul(X.e1, Y.ONE), mul(X.e12, Y.e2)), add(mul(X.e12, Y.e1), mul(X.e2, Y.ONE)), mul(X.e12, Y.ONE));
 }
 
-ComplexCl1_1 reverse(ComplexCl1_1 u){
-    return ComplexCl1_1(u.ONE, u.e1, u.e2, mul(-1, u.e12));
+ComplexCl1_1 reverse(ComplexCl1_1 X){
+    return ComplexCl1_1(X.ONE, X.e1, X.e2, mul(-1, X.e12));
 }
 
-ComplexCl1_1 conjugate(ComplexCl1_1 u){
-    return reverse(involve(u));
+ComplexCl1_1 conjugate(ComplexCl1_1 X){
+    return reverse(involve(X));
 }
 
-ComplexCl1_1 outer(ComplexCl1_1 u, ComplexCl1_1 v, ComplexCl1_1 w){
-    return outer(outer(u, v), w);
+ComplexCl1_1 outer(ComplexCl1_1 X, ComplexCl1_1 Y, ComplexCl1_1 Z){
+    return outer(outer(X, Y), Z);
 }
 '''
+
+snapshots['TestCliffordAlgebra::test_clifford_algebra_product 1'] = '''ComplexCl1_1 mul(ComplexCl1_1 X, ComplexCl1_1 Y){
+    return ComplexCl1_1(X.ONE*Y.ONE - X.e1*Y.e1 + X.e12*Y.e12 + X.e2*Y.e2, X.ONE*Y.e1 + X.e1*Y.ONE + X.e12*Y.e2 - X.e2*Y.e12, X.ONE*Y.e2 - X.e1*Y.e12 + X.e12*Y.e1 + X.e2*Y.ONE, X.ONE*Y.e12 + X.e1*Y.e2 + X.e12*Y.ONE - X.e2*Y.e1);
+}'''
+
+snapshots['TestCliffordAlgebra::test_clifford_algebra_product 2'] = '''ComplexCl1_1 reverse(ComplexCl1_1 X){
+    return ComplexCl1_1(X.ONE, X.e1, X.e2, -X.e12);
+}'''
+
+snapshots['TestComplexNumbers::test_one 1'] = '''C one(){
+    return C(1.0, 0.0);
+}'''
+
+snapshots['TestComplexNumbers::test_product 1'] = '''C mul(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
+}'''
+
+snapshots['TestDualNumbers::test_one 1'] = '''Dual one(){
+    return Dual(1.0, 0.0);
+}'''
+
+snapshots['TestDualNumbers::test_product 1'] = '''Dual mul(Dual X, Dual Y){
+    return Dual(X.real*Y.real, X.nil*Y.real + X.real*Y.nil);
+}'''

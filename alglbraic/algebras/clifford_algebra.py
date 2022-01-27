@@ -79,7 +79,7 @@ class CliffordAlgebra(Algebra):
     def _coefficients_from_algebraic_element(self, element):
         from sympy import sympify
 
-        if self.base_ring == "float":
+        if self.base_ring == "float" or True:
             return [
                 sympify(co).evalf() if co != 0 else 0.0 for co in element.blade_coefs()
             ]
@@ -144,7 +144,7 @@ class CliffordAlgebra(Algebra):
 
     @GLSL(depends_on=[reverse, grade_involution])
     def conjugation(self, **kwargs):
-        result = "reverse(involve(u))"
+        result = "reverse(involve({}))".format(self.n_ary_argnames()[0])
         return self.algebraic_operation("conjugate", result, n=1, **kwargs)
 
 class ComplexNumbers(CliffordAlgebra):
@@ -162,17 +162,18 @@ class ComplexNumbers(CliffordAlgebra):
 
 
 class DualNumbers(CliffordAlgebra):
-    def __init__(self, name="Dual", base_ring="float", unit="real", **kwargs):
-        basis_names = ["real", "nilpotent"]
+    def __init__(self, size=1, name="Dual", base_ring="float", unit="real", **kwargs):
+        basis_names = ["real"]+["nil{}".format(i+1) for i in range(size)] if size > 1 else ["real", "nil"]
         opts = {
             "name": name,
-            "quadratic_form": [0],
+            "quadratic_form": size*[0],
             "basis_names": basis_names,
             "unit": unit,
             "base_ring": base_ring,
         }
         opts.update(kwargs)
         CliffordAlgebra.__init__(self, **opts)
+        self.U, self.V, self.W = self.UVW = ['F', 'G', 'H']
 
     @GLSL
     def pseudoscalar(self, **kwargs):

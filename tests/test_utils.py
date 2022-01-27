@@ -1,9 +1,9 @@
-import snapshottest
+from snapshottest import TestCase
 
 from alglbraic.util import MetaString
 
 
-class TestMetaString(snapshottest.TestCase):
+class TestMetaString(TestCase):
     def test_meta_string(self):
         assert isinstance(MetaString("abc"), str)
         assert issubclass(MetaString(x=5), MetaString)

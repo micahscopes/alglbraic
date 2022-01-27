@@ -1,11 +1,11 @@
 import unittest
-import snapshottest
+from snapshottest import TestCase
 from alglbraic.finite_module import FiniteModule
 from sympy import glsl_code
 
 from alglbraic.glsl import GlslStruct
 
-class TestFiniteModule(snapshottest.TestCase):
+class TestFiniteModule(TestCase):
 
     def setUp(self):
         self.module = FiniteModule(

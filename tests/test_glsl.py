@@ -1,10 +1,9 @@
-import snapshottest
-
+from snapshottest import TestCase
 from alglbraic.glsl import GlslBundler, GlslStruct, glsl_meta, GLSL
 from alglbraic.glsl import glsl_snippet
 
 
-class TestGlslBundler(snapshottest.TestCase):
+class TestGlslBundler(TestCase):
     def setUp(self):
         self.struct = GlslStruct(
             "Cl_1_1", "float ONE", "float e1", "float e2", "float e12"
@@ -23,7 +22,7 @@ class TestGlslBundler(snapshottest.TestCase):
         self.assertMatchSnapshot(C.bundle())
 
 
-class TestMetaGlsl(snapshottest.TestCase):
+class TestMetaGlsl(TestCase):
     def test_get_meta(self):
         misc_info = "Did you know that some sharks have belly buttons?"
 
@@ -50,7 +49,7 @@ class TestMetaGlsl(snapshottest.TestCase):
         assert b.GLSL.info == "woah"
 
 
-class TestGlslDependencyGraph(snapshottest.TestCase):
+class TestGlslDependencyGraph(TestCase):
     def test_sort_snippets(self):
         from alglbraic.algebras.clifford_algebra import ComplexNumbers
 

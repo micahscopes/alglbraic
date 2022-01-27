@@ -1,9 +1,10 @@
-import snapshottest
+from snapshottest import TestCase
 from click.testing import CliRunner
 from alglbraic.util.cli import build_cli
 
 
-class TestCLI(snapshottest.TestCase):
+
+class TestCLI(TestCase):
     def setUp(self):
         self.runner = CliRunner()
 

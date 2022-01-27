@@ -1,7 +1,7 @@
-import snapshottest
 from alglbraic.glsl import GlslStruct
+from snapshottest import TestCase
 
-class TestGlslStruct(snapshottest.TestCase):
+class TestGlslStruct(TestCase):
     def setUp(self):
         self.struct = GlslStruct(
             "Cl_1_1", "float ONE", "float e1", "float e2", "float e12"
@@ -31,7 +31,7 @@ class TestGlslStruct(snapshottest.TestCase):
             str(self.struct.build_from_array())
         )
 
-class TestArrayTools(snapshottest.TestCase):
+class TestArrayTools(TestCase):
     def setUp(self):
 
         self.struct = GlslStruct(

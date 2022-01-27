@@ -1,8 +1,7 @@
-import snapshottest
 from alglbraic.algebra import Algebra
+from snapshottest import TestCase
 
-
-class TestGlslTypes(snapshottest.TestCase):
+class TestGlslTypes(TestCase):
     def setUp(self):
         self.algebra = Algebra("Algebra", "BaseRing", "e1", "e2", "e3", "e4")
 

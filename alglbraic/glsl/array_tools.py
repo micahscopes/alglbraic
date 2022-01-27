@@ -14,12 +14,12 @@ class BuildFromArray(object):
 
         template = Template(
             """\
-void $fn_name(inout $base_type x[$size]){
+void $fn_name(inout $base_type X[$size]){
     $assignments;
 }"""
         )
 
-        x = IndexedBase("x")
+        x = IndexedBase("X")
 
         assignments = separator.join(
             "%s = %s" % (x[i], self.base_zero()) for i in range(len(self))
@@ -43,12 +43,12 @@ void $fn_name(inout $base_type x[$size]){
 
         template = Template(
             """\
-$type_name $fn_name($base_type x[$size]){
+$type_name $fn_name($base_type X[$size]){
     return $type_name($array_members);
 }"""
         )
 
-        x = IndexedBase("x")
+        x = IndexedBase("X")
         array_members = separator.join([str(x[i]) for i in range(len(self))])
         return template.substitute(
             fn_name=name,
@@ -68,14 +68,14 @@ $type_name $fn_name($base_type x[$size]){
 
         template = Template(
             """\
-void $fn_name($type_name x, inout $base_type x_ary[$size]){
+void $fn_name($type_name X, inout $base_type X_ary[$size]){
     $assignments;
 }"""
         )
 
         assignments = separator.join(
-            ("x_ary[%i] = %s" % (i, x))
-            for (i, x) in enumerate(self.symbols_vector_for("x"))
+            ("X_ary[%i] = %s" % (i, x))
+            for (i, x) in enumerate(self.symbols_vector_for("X"))
         )
 
         return template.substitute(
@@ -98,15 +98,15 @@ def struct_injections(struct, members, inject_fn_name="inject", separator=";\n  
 
             template = Template(
                 """\
-/* Inject array v at the indices for $member_names in array u */
-void ${fn_name}Array(inout $base_type u[$struct_size], $base_type v[$injection_size]){
+/* Inject array V at the indices for $member_names in array U */
+void ${fn_name}Array(inout $base_type U[$struct_size], $base_type V[$injection_size]){
     $injection
 }"""
             )
 
-            u = IndexedBase("u")
-            v = IndexedBase("v")
-            i_u = IndexedBase("i_u")
+            u = IndexedBase("U")
+            v = IndexedBase("V")
+            i_u = IndexedBase("i_U")
 
             injection = (
                 separator.join(
@@ -130,12 +130,12 @@ void ${fn_name}Array(inout $base_type u[$struct_size], $base_type v[$injection_s
         def into_struct_from_subarray(self):
             template = Template(
                 """\
-/* Inject array v into $member_names of struct u */
-$type_name $fn_name($type_name u, $base_type v[$injection_size]){
-    $base_type u_ary[$struct_size];
-    toArray(u, u_ary);
-    ${fn_name}Array(u_ary, v);
-    return fromArray(u_ary);
+/* Inject array V into $member_names of struct U */
+$type_name $fn_name($type_name U, $base_type V[$injection_size]){
+    $base_type U_ary[$struct_size];
+    toArray(U, U_ary);
+    ${fn_name}Array(U_ary, V);
+    return fromArray(U_ary);
 }"""
             )
 

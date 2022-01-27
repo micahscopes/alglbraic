@@ -60,7 +60,7 @@ def constant(function_name, return_value, **kwargs):
 
 
 class OperationsMixin(object):
-    A, B, C = ABC = ["a", "b", "c"]
+    A, B, C, D = ABCD = ["a", "b", "c", "d"]
     U, V, W = UVW = ["u", "v", "w"]
     X, Y, Z = XYZ = ["x", "y", "z"]
     L, M, N = LMN = ["l", "m", "n"]
@@ -73,8 +73,8 @@ class OperationsMixin(object):
     def symbolic_arguments(self, n=2):
         return [self.symbols_vector_for(arg) for arg in self.n_ary_argnames(n)]
 
-    def n_ary_argnames(self, n=2):
-        return (self.UVW + self.PQRST + self.LMN + self.XYZ)[:n]
+    def n_ary_argnames(self, n=2, capitalize=True):
+        return [x.upper() if capitalize else x for x in (self.XYZ + self.PQRST + self.LMN + self.UVW)][:n]
 
     def n_ary_operation(self, n, function_name, result, use_operators=False):
         input_types = [self.type_name] * n

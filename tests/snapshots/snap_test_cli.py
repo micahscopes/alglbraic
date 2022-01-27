@@ -15,30 +15,30 @@ struct C {
     float imag;
 };
 
-C fromArray(float x[2]){
-    return C(x[0], x[1]);
+C fromArray(float X[2]){
+    return C(X[0], X[1]);
 }
 
-void toArray(C x, inout float x_ary[2]){
-    x_ary[0] = x.real;
-    x_ary[1] = x.imag;
+void toArray(C X, inout float X_ary[2]){
+    X_ary[0] = X.real;
+    X_ary[1] = X.imag;
 }
 
-void zero(inout float x[2]){
-    x[0] = 0.0;
-    x[1] = 0.0;
+void zero(inout float X[2]){
+    X[0] = 0.0;
+    X[1] = 0.0;
 }
 
-C add(C u, C v){
-    return C(u.real + v.real, u.imag + v.imag);
+C add(C X, C Y){
+    return C(X.real + Y.real, X.imag + Y.imag);
 }
 
-C add(C u, C v, C w){
-    return add(add(u, v), w);
+C add(C X, C Y, C Z){
+    return add(add(X, Y), Z);
 }
 
-C add(C u, C v, C w, C p){
-    return add(add(add(u, v), w), p);
+C add(C X, C Y, C Z, C P){
+    return add(add(add(X, Y), Z), P);
 }
 
 C one(){
@@ -47,104 +47,104 @@ C one(){
 
 
 
-C sub(C u, C v){
-    return C(u.real - v.real, u.imag - v.imag);
+C sub(C X, C Y){
+    return C(X.real - Y.real, X.imag - Y.imag);
 }
 
 C zero(){
     return C(0.0, 0.0);
 }
 
-C mul(float a, C x){
-    return C(a*x.real, a*x.imag);
+C mul(float a, C X){
+    return C(X.real*a, X.imag*a);
 }
 
-C mul(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
+C mul(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
-C mul(int a, C x){
-    return mul(float(a), x);
+C mul(int a, C X){
+    return mul(float(a), X);
 }
 
-C mul(C u, C v, C w){
-    return mul(mul(u, v), w);
+C mul(C X, C Y, C Z){
+    return mul(mul(X, Y), Z);
 }
 
-C dual(C u){
-    return C(u.imag, -u.real);
+C dual(C X){
+    return C(X.imag, -X.real);
 }
 
-C involve(C u){
-    return C(u.real, -u.imag);
+C involve(C X){
+    return C(X.real, -X.imag);
 }
 
-C inner(C u, C v){
-    return C(-u.imag*v.imag, 0.0);
+C inner(C X, C Y){
+    return C(-X.imag*Y.imag, 0.0);
 }
 
-C lcontract(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.real*v.imag);
+C lcontract(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.real*Y.imag);
 }
 
-C outer(C u, C v){
-    return C(u.real*v.real, u.imag*v.real + u.real*v.imag);
+C outer(C X, C Y){
+    return C(X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
 C I(){
     return C(0.0, 1.0);
 }
 
-C rcontract(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real);
+C rcontract(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real);
 }
 
-C reverse(C u){
-    return C(u.real, u.imag);
+C reverse(C X){
+    return C(X.real, X.imag);
 }
 
-C conjugate(C u){
-    return reverse(involve(u));
+C conjugate(C X){
+    return reverse(involve(X));
 }
 
-C outer(C u, C v, C w){
-    return outer(outer(u, v), w);
+C outer(C X, C Y, C Z){
+    return outer(outer(X, Y), Z);
 }
 
 '''
 
 snapshots['TestCLI::test_dual_numbers 1'] = '''const int I_Dual_real = 0;
-const int I_Dual_nilpotent = 1;
+const int I_Dual_nil = 1;
 
 struct Dual {
     float real;
-    float nilpotent;
+    float nil;
 };
 
-Dual fromArray(float x[2]){
-    return Dual(x[0], x[1]);
+Dual fromArray(float X[2]){
+    return Dual(X[0], X[1]);
 }
 
-void toArray(Dual x, inout float x_ary[2]){
-    x_ary[0] = x.real;
-    x_ary[1] = x.nilpotent;
+void toArray(Dual X, inout float X_ary[2]){
+    X_ary[0] = X.real;
+    X_ary[1] = X.nil;
 }
 
-void zero(inout float x[2]){
-    x[0] = 0.0;
-    x[1] = 0.0;
+void zero(inout float X[2]){
+    X[0] = 0.0;
+    X[1] = 0.0;
 }
 
-Dual add(Dual u, Dual v){
-    return Dual(u.real + v.real, u.nilpotent + v.nilpotent);
+Dual add(Dual X, Dual Y){
+    return Dual(X.real + Y.real, X.nil + Y.nil);
 }
 
-Dual add(Dual u, Dual v, Dual w){
-    return add(add(u, v), w);
+Dual add(Dual X, Dual Y, Dual Z){
+    return add(add(X, Y), Z);
 }
 
-Dual add(Dual u, Dual v, Dual w, Dual p){
-    return add(add(add(u, v), w), p);
+Dual add(Dual X, Dual Y, Dual Z, Dual P){
+    return add(add(add(X, Y), Z), P);
 }
 
 Dual one(){
@@ -153,68 +153,68 @@ Dual one(){
 
 
 
-Dual sub(Dual u, Dual v){
-    return Dual(u.real - v.real, u.nilpotent - v.nilpotent);
+Dual sub(Dual X, Dual Y){
+    return Dual(X.real - Y.real, X.nil - Y.nil);
 }
 
 Dual zero(){
     return Dual(0.0, 0.0);
 }
 
-Dual mul(float a, Dual x){
-    return Dual(a*x.real, a*x.nilpotent);
+Dual mul(float a, Dual X){
+    return Dual(X.real*a, X.nil*a);
 }
 
-Dual mul(Dual u, Dual v){
-    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
+Dual mul(Dual X, Dual Y){
+    return Dual(X.real*Y.real, X.nil*Y.real + X.real*Y.nil);
 }
 
-Dual mul(int a, Dual x){
-    return mul(float(a), x);
+Dual mul(int a, Dual X){
+    return mul(float(a), X);
 }
 
-Dual mul(Dual u, Dual v, Dual w){
-    return mul(mul(u, v), w);
+Dual mul(Dual X, Dual Y, Dual Z){
+    return mul(mul(X, Y), Z);
 }
 
-Dual dual(Dual u){
+Dual dual(Dual X){
     return Dual(0.0, 0.0);
 }
 
-Dual involve(Dual u){
-    return Dual(u.real, -u.nilpotent);
+Dual involve(Dual X){
+    return Dual(X.real, -X.nil);
 }
 
-Dual inner(Dual u, Dual v){
+Dual inner(Dual X, Dual Y){
     return Dual(0.0, 0.0);
 }
 
-Dual lcontract(Dual u, Dual v){
-    return Dual(u.real*v.real, u.real*v.nilpotent);
+Dual lcontract(Dual X, Dual Y){
+    return Dual(X.real*Y.real, X.real*Y.nil);
 }
 
-Dual outer(Dual u, Dual v){
-    return Dual(u.real*v.real, u.nilpotent*v.real + u.real*v.nilpotent);
+Dual outer(Dual X, Dual Y){
+    return Dual(X.real*Y.real, X.nil*Y.real + X.real*Y.nil);
 }
 
-Dual rcontract(Dual u, Dual v){
-    return Dual(u.real*v.real, u.nilpotent*v.real);
+Dual rcontract(Dual X, Dual Y){
+    return Dual(X.real*Y.real, X.nil*Y.real);
 }
 
-Dual reverse(Dual u){
-    return Dual(u.real, u.nilpotent);
+Dual reverse(Dual X){
+    return Dual(X.real, X.nil);
 }
 
 Dual I(){
     return Dual(0.0, 1.0);
 }
 
-Dual conjugate(Dual u){
-    return reverse(involve(u));
+Dual conjugate(Dual X){
+    return reverse(involve(X));
 }
 
-Dual outer(Dual u, Dual v, Dual w){
-    return outer(outer(u, v), w);
+Dual outer(Dual X, Dual Y, Dual Z){
+    return outer(outer(X, Y), Z);
 }
 
 '''

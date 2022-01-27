@@ -1,5 +1,5 @@
 import unittest
-import snapshottest
+from snapshottest import TestCase
 from sympy import glsl_code
 from sympy.abc import *
 
@@ -7,7 +7,7 @@ from alglbraic.functions import operator
 from alglbraic.glsl import StructElement
 
 
-class TestOperator(snapshottest.TestCase):
+class TestOperator(TestCase):
     def test_simple_expr(self):
         op = operator("add", "float a", "float b", ("float", a + b * a))
         self.assert_match_snapshot(op)
@@ -43,7 +43,7 @@ class TestOperator(snapshottest.TestCase):
 from alglbraic.functions import constant
 
 
-class TestConstant(snapshottest.TestCase):
+class TestConstant(TestCase):
     def test_constant(self):
         one = constant("one", ("float", 1.0))
 

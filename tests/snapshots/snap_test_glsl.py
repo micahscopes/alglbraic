@@ -15,30 +15,30 @@ struct C {
     float imag;
 };
 
-C fromArray(float x[2]){
-    return C(x[0], x[1]);
+C fromArray(float X[2]){
+    return C(X[0], X[1]);
 }
 
-void toArray(C x, inout float x_ary[2]){
-    x_ary[0] = x.real;
-    x_ary[1] = x.imag;
+void toArray(C X, inout float X_ary[2]){
+    X_ary[0] = X.real;
+    X_ary[1] = X.imag;
 }
 
-void zero(inout float x[2]){
-    x[0] = 0.0;
-    x[1] = 0.0;
+void zero(inout float X[2]){
+    X[0] = 0.0;
+    X[1] = 0.0;
 }
 
-C add(C u, C v){
-    return C(u.real + v.real, u.imag + v.imag);
+C add(C X, C Y){
+    return C(X.real + Y.real, X.imag + Y.imag);
 }
 
-C add(C u, C v, C w){
-    return add(add(u, v), w);
+C add(C X, C Y, C Z){
+    return add(add(X, Y), Z);
 }
 
-C add(C u, C v, C w, C p){
-    return add(add(add(u, v), w), p);
+C add(C X, C Y, C Z, C P){
+    return add(add(add(X, Y), Z), P);
 }
 
 C one(){
@@ -47,67 +47,67 @@ C one(){
 
 
 
-C sub(C u, C v){
-    return C(u.real - v.real, u.imag - v.imag);
+C sub(C X, C Y){
+    return C(X.real - Y.real, X.imag - Y.imag);
 }
 
 C zero(){
     return C(0.0, 0.0);
 }
 
-C mul(float a, C x){
-    return C(a*x.real, a*x.imag);
+C mul(float a, C X){
+    return C(X.real*a, X.imag*a);
 }
 
-C mul(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real + u.real*v.imag);
+C mul(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
-C mul(int a, C x){
-    return mul(float(a), x);
+C mul(int a, C X){
+    return mul(float(a), X);
 }
 
-C mul(C u, C v, C w){
-    return mul(mul(u, v), w);
+C mul(C X, C Y, C Z){
+    return mul(mul(X, Y), Z);
 }
 
-C dual(C u){
-    return C(u.imag, -u.real);
+C dual(C X){
+    return C(X.imag, -X.real);
 }
 
-C involve(C u){
-    return C(u.real, -u.imag);
+C involve(C X){
+    return C(X.real, -X.imag);
 }
 
-C inner(C u, C v){
-    return C(-u.imag*v.imag, 0.0);
+C inner(C X, C Y){
+    return C(-X.imag*Y.imag, 0.0);
 }
 
-C lcontract(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.real*v.imag);
+C lcontract(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.real*Y.imag);
 }
 
-C outer(C u, C v){
-    return C(u.real*v.real, u.imag*v.real + u.real*v.imag);
+C outer(C X, C Y){
+    return C(X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
 C I(){
     return C(0.0, 1.0);
 }
 
-C rcontract(C u, C v){
-    return C(-u.imag*v.imag + u.real*v.real, u.imag*v.real);
+C rcontract(C X, C Y){
+    return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real);
 }
 
-C reverse(C u){
-    return C(u.real, u.imag);
+C reverse(C X){
+    return C(X.real, X.imag);
 }
 
-C conjugate(C u){
-    return reverse(involve(u));
+C conjugate(C X){
+    return reverse(involve(X));
 }
 
-C outer(C u, C v, C w){
-    return outer(outer(u, v), w);
+C outer(C X, C Y, C Z){
+    return outer(outer(X, Y), Z);
 }
 '''
