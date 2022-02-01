@@ -54,7 +54,6 @@ class CliffordAlgebra(Algebra):
             else:
                 grade_1_basis_names = " ".join(grade_1_basis_names)
 
-            # import ipdb; ipdb.set_trace()
             the_void = io.StringIO()
             with contextlib.redirect_stdout(the_void):
                 ga = Ga.build(grade_1_basis_names, g=quadratic_form)
@@ -92,14 +91,11 @@ class CliffordAlgebra(Algebra):
         )
 
     @GLSL
-    def pseudoscalar(self, **kwargs):
-        result = self.Cl.I()
-        return self.algebraic_operation("I", result, n=0, **kwargs)
-
-    @GLSL
-    def dual(self, **kwargs):
-        result = self.algebraic_arguments(1) / self.Cl.I()
-        return self.algebraic_operation("dual", result, n=1, **kwargs)
+    def pseudoscalar(self, function_name=None, **kwargs):
+        function_name = function_name if function_name else self.ZERO
+        pseudoscalar = self.zero_symbols()
+        pseudoscalar[-1] = self.base_one()
+        return self.constant(self.typed_name("I"), self.gl(pseudoscalar), **kwargs)
 
     @GLSL
     def inner(self, **kwargs):
@@ -142,10 +138,53 @@ class CliffordAlgebra(Algebra):
         result = x.even() - x.odd()
         return self.algebraic_operation("involve", result, n=1, **kwargs)
 
+    # @GLSL
+    # def pow3(self, **kwargs):
+    #     x = self.algebraic_arguments(1)
+    #     result = x*x*x/2.0
+    #     return self.algebraic_operation("pow3", result, n=1, **kwargs)
+
     @GLSL(depends_on=[reverse, grade_involution])
     def conjugation(self, **kwargs):
         result = "reverse(involve({}))".format(self.n_ary_argnames()[0])
         return self.algebraic_operation("conjugate", result, n=1, **kwargs)
+
+    @GLSL(depends_on=[conjugation, lcontract])
+    def inverse(self, **kwargs):
+        # if len(self.Cl.blades[1]) <= 3:
+        #     X = self.algebraic_arguments(1)
+        #     involve = lambda x: (x.even() - x.odd()).rev()
+        #     X_involution = involve(X)
+        #     result = X_involution/(X|X_involution).scalar()
+        #     return self.algebraic_operation("inverse", result, n=1, **kwargs)
+        # else:
+        X = self.n_ary_argnames()[0]
+        if self.base_ring == 'float':
+            result = "mul(1.0/lcontract({x},conjugate({x})).scalar, conjugate({x}))".format(x=X)
+        else:
+            result = "mul(inverse(lcontract({x},conjugate({x})).scalar), conjugate({x}))".format(x=X)
+        return self.algebraic_operation("inverse", result, n=1, **kwargs)
+
+
+    @GLSL(depends_on=[inverse])
+    def div(self, **kwargs):
+        # if len(self.Cl.blades[1]) <= 3:
+        #     X, Y = self.algebraic_arguments(2)
+        #     result = X*Y.rev()/(Y|Y.rev()).scalar()
+        #     return self.algebraic_operation("div", result, n=2, **kwargs)
+        # else:
+        p, q = self.n_ary_argnames(2)
+        result = "mul({}, inverse({}))".format(p, q)
+        return self.algebraic_operation("div", result)
+
+    @GLSL(depends_on=[div, pseudoscalar])
+    def dual(self, **kwargs):
+        # result = self.algebraic_arguments(1) / self.Cl.mv(self.Cl.blades_lst[-1])
+        # return self.algebraic_operation("dual", result, n=1, **kwargs)
+        p = self.n_ary_argnames(1)[0]
+        result = "div({}, {})".format(p, self.typed_name("I"))
+        return self.algebraic_operation("dual", result, n=1)
+
 
 class ComplexNumbers(CliffordAlgebra):
     def __init__(self, name="C", base_ring="float", unit="real", **kwargs):
@@ -162,11 +201,15 @@ class ComplexNumbers(CliffordAlgebra):
 
 
 class DualNumbers(CliffordAlgebra):
-    def __init__(self, size=1, name="Dual", base_ring="float", unit="real", **kwargs):
-        basis_names = ["real"]+["nil{}".format(i+1) for i in range(size)] if size > 1 else ["real", "nil"]
+    def __init__(self, size=1, name="Dual", base_ring="float", unit="scalar", **kwargs):
+        # this could be more clear but for some reason galgebra works best with explicit basis
+        # names when `size == 1` and I'm not gonna fight
+        grade_1_basis_names = ["nil{}".format(i+1) for i in range(size)] if size > 1 else None
+        basis_names = [unit, "nil"] if size == 1 else None
         opts = {
             "name": name,
             "quadratic_form": size*[0],
+            "grade_1_basis_names": grade_1_basis_names,
             "basis_names": basis_names,
             "unit": unit,
             "base_ring": base_ring,
@@ -174,12 +217,6 @@ class DualNumbers(CliffordAlgebra):
         opts.update(kwargs)
         CliffordAlgebra.__init__(self, **opts)
         self.U, self.V, self.W = self.UVW = ['F', 'G', 'H']
-
-    @GLSL
-    def pseudoscalar(self, **kwargs):
-        result = self._grade_1_basis[0]
-        return self.algebraic_operation("I", result, n=0, **kwargs)
-
 
 class ConformalGeometricAlgebra(CliffordAlgebra):
     def __init__(self, dimension, name=None, quadratic_form=None, **opts):
@@ -198,4 +235,3 @@ class ConformalGeometricAlgebra(CliffordAlgebra):
         CliffordAlgebra.__init__(
             self, name, quadratic_form, grade_1_basis_names, **opts
         )
-        # import ipdb; ipdb.set_trace()

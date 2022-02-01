@@ -40,14 +40,12 @@ class TestOperator(TestCase):
         self.assert_match_snapshot(op)
 
 
-from alglbraic.functions import constant
 
+# class TestConstant(TestCase):
+#     def test_constant(self):
+#         one = constant("one", ("float", 1.0))
 
-class TestConstant(TestCase):
-    def test_constant(self):
-        one = constant("one", ("float", 1.0))
-
-        self.assert_match_snapshot(one)
+#         self.assert_match_snapshot(one)
 
 
 if __name__ == "__main__":

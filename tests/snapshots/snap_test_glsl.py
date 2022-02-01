@@ -7,8 +7,8 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''const int I_C_real = 0;
-const int I_C_imag = 1;
+snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''const int Idx_C_real = 0;
+const int Idx_C_imag = 1;
 
 struct C {
     float real;
@@ -41,38 +41,34 @@ C add(C X, C Y, C Z, C P){
     return add(add(add(X, Y), Z), P);
 }
 
-C one(){
-    return C(1.0, 0.0);
+#define ONE_C C(1.0, 0.0)
+
+C mul(float a, C X){
+    return C(X.real*a, X.imag*a);
 }
-
-
 
 C sub(C X, C Y){
     return C(X.real - Y.real, X.imag - Y.imag);
 }
 
-C zero(){
-    return C(0.0, 0.0);
-}
+#define ZERO_C C(0.0, 0.0)
 
-C mul(float a, C X){
-    return C(X.real*a, X.imag*a);
+
+
+C mul(int a, C X){
+    return mul(float(a), X);
 }
 
 C mul(C X, C Y){
     return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
-C mul(int a, C X){
-    return mul(float(a), X);
+C scalar_C(float a){
+    return mul(a, ONE_C);
 }
 
 C mul(C X, C Y, C Z){
     return mul(mul(X, Y), Z);
-}
-
-C dual(C X){
-    return C(X.imag, -X.real);
 }
 
 C involve(C X){
@@ -91,9 +87,7 @@ C outer(C X, C Y){
     return C(X.real*Y.real, X.imag*Y.real + X.real*Y.imag);
 }
 
-C I(){
-    return C(0.0, 1.0);
-}
+#define I_C C(0.0, 1.0)
 
 C rcontract(C X, C Y){
     return C(-X.imag*Y.imag + X.real*Y.real, X.imag*Y.real);
@@ -103,11 +97,25 @@ C reverse(C X){
     return C(X.real, X.imag);
 }
 
+
+
 C conjugate(C X){
     return reverse(involve(X));
 }
 
 C outer(C X, C Y, C Z){
     return outer(outer(X, Y), Z);
+}
+
+C inverse(C X){
+    return mul(1.0/lcontract(X,conjugate(X)).scalar, conjugate(X));
+}
+
+C div(C X, C Y){
+    return mul(X, inverse(Y));
+}
+
+C dual(C X){
+    return div(X, I_C);
 }
 '''

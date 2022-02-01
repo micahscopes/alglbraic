@@ -7,10 +7,6 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['TestConstant::test_constant 1'] = '''float one(){
-    return 1.00000000000000;
-}'''
-
 snapshots['TestOperator::test_array_expr 1'] = '''float[25] mul(float[25] x, float[25] y){
     return float[25](
    x[0]*y[0] + x[5]*y[1] + x[10]*y[2] + x[15]*y[3] + x[20]*y[4], x[0]*y[5] + x[5]*y[6] + x[10]*y[7] + x[15]*y[8] + x[20]*y[9], x[0]*y[10] + x[5]*y[11] + x[10]*y[12] + x[15]*y[13] + x[20]*y[14], x[0]*y[15] + x[5]*y[16] + x[10]*y[17] + x[15]*y[18] + x[20]*y[19], x[0]*y[20] + x[5]*y[21] + x[10]*y[22] + x[15]*y[23] + x[20]*y[24],

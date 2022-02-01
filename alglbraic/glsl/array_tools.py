@@ -58,6 +58,7 @@ $type_name $fn_name($base_type X[$size]){
             size=len(self),
         )
 
+
     @GLSL(depends_on=["definition"])
     def export_to_array(self, name="toArray", separator=";\n    "):
         if not self.uniform_member_type:
@@ -132,6 +133,28 @@ void ${fn_name}Array(inout $base_type U[$struct_size], $base_type V[$injection_s
                 """\
 /* Inject array V into $member_names of struct U */
 $type_name $fn_name($type_name U, $base_type V[$injection_size]){
+    $base_type U_ary[$struct_size];
+    toArray(U, U_ary);
+    ${fn_name}Array(U_ary, V);
+    return fromArray(U_ary);
+}"""
+            )
+
+            return template.substitute(
+                fn_name=inject_fn_name,
+                type_name=struct.type_name,
+                base_type=struct.uniform_member_type,
+                injection_size=len(members),
+                struct_size=len(struct),
+                member_names=', '.join(members)
+            )
+
+        @GLSL
+        def into_struct_from_float_subarray(self):
+            template = Template(
+                """\
+/* Inject array V into $member_names of struct U */
+$type_name $fn_name($type_name U, float V[$injection_size]){
     $base_type U_ary[$struct_size];
     toArray(U, U_ary);
     ${fn_name}Array(U_ary, V);

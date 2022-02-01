@@ -55,9 +55,6 @@ def operator(function_name, *args, **kwargs):
     )
 
 
-def constant(function_name, return_value, **kwargs):
-    return operator(function_name, return_value, **kwargs)
-
 
 class OperationsMixin(object):
     A, B, C, D = ABCD = ["a", "b", "c", "d"]
@@ -66,6 +63,11 @@ class OperationsMixin(object):
     L, M, N = LMN = ["l", "m", "n"]
     P, Q, R, S, T = PQRST = ["p", "q", "r", "s", "t"]
     type_name = NotImplemented
+
+    def constant(self, function_name, return_value, **kwargs):
+        return "#define {} {}".format(function_name, glsl_snippet(return_value).replace("\n","") if not isinstance(return_value, str) else return_value)
+    # def constant(self, function_name, return_value, **kwargs):
+    #     return operator(function_name, return_value, **kwargs)
 
     def gl(self, *args, **kwargs):
         return NotImplemented

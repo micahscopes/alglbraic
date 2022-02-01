@@ -135,7 +135,6 @@ def dummy():
     click.echo("I M DUM")
 
 cli = build_cli()
-# cli = build_cli()
-# import ipdb; ipdb.set_trace()
+
 if __name__ == "__main__":
     cli()

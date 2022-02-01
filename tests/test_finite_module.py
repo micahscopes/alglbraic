@@ -1,7 +1,7 @@
 import unittest
 from snapshottest import TestCase
 from alglbraic.finite_module import FiniteModule
-from sympy import glsl_code
+from sympy import glsl_code, Symbol
 
 from alglbraic.glsl import GlslStruct
 

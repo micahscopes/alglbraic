@@ -15,13 +15,13 @@ def RepresentsInt(s):
 
 
 class StructElement(Basic):
-    # this is really a hack because the GLSL code printer in Sympy
     def __init__(self, struct, expr):
         self.struct = struct
         self.expr = expr
 
     def _glsl(self, printer):
         result = printer._print(self.expr)
+        # a hack
         return re.sub(r"([^\(]*)(\(.*)", r"{}\2".format(self.struct), result, flags=re.S)
 
 class GlslStruct(GlslBundler, array_tools.BuildFromArray):
@@ -32,11 +32,15 @@ class GlslStruct(GlslBundler, array_tools.BuildFromArray):
             *[mt.split() for mt in member_declarations]
         )
 
+
+    def typed_name(self, fn, type_name=None):
+        return "{}_{}".format(fn, type_name if type_name else self.type_name)
+
     def member_index_const(self, member):
         i = int(member) if RepresentsInt(member) else None
         i = self.member_names.index(member) if i is None else i
         member_name = self.member_names[i]
-        return "I_%s_%s" % (self.type_name, member_name)
+        return "Idx_%s_%s" % (self.type_name, member_name)
 
     def injections(self, members, inject_fn_name="inject"):
         if len(members) > len(self):
