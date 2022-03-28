@@ -107,12 +107,12 @@ C outer(C X, C Y, C Z){
     return outer(outer(X, Y), Z);
 }
 
-C inverse(C X){
-    return mul(1.0/lcontract(X,conjugate(X)).scalar, conjugate(X));
+C invert(C X){
+    return mul(1.0/lcontract(X,conjugate(X)).real, conjugate(X));
 }
 
 C div(C X, C Y){
-    return mul(X, inverse(Y));
+    return mul(X, invert(Y));
 }
 
 C dual(C X){
@@ -221,12 +221,12 @@ Dual outer(Dual X, Dual Y, Dual Z){
     return outer(outer(X, Y), Z);
 }
 
-Dual inverse(Dual X){
+Dual invert(Dual X){
     return mul(1.0/lcontract(X,conjugate(X)).scalar, conjugate(X));
 }
 
 Dual div(Dual X, Dual Y){
-    return mul(X, inverse(Y));
+    return mul(X, invert(Y));
 }
 
 Dual dual(Dual X){

@@ -163,12 +163,12 @@ CGA2 outer(CGA2 X, CGA2 Y, CGA2 Z){
     return outer(outer(X, Y), Z);
 }
 
-CGA2 inverse(CGA2 X){
+CGA2 invert(CGA2 X){
     return mul(1.0/lcontract(X,conjugate(X)).scalar, conjugate(X));
 }
 
 CGA2 div(CGA2 X, CGA2 Y){
-    return mul(X, inverse(Y));
+    return mul(X, invert(Y));
 }
 
 CGA2 dual(CGA2 X){
@@ -292,12 +292,12 @@ ComplexCl1_1 outer(ComplexCl1_1 X, ComplexCl1_1 Y, ComplexCl1_1 Z){
     return outer(outer(X, Y), Z);
 }
 
-ComplexCl1_1 inverse(ComplexCl1_1 X){
-    return mul(inverse(lcontract(X,conjugate(X)).scalar), conjugate(X));
+ComplexCl1_1 invert(ComplexCl1_1 X){
+    return mul(invert(lcontract(X,conjugate(X)).ONE), conjugate(X));
 }
 
 ComplexCl1_1 div(ComplexCl1_1 X, ComplexCl1_1 Y){
-    return mul(X, inverse(Y));
+    return mul(X, invert(Y));
 }
 
 ComplexCl1_1 dual(ComplexCl1_1 X){
@@ -323,4 +323,10 @@ snapshots['TestDualNumbers::test_one 1'] = '#define ONE_Dual Dual(1.0, 0.0)'
 
 snapshots['TestDualNumbers::test_product 1'] = '''Dual mul(Dual X, Dual Y){
     return Dual(X.scalar*Y.scalar, X.nil*Y.scalar + X.scalar*Y.nil);
+}'''
+
+snapshots['TestQuaternions::test_one 1'] = '#define ONE_H H(1.0, 0.0, 0.0, 0.0)'
+
+snapshots['TestQuaternions::test_product 1'] = '''H mul(H X, H Y){
+    return H(-X.i*Y.i - X.j*Y.j - X.k*Y.k + X.real*Y.real, X.i*Y.real + X.j*Y.k - X.k*Y.j + X.real*Y.i, -X.i*Y.k + X.j*Y.real + X.k*Y.i + X.real*Y.j, X.i*Y.j - X.j*Y.i + X.k*Y.real + X.real*Y.k);
 }'''

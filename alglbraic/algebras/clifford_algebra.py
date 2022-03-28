@@ -150,23 +150,23 @@ class CliffordAlgebra(Algebra):
         return self.algebraic_operation("conjugate", result, n=1, **kwargs)
 
     @GLSL(depends_on=[conjugation, lcontract])
-    def inverse(self, **kwargs):
+    def invert(self, **kwargs):
         # if len(self.Cl.blades[1]) <= 3:
         #     X = self.algebraic_arguments(1)
         #     involve = lambda x: (x.even() - x.odd()).rev()
         #     X_involution = involve(X)
         #     result = X_involution/(X|X_involution).scalar()
-        #     return self.algebraic_operation("inverse", result, n=1, **kwargs)
+        #     return self.algebraic_operation("invert", result, n=1, **kwargs)
         # else:
         X = self.n_ary_argnames()[0]
         if self.base_ring == 'float':
-            result = "mul(1.0/lcontract({x},conjugate({x})).scalar, conjugate({x}))".format(x=X)
+            result = "mul(1.0/lcontract({x},conjugate({x})).{scalar}, conjugate({x}))".format(x=X, scalar=self.unit)
         else:
-            result = "mul(inverse(lcontract({x},conjugate({x})).scalar), conjugate({x}))".format(x=X)
-        return self.algebraic_operation("inverse", result, n=1, **kwargs)
+            result = "mul(invert(lcontract({x},conjugate({x})).{scalar}), conjugate({x}))".format(x=X, scalar=self.unit)
+        return self.algebraic_operation("invert", result, n=1, **kwargs)
 
 
-    @GLSL(depends_on=[inverse])
+    @GLSL(depends_on=[invert])
     def div(self, **kwargs):
         # if len(self.Cl.blades[1]) <= 3:
         #     X, Y = self.algebraic_arguments(2)
@@ -174,7 +174,7 @@ class CliffordAlgebra(Algebra):
         #     return self.algebraic_operation("div", result, n=2, **kwargs)
         # else:
         p, q = self.n_ary_argnames(2)
-        result = "mul({}, inverse({}))".format(p, q)
+        result = "mul({}, invert({}))".format(p, q)
         return self.algebraic_operation("div", result)
 
     @GLSL(depends_on=[div, pseudoscalar])
@@ -199,6 +199,18 @@ class ComplexNumbers(CliffordAlgebra):
         opts.update(kwargs)
         CliffordAlgebra.__init__(self, **opts)
 
+class Quaternions(CliffordAlgebra):
+    def __init__(self, name="H", base_ring="float", unit="real", **kwargs):
+        basis_names = ["real", "i", "j", "k"]
+        opts = {
+            "name": name,
+            "quadratic_form": [-1, -1],
+            "basis_names": basis_names,
+            "unit": unit,
+            "base_ring": base_ring,
+        }
+        opts.update(kwargs)
+        CliffordAlgebra.__init__(self, **opts)
 
 class DualNumbers(CliffordAlgebra):
     def __init__(self, size=1, name="Dual", base_ring="float", unit="scalar", **kwargs):

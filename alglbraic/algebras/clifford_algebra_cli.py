@@ -1,6 +1,6 @@
 import click
 from alglbraic.util import with_outfile
-from .clifford_algebra import CliffordAlgebra, ComplexNumbers, DualNumbers
+from .clifford_algebra import CliffordAlgebra, ComplexNumbers, DualNumbers, Quaternions
 
 class IntListParamType(click.ParamType):
     name = "IntList"
@@ -68,5 +68,13 @@ def complex_numbers(ctx, **opts):
 def dual_numbers(ctx, **opts):
     opts = {k: v for (k, v) in opts.items() if v is not None}
     alg = ctx.obj["latest_struct"] = DualNumbers(**opts)
+    ctx.obj["results"][alg.type_name] = alg
+    return alg.bundle()
+
+@commands.command()
+@simple_cli_options
+def quaternions(ctx, **opts):
+    opts = {k: v for (k, v) in opts.items() if v is not None}
+    alg = ctx.obj["latest_struct"] = Quaternions(**opts)
     ctx.obj["results"][alg.type_name] = alg
     return alg.bundle()

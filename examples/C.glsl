@@ -1,13 +1,4 @@
-# -*- coding: utf-8 -*-
-# snapshottest: v1 - https://goo.gl/zC4yUc
-from __future__ import unicode_literals
-
-from snapshottest import Snapshot
-
-
-snapshots = Snapshot()
-
-snapshots['TestGlslBundler::test_compile_snippet_bundle 1'] = '''const int Idx_C_real = 0;
+const int Idx_C_real = 0;
 const int Idx_C_imag = 1;
 
 struct C {
@@ -118,4 +109,3 @@ C div(C X, C Y){
 C dual(C X){
     return div(X, I_C);
 }
-'''

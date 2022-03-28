@@ -37,6 +37,18 @@ class TestComplexNumbers(TestCase):
     def test_one(self):
         self.assert_match_snapshot(str(self.C.one(use_operators=True)))
 
+class TestQuaternions(TestCase):
+    def setUp(self):
+        from alglbraic.algebras.clifford_algebra import Quaternions
+
+        self.C = Quaternions()
+
+    def test_product(self):
+        self.assert_match_snapshot(str(self.C.algebraic_product(use_operators=True)))
+
+    def test_one(self):
+        self.assert_match_snapshot(str(self.C.one(use_operators=True)))
+
 
 class TestDualNumbers(TestCase):
     def setUp(self):
